@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test MP Lookup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏛️ MP Lookup Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Test MP Lookup Functionality</h2>
+        <div>
+            <input type="text" id="test-postcode" placeholder="Enter postcode (e.g., SW1A 1AA)" value="SW1A 1AA">
+            <button onclick="testMPLookup()">Test Lookup</button>
+        </div>
+        
+        <h3>Quick Test Postcodes:</h3>
+        <button onclick="testSpecificPostcode('SW1A 1AA')">SW1A 1AA (Westminster)</button>
+        <button onclick="testSpecificPostcode('M1 1AA')">M1 1AA (Manchester)</button>
+        <button onclick="testSpecificPostcode('B1 1AA')">B1 1AA (Birmingham)</button>
+        <button onclick="testSpecificPostcode('EH1 1AA')">EH1 1AA (Edinburgh)</button>
+        <button onclick="testSpecificPostcode('CF10 1AA')">CF10 1AA (Cardiff)</button>
+        <button onclick="testSpecificPostcode('BT1 1AA')">BT1 1AA (Belfast)</button>
+        
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>System Status</h2>
+        <div id="system-status"></div>
+    </div>
+
+    <!-- Load the MP lookup scripts -->
+    <script src="mp-lookup-fix.js"></script>
+    <script src="mp-lookup-integration.js"></script>
+
+    <script>
+        // Test function
+        function testMPLookup() {
+            const postcode = document.getElementById('test-postcode').value.trim();
+            if (!postcode) {
+                showResult('Please enter a postcode', 'error');
+                return;
+            }
+            testSpecificPostcode(postcode);
+        }
+
+        function testSpecificPostcode(postcode) {
+            console.log('Testing postcode:', postcode);
+            
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div class="test-result warning">🔍 Testing postcode: ' + postcode + '</div>';
+            
+            // Check if the MP lookup system is available
+            if (window.findMPFixed) {
+                const result = window.findMPFixed(postcode);
+                
+                if (result.found) {
+                    const mp = result.mp;
+                    resultsDiv.innerHTML += `
+                        <div class="test-result success">
+                            <h4>✅ MP Found!</h4>
+                            <p><strong>Name:</strong> ${mp.name}</p>
+                            <p><strong>Party:</strong> ${mp.party}</p>
+                            <p><strong>Constituency:</strong> ${mp.constituency}</p>
+                            <p><strong>Email:</strong> ${mp.email}</p>
+                            <p><strong>Phone:</strong> ${mp.phone}</p>
+                            ${mp.role ? `<p><strong>Role:</strong> ${mp.role}</p>` : ''}
+                            ${mp.twitter ? `<p><strong>Twitter:</strong> ${mp.twitter}</p>` : ''}
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML += `
+                        <div class="test-result error">
+                            <h4>❌ MP Not Found</h4>
+                            <p>${result.message}</p>
+                        </div>
+                    `;
+                }
+            } else {
+                resultsDiv.innerHTML += `
+                    <div class="test-result error">
+                        <h4>❌ MP Lookup System Not Available</h4>
+                        <p>The findMPFixed function is not loaded or available.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function showResult(message, type) {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = `<div class="test-result ${type}">${message}</div>`;
+        }
+
+        // Check system status on load
+        function checkSystemStatus() {
+            const statusDiv = document.getElementById('system-status');
+            let status = '';
+            
+            if (window.findMPFixed) {
+                status += '<div class="test-result success">✅ findMPFixed function loaded</div>';
+            } else {
+                status += '<div class="test-result error">❌ findMPFixed function not loaded</div>';
+            }
+            
+            if (window.postcodeToConstituency) {
+                const postcodeCount = Object.keys(window.postcodeToConstituency).length;
+                status += `<div class="test-result success">✅ Postcode database loaded (${postcodeCount} postcodes)</div>`;
+            } else {
+                status += '<div class="test-result error">❌ Postcode database not loaded</div>';
+            }
+            
+            if (window.constituencyToMP) {
+                const mpCount = Object.keys(window.constituencyToMP).length;
+                status += `<div class="test-result success">✅ MP database loaded (${mpCount} MPs)</div>`;
+            } else {
+                status += '<div class="test-result error">❌ MP database not loaded</div>';
+            }
+            
+            statusDiv.innerHTML = status;
+        }
+
+        // Run system check when page loads
+        window.addEventListener('load', function() {
+            setTimeout(checkSystemStatus, 1000); // Give scripts time to load
+        });
+    </script>
+</body>
+</html>

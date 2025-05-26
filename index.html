@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GovWhiz makes UK legislation and government policies easy to understand. Search, explore, and learn about laws that affect you.">
+    <meta name="keywords" content="UK legislation, government policy, laws, bills, parliament, democracy, civic engagement">
+    <meta name="author" content="GovWhiz">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://govwhiz.uk/">
+    <meta property="og:title" content="GovWhiz - UK Legislation Simplified">
+    <meta property="og:description" content="Making UK legislation and government policies understandable for everyone.">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://govwhiz.uk/">
+    <meta property="twitter:title" content="GovWhiz - UK Legislation Simplified">
+    <meta property="twitter:description" content="Making UK legislation and government policies understandable for everyone.">
+
+    <title>GovWhiz - UK Legislation Simplified</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1d3557">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="GovWhiz">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%231d3557'/><text x='96' y='120' font-size='120' text-anchor='middle' fill='white'>⚖️</text></svg>">
+
+    <!-- Main Script Only -->
+    <!-- Other scripts temporarily disabled to fix conflicts -->
+</head>
+<body>
+    <header>
+        <div class="floating-elements">
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+        </div>
+        <div class="container">
+            <nav class="main-nav">
+                <div class="nav-brand">
+                    <h1>🏛️ GovWhiz</h1>
+                    <p>Your gateway to UK democracy and legislation</p>
+                </div>
+
+                <div class="nav-actions">
+                    <div class="live-indicator">
+                        <div class="live-status">
+                            <div class="live-dot"></div>
+                            <span>Live</span>
+                        </div>
+                    </div>
+
+                    <div class="user-menu">
+                        <div id="user-status" class="user-status">
+                            <button id="login-btn" class="modern-login-btn" onclick="showLoginModal()">
+                                <span class="login-icon">👤</span>
+                                <span class="login-text">Sign In</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="nav-toggle" aria-label="Toggle navigation menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </nav>
+
+            <div class="nav-menu">
+                <div class="nav-section">
+                    <h3>🔍 Explore</h3>
+                    <ul>
+                        <li><a href="#bill-tracking">Bill Tracking</a></li>
+                        <li><a href="#ai-summaries">AI Summaries</a></li>
+                        <li><a href="#mp-contact">Contact Your MP</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>🎓 Learn</h3>
+                    <ul>
+                        <li><a href="#about-parliament">About Parliament</a></li>
+                        <li><a href="#how-to-vote">How to Vote</a></li>
+                        <li><a href="#your-rights">Your Rights</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>💬 Support</h3>
+                    <ul>
+                        <li><a href="#faqs">FAQs</a></li>
+                        <li><a href="#help-center">Help Center</a></li>
+                        <li><a href="#contact">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="search-section modern-card animate-1" role="search">
+            <h2>🔍 Explore UK Legislation & Policy</h2>
+            <p><strong>Your Gateway to Understanding Government</strong><br>
+            Search Acts of Parliament, Bills, and policies with clear explanations. Stay informed about legislation that affects your community and daily life.</p>
+            <form class="search-box" role="search" aria-label="Search UK legislation">
+                <label for="search-input" class="sr-only">Search for legislation, bills, or policies</label>
+                <input
+                    type="text"
+                    id="search-input"
+                    name="search"
+                    placeholder="Search for a bill, policy, or topic..."
+                    aria-describedby="search-help"
+                    autocomplete="off"
+                    spellcheck="false">
+                <button type="submit" id="search-button" aria-label="Search legislation">
+                    <span aria-hidden="true">🔍</span>
+                    Search
+                </button>
+            </form>
+            <div id="search-help" class="sr-only">
+                Enter keywords to search for UK legislation, bills, or government policies
+            </div>
+        </section>
+
+        <section class="results-section modern-card animate-2" id="results" role="main" aria-live="polite" aria-label="Search results">
+            <!-- Results will be displayed here -->
+        </section>
+
+        <!-- Live Parliamentary Activity Panel -->
+        <section class="live-activity-panel modern-card animate-3">
+            <div class="live-header">
+                <h3>🔴 Live Parliamentary Activity</h3>
+                <button class="toggle-live" onclick="toggleLivePanel(this)">Hide</button>
+            </div>
+            <div class="live-content" id="live-content">
+                <div class="live-feeds">
+                    <div class="feed-tabs">
+                        <button class="feed-tab active" onclick="switchFeed('parliament', this)">Parliament</button>
+                        <button class="feed-tab" onclick="switchFeed('bills', this)">Bills</button>
+                        <button class="feed-tab" onclick="switchFeed('debates', this)">Debates</button>
+                        <button class="feed-tab" onclick="switchFeed('news', this)">News</button>
+                    </div>
+                    <div class="feed-content" id="live-feed-content">
+                        <div class="live-update">
+                            <div class="update-time">2 minutes ago</div>
+                            <div class="update-content">
+                                <h4>📊 Economic Crime and Corporate Transparency Bill</h4>
+                                <p>Committee stage amendments being debated in Committee Room 14</p>
+                            </div>
+                        </div>
+                        <div class="live-update">
+                            <div class="update-time">5 minutes ago</div>
+                            <div class="update-content">
+                                <h4>🏛️ Prime Minister's Questions</h4>
+                                <p>PMQs session has begun in the House of Commons</p>
+                            </div>
+                        </div>
+                        <div class="live-update">
+                            <div class="update-time">12 minutes ago</div>
+                            <div class="update-content">
+                                <h4>📋 Online Safety Bill</h4>
+                                <p>Third reading scheduled for next Tuesday</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Features Sections -->
+    <section id="bill-tracking" class="feature-section">
+        <div class="container">
+            <h2>📊 Bill Tracking</h2>
+            <p class="section-intro">Stay updated on the progress of legislation that matters to you</p>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🔔 Real-time Updates</h3>
+                    <p>Get notifications when bills you're following reach new stages in Parliament</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📈 Progress Timeline</h3>
+                    <p>Visual timeline showing each stage from introduction to Royal Assent</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎯 Personalized Dashboard</h3>
+                    <p>Track multiple bills and see all updates in one convenient location</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="ai-summaries" class="feature-section">
+        <div class="container">
+            <h2>🤖 AI Summaries</h2>
+            <p class="section-intro">Complex legislation made simple with AI-powered explanations</p>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>📝 Plain English</h3>
+                    <p>Legal jargon translated into clear, understandable language</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚡ Key Points</h3>
+                    <p>Instant summaries highlighting what matters most to you</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎯 Impact Analysis</h3>
+                    <p>Understand how new laws will affect your daily life</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="mp-contact" class="feature-section">
+        <div class="container">
+            <h2>📞 MP Contact</h2>
+            <p class="section-intro">Connect with your representatives and make your voice heard</p>
+            <div class="mp-contact-tool">
+                <div class="postcode-lookup">
+                    <h3>Find Your MP</h3>
+                    <div class="lookup-form">
+                        <input type="text" id="postcode-input" placeholder="Enter your postcode (e.g., SW1A 1AA)" maxlength="8">
+                        <button id="find-mp-btn">Find My MP</button>
+                    </div>
+                    <div class="example-postcodes">
+                        <p><strong>Try these example postcodes:</strong></p>
+                        <div class="postcode-examples">
+                            <button class="postcode-example" onclick="tryPostcode('SW1A 1AA')">SW1A 1AA (Westminster)</button>
+                            <button class="postcode-example" onclick="tryPostcode('M1 1AA')">M1 1AA (Manchester)</button>
+                            <button class="postcode-example" onclick="tryPostcode('B1 1AA')">B1 1AA (Birmingham)</button>
+                            <button class="postcode-example" onclick="tryPostcode('EH1 1AA')">EH1 1AA (Edinburgh)</button>
+                            <button class="postcode-example" onclick="tryPostcode('CF10 1AA')">CF10 1AA (Cardiff)</button>
+                            <button class="postcode-example" onclick="tryPostcode('BT1 1AA')">BT1 1AA (Belfast)</button>
+                        </div>
+                    </div>
+                    <div id="mp-results" class="mp-results"></div>
+                </div>
+                <div class="contact-templates">
+                    <h3>Email Templates</h3>
+                    <div class="template-grid">
+                        <button class="template-btn" data-template="support">Support a Bill</button>
+                        <button class="template-btn" data-template="oppose">Oppose a Bill</button>
+                        <button class="template-btn" data-template="question">Ask a Question</button>
+                        <button class="template-btn" data-template="meeting">Request a Meeting</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Civic Education Sections -->
+    <section id="about-parliament" class="education-section">
+        <div class="container">
+            <h2>🏛️ About Parliament</h2>
+            <p class="section-intro">Understanding how the UK Parliament works</p>
+            <div class="parliament-info">
+                <div class="parliament-houses">
+                    <div class="house-card">
+                        <h3>🏛️ House of Commons</h3>
+                        <p><strong>650 MPs</strong> elected by the public</p>
+                        <p>Debates and votes on new laws, represents constituencies</p>
+                    </div>
+                    <div class="house-card">
+                        <h3>👑 House of Lords</h3>
+                        <p><strong>~800 Peers</strong> appointed or hereditary</p>
+                        <p>Reviews and revises legislation, provides expertise</p>
+                    </div>
+                </div>
+                <div class="legislative-process">
+                    <h3>📋 How a Bill Becomes Law</h3>
+                    <div class="process-steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h4>First Reading</h4>
+                                <p>Bill introduced to Parliament</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h4>Second Reading</h4>
+                                <p>General debate on principles</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h4>Committee Stage</h4>
+                                <p>Detailed examination and amendments</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">4</span>
+                            <div class="step-content">
+                                <h4>Report Stage</h4>
+                                <p>Further amendments considered</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">5</span>
+                            <div class="step-content">
+                                <h4>Third Reading</h4>
+                                <p>Final vote on the bill</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">6</span>
+                            <div class="step-content">
+                                <h4>Royal Assent</h4>
+                                <p>Bill becomes law</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-to-vote" class="education-section">
+        <div class="container">
+            <h2>🗳️ How to Vote</h2>
+            <p class="section-intro">Your guide to participating in UK democracy</p>
+            <div class="voting-guide">
+                <div class="voting-card">
+                    <h3>📝 Voter Registration</h3>
+                    <ul>
+                        <li>Must be 18+ on polling day</li>
+                        <li>British, Irish, or qualifying Commonwealth citizen</li>
+                        <li>Register online at gov.uk/register-to-vote</li>
+                        <li>Deadline: 12 working days before election</li>
+                    </ul>
+                    <button class="action-btn" onclick="window.open('https://www.gov.uk/register-to-vote', '_blank')">Register to Vote</button>
+                </div>
+                <div class="voting-card">
+                    <h3>🆔 What You Need</h3>
+                    <ul>
+                        <li>Photo ID (from May 2023)</li>
+                        <li>Passport, driving licence, or free voter ID</li>
+                        <li>Polling card (helpful but not required)</li>
+                        <li>Know your polling station location</li>
+                    </ul>
+                    <button class="action-btn" onclick="window.open('https://www.gov.uk/how-to-vote', '_blank')">Find Polling Station</button>
+                </div>
+                <div class="voting-card">
+                    <h3>📮 Postal/Proxy Voting</h3>
+                    <ul>
+                        <li>Apply for postal vote if you can't attend</li>
+                        <li>Proxy voting for specific circumstances</li>
+                        <li>Applications must be received by deadline</li>
+                        <li>Emergency proxy available in some cases</li>
+                    </ul>
+                    <button class="action-btn" onclick="window.open('https://www.gov.uk/voting-in-the-uk', '_blank')">Apply for Postal Vote</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="your-rights" class="education-section">
+        <div class="container">
+            <h2>⚖️ Your Rights</h2>
+            <p class="section-intro">Understanding your rights and freedoms in the UK</p>
+            <div class="rights-categories">
+                <div class="rights-card">
+                    <h3>🏠 Human Rights</h3>
+                    <ul>
+                        <li>Right to life and liberty</li>
+                        <li>Freedom of expression and assembly</li>
+                        <li>Right to privacy and family life</li>
+                        <li>Protection from discrimination</li>
+                    </ul>
+                </div>
+                <div class="rights-card">
+                    <h3>💼 Employment Rights</h3>
+                    <ul>
+                        <li>Minimum wage protection</li>
+                        <li>Safe working conditions</li>
+                        <li>Protection from unfair dismissal</li>
+                        <li>Right to join trade unions</li>
+                    </ul>
+                </div>
+                <div class="rights-card">
+                    <h3>🏥 Public Services</h3>
+                    <ul>
+                        <li>Free healthcare (NHS)</li>
+                        <li>Education for children</li>
+                        <li>Social security benefits</li>
+                        <li>Legal aid in certain cases</li>
+                    </ul>
+                </div>
+                <div class="rights-card">
+                    <h3>🛡️ Consumer Rights</h3>
+                    <ul>
+                        <li>Protection from unfair trading</li>
+                        <li>Right to refunds and repairs</li>
+                        <li>Data protection rights</li>
+                        <li>Financial services protection</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Sections -->
+    <section id="faqs" class="support-section">
+        <div class="container">
+            <h2>❓ Frequently Asked Questions</h2>
+            <p class="section-intro">Common questions about UK legislation and GovWhiz</p>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How often is legislation updated on GovWhiz?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We update our legislation database daily to ensure you have access to the most current information. Major bills and acts are updated within hours of any parliamentary activity.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Is GovWhiz affiliated with the UK Government?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>No, GovWhiz is an independent platform designed to make government information more accessible. We source our information from official government websites and parliamentary records.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How accurate are the AI summaries?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Our AI summaries are designed to provide clear, accessible explanations of complex legislation. While we strive for accuracy, we always recommend checking the original legislation for legal purposes.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Can I track multiple bills at once?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes! With a free account, you can track up to 10 bills simultaneously. Premium users can track unlimited bills and receive priority notifications.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I contact my MP through GovWhiz?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Use our MP Contact tool above - simply enter your postcode to find your MP's contact details. We also provide email templates to help you communicate effectively with your representatives.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="help-center" class="support-section">
+        <div class="container">
+            <h2>🆘 Help Center</h2>
+            <p class="section-intro">Get help using GovWhiz and understanding UK legislation</p>
+            <div class="help-grid">
+                <div class="help-card">
+                    <h3>📖 Getting Started</h3>
+                    <ul>
+                        <li><a href="#" onclick="showHelpModal('search')">How to search for legislation</a></li>
+                        <li><a href="#" onclick="showHelpModal('tracking')">Setting up bill tracking</a></li>
+                        <li><a href="#" onclick="showHelpModal('notifications')">Managing notifications</a></li>
+                    </ul>
+                </div>
+                <div class="help-card">
+                    <h3>🏛️ Understanding Parliament</h3>
+                    <ul>
+                        <li><a href="#" onclick="showHelpModal('process')">How bills become laws</a></li>
+                        <li><a href="#" onclick="showHelpModal('stages')">Parliamentary stages explained</a></li>
+                        <li><a href="#" onclick="showHelpModal('committees')">Committee system guide</a></li>
+                    </ul>
+                </div>
+                <div class="help-card">
+                    <h3>🗳️ Civic Engagement</h3>
+                    <ul>
+                        <li><a href="#" onclick="showHelpModal('voting')">Voter registration guide</a></li>
+                        <li><a href="#" onclick="showHelpModal('contact')">Contacting your MP</a></li>
+                        <li><a href="#" onclick="showHelpModal('petitions')">Creating petitions</a></li>
+                    </ul>
+                </div>
+                <div class="help-card">
+                    <h3>🔧 Technical Support</h3>
+                    <ul>
+                        <li><a href="#" onclick="showHelpModal('account')">Account management</a></li>
+                        <li><a href="#" onclick="showHelpModal('mobile')">Mobile app guide</a></li>
+                        <li><a href="#" onclick="showHelpModal('troubleshooting')">Troubleshooting</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="support-section">
+        <div class="container">
+            <h2>📞 Contact Us</h2>
+            <p class="section-intro">Get in touch with the GovWhiz team</p>
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <h3>📧 Email Support</h3>
+                    <p>For general inquiries and support</p>
+                    <a href="mailto:help@govwhiz.uk" class="contact-link">help@govwhiz.uk</a>
+                    <p class="response-time">Response time: 24-48 hours</p>
+                </div>
+                <div class="contact-card">
+                    <h3>📞 Phone Support</h3>
+                    <p>For urgent technical issues</p>
+                    <a href="tel:+44-20-7946-0958" class="contact-link">020 7946 0958</a>
+                    <p class="response-time">Mon-Fri, 9AM-5PM GMT</p>
+                </div>
+                <div class="contact-card">
+                    <h3>💬 Live Chat</h3>
+                    <p>Quick questions and guidance</p>
+                    <button class="contact-link" onclick="alert('Live chat would open here in a real app')">Start Chat</button>
+                    <p class="response-time">Available 24/7</p>
+                </div>
+                <div class="contact-card">
+                    <h3>🐛 Report Issues</h3>
+                    <p>Bug reports and feature requests</p>
+                    <a href="mailto:bugs@govwhiz.uk" class="contact-link">bugs@govwhiz.uk</a>
+                    <p class="response-time">Response time: 1-3 days</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="privacy" class="legal-section">
+        <div class="container">
+            <h2>🔒 Privacy Policy</h2>
+            <div class="legal-content">
+                <p><strong>Last updated:</strong> January 2025</p>
+
+                <h3>Information We Collect</h3>
+                <p>We collect information you provide directly to us, such as when you create an account, use our services, or contact us for support.</p>
+
+                <h3>How We Use Your Information</h3>
+                <ul>
+                    <li>To provide and maintain our services</li>
+                    <li>To send you notifications about legislation you're tracking</li>
+                    <li>To improve our services and user experience</li>
+                    <li>To comply with legal obligations</li>
+                </ul>
+
+                <h3>Information Sharing</h3>
+                <p>We do not sell, trade, or otherwise transfer your personal information to third parties without your consent, except as described in this policy.</p>
+
+                <h3>Data Security</h3>
+                <p>We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.</p>
+
+                <h3>Contact Us</h3>
+                <p>If you have questions about this Privacy Policy, please contact us at <a href="mailto:privacy@govwhiz.uk">privacy@govwhiz.uk</a></p>
+            </div>
+        </div>
+    </section>
+
+    <section id="terms" class="legal-section">
+        <div class="container">
+            <h2>📋 Terms of Service</h2>
+            <div class="legal-content">
+                <p><strong>Last updated:</strong> January 2025</p>
+
+                <h3>Acceptance of Terms</h3>
+                <p>By accessing and using GovWhiz, you accept and agree to be bound by the terms and provision of this agreement.</p>
+
+                <h3>Use License</h3>
+                <p>Permission is granted to temporarily access GovWhiz for personal, non-commercial transitory viewing only.</p>
+
+                <h3>Disclaimer</h3>
+                <p>The information on GovWhiz is provided on an 'as is' basis. To the fullest extent permitted by law, we exclude all representations, warranties, and conditions relating to our website and the use of this website.</p>
+
+                <h3>Limitations</h3>
+                <p>In no event shall GovWhiz or its suppliers be liable for any damages arising out of the use or inability to use the materials on GovWhiz's website.</p>
+
+                <h3>Governing Law</h3>
+                <p>These terms and conditions are governed by and construed in accordance with the laws of England and Wales.</p>
+
+                <h3>Contact Us</h3>
+                <p>If you have questions about these Terms of Service, please contact us at <a href="mailto:legal@govwhiz.uk">legal@govwhiz.uk</a></p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="#faqs">FAQs</a></li>
+                        <li><a href="#help-center">Help Center</a></li>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#contact">Contact Us</a></li>
+                        <li><a href="mailto:help@govwhiz.uk">help@govwhiz.uk</a></li>
+                        <li><a href="tel:+44-20-7946-0958">020 7946 0958</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                    <ul>
+                        <li><a href="#" aria-label="Twitter">🐦 Twitter</a></li>
+                        <li><a href="#" aria-label="Facebook">📘 Facebook</a></li>
+                        <li><a href="#" aria-label="LinkedIn">💼 LinkedIn</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GovWhiz - Simplifying UK Legislation</p>
+                <p>Not affiliated with the UK Government. Information for educational purposes.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Simple MP Lookup Script -->
+    <script src="simple-mp-lookup.js"></script>
+    <script src="script-fixed.js"></script>
+</body>
+</html>

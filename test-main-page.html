@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Main Page MP Lookup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .mp-contact-tool {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lookup-form {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        #postcode-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #find-mp-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .postcode-examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .postcode-example {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #mp-results {
+            min-height: 50px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .debug-info {
+            background-color: #e9ecef;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .mp-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .contact-info a {
+            display: inline-block;
+            margin: 5px 10px 5px 0;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏛️ Test MP Lookup (Main Page Style)</h1>
+    
+    <div class="mp-contact-tool">
+        <div class="postcode-lookup">
+            <h3>Find Your MP</h3>
+            <div class="lookup-form">
+                <input type="text" id="postcode-input" placeholder="Enter your postcode (e.g., SW1A 1AA)" maxlength="8" value="SW1A 1AA">
+                <button id="find-mp-btn">Find My MP</button>
+            </div>
+            <div class="example-postcodes">
+                <p><strong>Try these example postcodes:</strong></p>
+                <div class="postcode-examples">
+                    <button class="postcode-example" onclick="tryPostcode('SW1A 1AA')">SW1A 1AA (Westminster)</button>
+                    <button class="postcode-example" onclick="tryPostcode('M1 1AA')">M1 1AA (Manchester)</button>
+                    <button class="postcode-example" onclick="tryPostcode('B1 1AA')">B1 1AA (Birmingham)</button>
+                    <button class="postcode-example" onclick="tryPostcode('EH1 1AA')">EH1 1AA (Edinburgh)</button>
+                    <button class="postcode-example" onclick="tryPostcode('CF10 1AA')">CF10 1AA (Cardiff)</button>
+                    <button class="postcode-example" onclick="tryPostcode('BT1 1AA')">BT1 1AA (Belfast)</button>
+                </div>
+            </div>
+            <div id="mp-results" class="mp-results">Click "Find My MP" or try an example postcode above</div>
+        </div>
+    </div>
+
+    <div class="debug-info" id="debug-info">
+        Debug info will appear here...
+    </div>
+
+    <!-- Load the MP lookup scripts -->
+    <script src="mp-lookup-fix.js"></script>
+    <script src="mp-lookup-integration.js"></script>
+
+    <script>
+        // Debug logging
+        function debugLog(message) {
+            console.log(message);
+            const debugDiv = document.getElementById('debug-info');
+            debugDiv.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            debugLog('DOM loaded, initializing MP lookup...');
+            
+            // Get DOM elements
+            const postcodeInput = document.getElementById('postcode-input');
+            const findMpBtn = document.getElementById('find-mp-btn');
+            const mpResults = document.getElementById('mp-results');
+            
+            debugLog('Elements found: ' + 
+                'postcodeInput=' + (postcodeInput ? 'YES' : 'NO') + 
+                ', findMpBtn=' + (findMpBtn ? 'YES' : 'NO') + 
+                ', mpResults=' + (mpResults ? 'YES' : 'NO'));
+
+            // Check if MP lookup functions are available
+            setTimeout(() => {
+                debugLog('Checking MP lookup functions...');
+                debugLog('window.findMPFixed: ' + (typeof window.findMPFixed));
+                debugLog('window.postcodeToConstituency: ' + (typeof window.postcodeToConstituency));
+                debugLog('window.constituencyToMP: ' + (typeof window.constituencyToMP));
+                
+                if (window.postcodeToConstituency) {
+                    const postcodeCount = Object.keys(window.postcodeToConstituency).length;
+                    debugLog('Postcode database has ' + postcodeCount + ' entries');
+                }
+                
+                if (window.constituencyToMP) {
+                    const mpCount = Object.keys(window.constituencyToMP).length;
+                    debugLog('MP database has ' + mpCount + ' MPs');
+                }
+            }, 1000);
+
+            // MP Lookup functionality
+            function findMP(postcode) {
+                debugLog('findMP called with: ' + postcode);
+                
+                if (!mpResults) {
+                    debugLog('ERROR: MP results container not found');
+                    return;
+                }
+
+                mpResults.innerHTML = '<div style="color: #007bff;">🔍 Looking up your MP...</div>';
+
+                setTimeout(() => {
+                    debugLog('Processing MP lookup...');
+                    
+                    // Use the comprehensive MP lookup system if available
+                    if (window.findMPFixed) {
+                        debugLog('Using findMPFixed function');
+                        const result = window.findMPFixed(postcode);
+                        debugLog('findMPFixed result: ' + JSON.stringify(result));
+                        
+                        if (result.found) {
+                            const mp = result.mp;
+                            const roleDisplay = mp.role ? `<div style="color: #6c757d;">🏛️ ${mp.role}</div>` : '';
+                            const twitterDisplay = mp.twitter ? `<a href="https://twitter.com/${mp.twitter.substring(1)}" target="_blank" rel="noopener noreferrer">🐦 ${mp.twitter}</a>` : '';
+                            
+                            mpResults.innerHTML = `
+                                <div class="mp-card">
+                                    <div>
+                                        <h4>${mp.name}</h4>
+                                        ${roleDisplay}
+                                    </div>
+                                    <p><strong>${mp.party}</strong> - ${mp.constituency}</p>
+                                    <div class="contact-info">
+                                        <a href="mailto:${mp.email}">📧 Email</a>
+                                        <a href="tel:${mp.phone}">📞 Phone</a>
+                                        <a href="${mp.website}" target="_blank">🌐 Parliament</a>
+                                        ${twitterDisplay}
+                                    </div>
+                                    <p style="margin-top: 15px; font-size: 0.9rem; color: #6c757d;">
+                                        ✅ Found MP for ${postcode} (${result.constituency}). Contact details current as of January 2025.
+                                    </p>
+                                </div>
+                            `;
+                            
+                            debugLog('MP found successfully: ' + mp.name);
+                        } else {
+                            mpResults.innerHTML = `
+                                <div style="color: #dc3545;">
+                                    <h4>❌ MP Not Found</h4>
+                                    <p>${result.message}</p>
+                                    <div style="margin-top: 10px;">
+                                        <h5>Alternative Options:</h5>
+                                        <ul>
+                                            <li><a href="https://www.parliament.uk/get-involved/contact-your-mp/" target="_blank">Official Parliament MP Finder</a></li>
+                                            <li><a href="https://www.theyworkforyou.com/" target="_blank">TheyWorkForYou.com</a></li>
+                                            <li>Try a different postcode format (e.g., SW1A1AA or SW1A 1AA)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            debugLog('MP not found for postcode: ' + postcode);
+                        }
+                    } else {
+                        debugLog('findMPFixed function not available');
+                        mpResults.innerHTML = `
+                            <div style="color: #ffc107;">
+                                <h4>⚠️ MP Lookup System Loading</h4>
+                                <p>The comprehensive MP lookup system is still loading. Please try again in a moment.</p>
+                            </div>
+                        `;
+                    }
+                }, 500);
+            }
+
+            // Event listeners
+            if (findMpBtn && postcodeInput) {
+                findMpBtn.addEventListener('click', function() {
+                    const postcode = postcodeInput.value.trim().toUpperCase();
+                    debugLog('Find MP button clicked, postcode: ' + postcode);
+                    if (postcode) {
+                        findMP(postcode);
+                    } else {
+                        alert('Please enter a valid postcode');
+                    }
+                });
+
+                postcodeInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const postcode = postcodeInput.value.trim().toUpperCase();
+                        debugLog('Enter key pressed, postcode: ' + postcode);
+                        if (postcode) {
+                            findMP(postcode);
+                        }
+                    }
+                });
+            }
+
+            // Global function for example postcode buttons
+            window.tryPostcode = function(postcode) {
+                debugLog('tryPostcode called with: ' + postcode);
+                if (postcodeInput) {
+                    postcodeInput.value = postcode;
+                    findMP(postcode);
+                } else {
+                    debugLog('ERROR: Postcode input not found');
+                }
+            };
+
+            debugLog('MP lookup initialization complete');
+        });
+    </script>
+</body>
+</html>

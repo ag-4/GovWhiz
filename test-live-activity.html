@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Activity Test - GovWhiz</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-controls">
+                <div class="live-indicator">
+                    <div class="live-status">
+                        <div class="live-dot"></div>
+                        <span>Live</span>
+                    </div>
+                </div>
+            </div>
+            <nav class="main-nav">
+                <div class="nav-brand">
+                    <h1>GovWhiz - Live Activity Test</h1>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="search-section">
+            <h2>Live Parliamentary Activity Test</h2>
+            <p>This page tests the Live Parliamentary Activity feature.</p>
+        </section>
+
+        <section class="results-section" id="results">
+            <div class="test-controls">
+                <button onclick="testLiveSystem()" class="test-btn">🧪 Test Live System</button>
+                <button onclick="testDataGeneration()" class="test-btn">📊 Test Data Generation</button>
+                <button onclick="testErrorHandling()" class="test-btn">⚠️ Test Error Handling</button>
+            </div>
+            <div id="test-results"></div>
+        </section>
+    </main>
+
+    <!-- Mock legislation data for testing -->
+    <script>
+        window.mockLegislation = {
+            "Online Safety Bill": {
+                summary: "Test bill for online safety",
+                category: "Technology",
+                status: "in-progress"
+            },
+            "Climate Action Bill": {
+                summary: "Test bill for climate action",
+                category: "Environment",
+                status: "in-progress"
+            }
+        };
+
+        function testLiveSystem() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<h3>Testing Live System...</h3>';
+            
+            if (window.realTimeSystem) {
+                results.innerHTML += '<p>✅ Real-time system loaded</p>';
+                
+                // Test data generation
+                const bill = window.realTimeSystem.getRandomBill();
+                const mp = window.realTimeSystem.getRandomMP();
+                const topic = window.realTimeSystem.getRandomTopic();
+                
+                results.innerHTML += `<p>✅ Random bill: ${bill}</p>`;
+                results.innerHTML += `<p>✅ Random MP: ${mp}</p>`;
+                results.innerHTML += `<p>✅ Random topic: ${topic}</p>`;
+                
+                // Test live indicator
+                const indicator = document.querySelector('.live-indicator');
+                if (indicator) {
+                    results.innerHTML += '<p>✅ Live indicator found</p>';
+                } else {
+                    results.innerHTML += '<p>❌ Live indicator not found</p>';
+                }
+                
+            } else {
+                results.innerHTML += '<p>❌ Real-time system not loaded</p>';
+            }
+        }
+
+        function testDataGeneration() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<h3>Testing Data Generation...</h3>';
+            
+            if (window.realTimeSystem) {
+                // Generate multiple updates
+                for (let i = 0; i < 5; i++) {
+                    const bill = window.realTimeSystem.getRandomBill();
+                    const stage = window.realTimeSystem.getRandomStage();
+                    const mp = window.realTimeSystem.getRandomMP();
+                    const role = window.realTimeSystem.getRandomRole();
+                    
+                    results.innerHTML += `<div class="test-update">
+                        <strong>Update ${i + 1}:</strong> ${bill} moved to ${stage}, ${mp} appointed as ${role}
+                    </div>`;
+                }
+            } else {
+                results.innerHTML += '<p>❌ Real-time system not available</p>';
+            }
+        }
+
+        function testErrorHandling() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<h3>Testing Error Handling...</h3>';
+            
+            if (window.realTimeSystem) {
+                // Test error display
+                window.realTimeSystem.showErrorInLivePanel('Test error message');
+                results.innerHTML += '<p>✅ Error handling test completed - check live panel</p>';
+            } else {
+                results.innerHTML += '<p>❌ Real-time system not available</p>';
+            }
+        }
+    </script>
+
+    <style>
+        .test-controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .test-btn {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .test-btn:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        #test-results {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .test-update {
+            padding: 10px;
+            margin: 5px 0;
+            background: var(--accent-color);
+            border-radius: 5px;
+            border-left: 4px solid var(--secondary-color);
+        }
+    </style>
+
+    <script src="real-time-system.js"></script>
+</body>
+</html>

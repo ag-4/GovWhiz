@@ -1,0 +1,175 @@
+{
+  "updateSystem": {
+    "enabled": true,
+    "version": "1.0.0",
+    "lastConfigUpdate": "2025-01-29",
+    "environment": "production"
+  },
+  "schedule": {
+    "automaticUpdates": true,
+    "updateInterval": 86400000,
+    "updateTime": "00:00",
+    "timezone": "Europe/London",
+    "retryAttempts": 3,
+    "retryDelay": 300000
+  },
+  "dataSources": {
+    "parliament": {
+      "enabled": true,
+      "baseUrl": "https://bills.parliament.uk/api/v1",
+      "endpoints": {
+        "bills": "/Bills",
+        "members": "/Members",
+        "committees": "/Committees"
+      },
+      "rateLimit": 100,
+      "timeout": 30000
+    },
+    "members": {
+      "enabled": true,
+      "baseUrl": "https://members-api.parliament.uk/api",
+      "endpoints": {
+        "search": "/Members/Search",
+        "constituencies": "/Constituencies"
+      },
+      "rateLimit": 50,
+      "timeout": 20000
+    },
+    "hansard": {
+      "enabled": true,
+      "baseUrl": "https://hansard-api.parliament.uk",
+      "endpoints": {
+        "debates": "/search/debates",
+        "statements": "/search/statements"
+      },
+      "rateLimit": 30,
+      "timeout": 25000
+    },
+    "govuk": {
+      "enabled": true,
+      "baseUrl": "https://www.gov.uk/api",
+      "endpoints": {
+        "content": "/content",
+        "search": "/search.json"
+      },
+      "rateLimit": 200,
+      "timeout": 15000
+    }
+  },
+  "features": {
+    "billTracking": {
+      "enabled": true,
+      "maxTrackedBills": 50,
+      "notificationTypes": ["email", "push", "in-app"]
+    },
+    "mpUpdates": {
+      "enabled": true,
+      "trackAppointments": true,
+      "trackConstituencyChanges": true
+    },
+    "newsAggregation": {
+      "enabled": true,
+      "maxNewsItems": 20,
+      "categories": ["legislation", "parliament", "government", "committees"]
+    },
+    "statisticsTracking": {
+      "enabled": true,
+      "metrics": ["totalBills", "activeBills", "enactedBills", "committeeMeetings"]
+    }
+  },
+  "notifications": {
+    "enabled": true,
+    "channels": {
+      "inApp": {
+        "enabled": true,
+        "position": "top-right",
+        "duration": 5000
+      },
+      "email": {
+        "enabled": false,
+        "smtpServer": "",
+        "fromAddress": "updates@govwhiz.uk"
+      },
+      "push": {
+        "enabled": false,
+        "serviceWorker": "/sw.js"
+      }
+    },
+    "types": {
+      "updateComplete": true,
+      "updateFailed": true,
+      "newLegislation": true,
+      "billProgress": true,
+      "mpChanges": true
+    }
+  },
+  "storage": {
+    "method": "localStorage",
+    "prefix": "govwhiz_",
+    "compression": false,
+    "encryption": false,
+    "maxAge": 604800000,
+    "cleanupInterval": 86400000
+  },
+  "performance": {
+    "batchSize": 10,
+    "concurrentRequests": 3,
+    "cacheEnabled": true,
+    "cacheDuration": 3600000,
+    "compressionEnabled": true
+  },
+  "logging": {
+    "enabled": true,
+    "level": "info",
+    "console": true,
+    "storage": true,
+    "maxLogEntries": 1000,
+    "categories": ["update", "error", "performance", "user"]
+  },
+  "fallback": {
+    "enabled": true,
+    "staticData": true,
+    "offlineMode": true,
+    "gracefulDegradation": true
+  },
+  "security": {
+    "validateSources": true,
+    "sanitizeData": true,
+    "rateLimiting": true,
+    "corsEnabled": true,
+    "httpsOnly": true
+  },
+  "ui": {
+    "showUpdateStatus": true,
+    "showLastUpdateTime": true,
+    "showDataFreshness": true,
+    "showManualUpdateButton": true,
+    "animationsEnabled": true,
+    "theme": "auto"
+  },
+  "experimental": {
+    "aiSummaries": {
+      "enabled": false,
+      "provider": "openai",
+      "model": "gpt-4",
+      "maxTokens": 500
+    },
+    "predictiveUpdates": {
+      "enabled": false,
+      "algorithm": "ml-based",
+      "confidence": 0.8
+    },
+    "realTimeUpdates": {
+      "enabled": false,
+      "websocket": "wss://api.parliament.uk/ws",
+      "fallbackPolling": true
+    }
+  },
+  "metadata": {
+    "configVersion": "1.0",
+    "compatibleVersions": ["1.0.x"],
+    "lastModified": "2025-01-29T00:00:00Z",
+    "author": "GovWhiz Development Team",
+    "description": "Configuration for GovWhiz AI-powered auto-update system"
+  }
+}

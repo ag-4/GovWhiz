@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test MP Lookup Simple</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #0056b3; }
+        input {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        #mp-results {
+            min-height: 100px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .mp-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .contact-info a {
+            display: inline-block;
+            margin: 5px 10px 5px 0;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 MP Lookup Test (Simple Version)</h1>
+    
+    <div class="test-container">
+        <h2>System Status</h2>
+        <div id="system-status">Checking...</div>
+    </div>
+
+    <div class="test-container">
+        <h2>Test MP Lookup</h2>
+        <div>
+            <input type="text" id="postcode-input" placeholder="Enter postcode (e.g., SW1A 1AA)" value="SW1A 1AA">
+            <button id="find-mp-btn">Find My MP</button>
+        </div>
+        
+        <h3>Quick Tests:</h3>
+        <button onclick="testPostcode('SW1A 1AA')">SW1A 1AA</button>
+        <button onclick="testPostcode('M1 1AA')">M1 1AA</button>
+        <button onclick="testPostcode('B1 1AA')">B1 1AA</button>
+        <button onclick="testPostcode('EH1 1AA')">EH1 1AA</button>
+        <button onclick="testPostcode('CF10 1AA')">CF10 1AA</button>
+        <button onclick="testPostcode('BT1 1AA')">BT1 1AA</button>
+        <button onclick="testPostcode('INVALID')">Invalid Postcode</button>
+        
+        <div id="mp-results">Results will appear here...</div>
+    </div>
+
+    <div class="test-container">
+        <h2>Console Logs</h2>
+        <div id="console-logs"></div>
+    </div>
+
+    <!-- Load the MP lookup script -->
+    <script src="mp-lookup-simple.js"></script>
+    
+    <script>
+        // Override console.log to capture logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addLogToPage(message, type = 'info') {
+            const logsDiv = document.getElementById('console-logs');
+            const logEntry = document.createElement('div');
+            logEntry.className = `status ${type}`;
+            logEntry.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addLogToPage(args.join(' '), 'info');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addLogToPage(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addLogToPage(args.join(' '), 'warning');
+        };
+
+        // Check system status
+        function checkSystemStatus() {
+            const statusDiv = document.getElementById('system-status');
+            let status = '';
+            
+            // Check if scripts loaded
+            if (typeof window.findMP === 'function') {
+                status += '<div class="status success">✅ findMP function loaded</div>';
+            } else {
+                status += '<div class="status error">❌ findMP function not loaded</div>';
+            }
+            
+            if (window.MP_DATABASE) {
+                const count = Object.keys(window.MP_DATABASE).length;
+                status += `<div class="status success">✅ MP database loaded (${count} entries)</div>`;
+                
+                // Show first few postcodes
+                const samples = Object.keys(window.MP_DATABASE).slice(0, 5);
+                status += `<div class="status info">📍 Sample postcodes: ${samples.join(', ')}</div>`;
+            } else {
+                status += '<div class="status error">❌ MP database not loaded</div>';
+            }
+            
+            statusDiv.innerHTML = status;
+        }
+
+        // Test function
+        function testPostcode(postcode) {
+            console.log('Testing postcode:', postcode);
+            
+            const resultsDiv = document.getElementById('mp-results');
+            resultsDiv.innerHTML = '<div class="status info">🔍 Testing postcode: ' + postcode + '</div>';
+            
+            if (window.findMP) {
+                try {
+                    window.findMP(postcode);
+                    console.log('findMP called successfully');
+                } catch (error) {
+                    console.error('Error calling findMP:', error);
+                    resultsDiv.innerHTML = `
+                        <div class="status error">
+                            <h4>❌ Error</h4>
+                            <p>Error calling findMP: ${error.message}</p>
+                        </div>
+                    `;
+                }
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="status error">
+                        <h4>❌ Function Not Available</h4>
+                        <p>findMP function is not loaded</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Set up event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, setting up event listeners');
+            
+            const findBtn = document.getElementById('find-mp-btn');
+            const postcodeInput = document.getElementById('postcode-input');
+            
+            if (findBtn) {
+                findBtn.addEventListener('click', function() {
+                    const postcode = postcodeInput.value.trim();
+                    if (postcode) {
+                        testPostcode(postcode);
+                    } else {
+                        alert('Please enter a postcode');
+                    }
+                });
+            }
+            
+            if (postcodeInput) {
+                postcodeInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const postcode = postcodeInput.value.trim();
+                        if (postcode) {
+                            testPostcode(postcode);
+                        }
+                    }
+                });
+            }
+            
+            // Check status after a delay to allow scripts to load
+            setTimeout(checkSystemStatus, 1000);
+        });
+
+        // Global function for buttons
+        window.testPostcode = testPostcode;
+    </script>
+</body>
+</html>

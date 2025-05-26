@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick MP Lookup Test</title>
+</head>
+<body>
+    <h1>Quick MP Lookup Test</h1>
+    <div id="results"></div>
+    
+    <script src="mp-lookup-fix.js"></script>
+    <script>
+        console.log('Testing MP lookup...');
+        
+        // Wait a moment for scripts to load
+        setTimeout(() => {
+            console.log('findMPFixed available:', typeof window.findMPFixed);
+            console.log('postcodeToConstituency available:', typeof window.postcodeToConstituency);
+            console.log('constituencyToMP available:', typeof window.constituencyToMP);
+            
+            if (window.findMPFixed) {
+                // Test with SW1A 1AA
+                const result = window.findMPFixed('SW1A 1AA');
+                console.log('Test result for SW1A 1AA:', result);
+                
+                document.getElementById('results').innerHTML = `
+                    <h2>Test Results:</h2>
+                    <p><strong>Function available:</strong> ${typeof window.findMPFixed}</p>
+                    <p><strong>Test postcode:</strong> SW1A 1AA</p>
+                    <p><strong>Result:</strong> ${JSON.stringify(result, null, 2)}</p>
+                `;
+            } else {
+                document.getElementById('results').innerHTML = `
+                    <h2>Error:</h2>
+                    <p>findMPFixed function not available</p>
+                `;
+            }
+        }, 500);
+    </script>
+</body>
+</html>
