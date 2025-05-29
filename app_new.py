@@ -12,14 +12,14 @@ def home():
     """Serve the main GovWhiz page"""
     return render_template("index.html")
 
-@app.route("/api/mp")
-def mp_lookup():
-    """MP lookup API endpoint"""
-    postcode = request.args.get("postcode")
-    use_mock = request.args.get("mock", "false").lower() == "true"
+@app.route("/api/find_mp", methods=["POST"])
+def find_mp():
+    """Enhanced MP lookup API endpoint"""
+    data = request.get_json()
+    postcode = data.get("postcode") if data else None
     
     if not postcode:
-        return jsonify({"error": "Missing postcode parameter"}), 400
+        return jsonify({"error": "Missing postcode", "found": False}), 400
 
     try:
         # Use the unified MP service
@@ -27,8 +27,26 @@ def mp_lookup():
         return jsonify(info)
     except Exception as e:
         return jsonify({
-            "error": f"Server error: {str(e)}",
-            "found": False
+            "error": "An error occurred while looking up your MP",
+            "found": False,
+            "details": str(e)
+        }), 500
+
+@app.route("/api/constituencies")
+def get_constituencies():
+    """Get list of constituencies, optionally filtered by search query"""
+    query = request.args.get("q", "").strip()
+    
+    try:
+        if query:
+            constituencies = mp_service.search_constituencies(query)
+        else:
+            constituencies = mp_service.get_all_constituencies()
+        return jsonify({"constituencies": constituencies})
+    except Exception as e:
+        return jsonify({
+            "error": "An error occurred while fetching constituencies",
+            "details": str(e)
         }), 500
 
 @app.route("/api/health")

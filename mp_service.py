@@ -1,116 +1,130 @@
 """
-Unified MP lookup service that combines functionality from all previous MP lookup implementations.
+Enhanced MP lookup service with comprehensive UK coverage using local data.
 """
 import os
 import json
 import requests
+import re
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Tuple
 
 class MPLookupService:
-    def __init__(self, api_key: str = None, cache_file: str = "data/mp_cache.json"):
-        self.api_key = api_key or os.getenv('THEYWORKFORYOU_API_KEY')
-        self.cache_file = cache_file
-        self.cache = self._load_cache()
-        self.base_url = "https://www.theyworkforyou.com/api"
+    def __init__(self):
+        self.mps_file = "data/cleaned_mps.json"
+        self.constituencies_file = "data/constituency_lookup.json"
+        self.postcode_cache_file = "data/constituency_cache.json"
+        
+        # Load data files
+        self.mps_data = self._load_json(self.mps_file)
+        self.constituency_data = self._load_json(self.constituencies_file)
+        self.postcode_cache = self._load_json(self.postcode_cache_file)
+        if self.postcode_cache is None:
+            self.postcode_cache = {}
 
-    def _load_cache(self) -> Dict:
-        """Load MP data from cache file"""
+    def _load_json(self, file_path: str) -> Dict:
+        """Load JSON data from file"""
         try:
-            with open(self.cache_file, 'r') as f:
+            with open(file_path, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
             return {}
 
-    def _save_cache(self):
-        """Save MP data to cache file"""
-        os.makedirs(os.path.dirname(self.cache_file), exist_ok=True)
-        with open(self.cache_file, 'w') as f:
-            json.dump(self.cache, f, indent=2)
+    def _save_postcode_cache(self):
+        """Save postcode to constituency mapping cache"""
+        os.makedirs(os.path.dirname(self.postcode_cache_file), exist_ok=True)
+        with open(self.postcode_cache_file, 'w', encoding='utf-8') as f:
+            json.dump(self.postcode_cache, f, indent=2)
 
-    def lookup_mp(self, postcode: str) -> Dict:
-        """
-        Look up MP by postcode, using cache if available
-        """
-        # Clean and format postcode
-        postcode = postcode.strip().upper()
+    def _validate_postcode(self, postcode: str) -> bool:
+        """Validate UK postcode format"""
+        # UK postcode regex pattern
+        pattern = r'^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$'
+        return bool(re.match(pattern, postcode.upper().strip()))
+
+    def _get_constituency_from_postcode(self, postcode: str) -> Optional[str]:
+        """Get constituency name from postcode using the ONS Postcodes API"""
+        postcode = postcode.upper().strip().replace(" ", "")
         
         # Check cache first
-        if postcode in self.cache:
-            cached_data = self.cache[postcode]
-            # Return cached data if it's less than 24 hours old
-            cache_time = datetime.fromisoformat(cached_data['timestamp'])
-            if (datetime.now() - cache_time).days < 1:
-                return cached_data
+        if postcode in self.postcode_cache:
+            return self.postcode_cache[postcode]["constituency"]
 
-        # If no API key, return mock data
-        if not self.api_key or self.api_key == "your_api_key_here":
-            return self._get_mock_data(postcode)
-
-        # Make API request
         try:
-            params = {
-                "postcode": postcode,
-                "key": self.api_key,
-                "output": "json"
-            }
-            response = requests.get(f"{self.base_url}/getMP", params=params, timeout=10)
+            # Use the ONS Postcodes API (free, no key required)
+            url = f"https://api.postcodes.io/postcodes/{postcode}"
+            response = requests.get(url, timeout=5)
             response.raise_for_status()
             data = response.json()
 
-            if "error" in data:
-                return {
-                    "found": False,
-                    "error": data["error"],
-                    "postcode": postcode
+            if data["status"] == 200 and "result" in data:
+                constituency = data["result"]["parliamentary_constituency"]
+                
+                # Cache the result
+                self.postcode_cache[postcode] = {
+                    "constituency": constituency,
+                    "timestamp": datetime.now().isoformat()
                 }
+                self._save_postcode_cache()
+                
+                return constituency
 
-            # Format and cache the response
-            mp_info = {
-                "found": True,
-                "name": data.get("name", "Unknown"),
-                "party": data.get("party", "Unknown"),
-                "constituency": data.get("constituency", "Unknown"),
-                "email": data.get("email", ""),
-                "website": data.get("url", ""),
-                "phone": data.get("phone", ""),
-                "postcode": postcode,
-                "timestamp": datetime.now().isoformat()
+        except (requests.RequestException, KeyError, json.JSONDecodeError):
+            pass
+
+        return None
+
+    def lookup_mp(self, postcode: str) -> Dict:
+        """Look up MP by postcode using local data and ONS Postcodes API"""
+        # Clean and validate postcode
+        postcode = postcode.strip().upper()
+        if not self._validate_postcode(postcode):
+            return {
+                "found": False,
+                "error": "Invalid postcode format",
+                "postcode": postcode
             }
 
-            # Update cache
-            self.cache[postcode] = mp_info
-            self._save_cache()
+        # Get constituency from postcode
+        constituency = self._get_constituency_from_postcode(postcode)
+        if not constituency:
+            return {
+                "found": False,
+                "error": "Could not find constituency for this postcode",
+                "postcode": postcode
+            }
 
-            return mp_info
-
-        except requests.RequestException as e:
-            # Fallback to mock data on error
-            return self._get_mock_data(postcode)
-
-    def _get_mock_data(self, postcode: str) -> Dict:
-        """Return mock MP data for testing or when API is unavailable"""
-        mock_mps = {
-            'SW1A 1AA': {
-                "found": True,
-                "name": "Rt Hon Rishi Sunak MP",
-                "party": "Conservative",
-                "constituency": "Richmond (Yorks)",
-                "email": "rishi.sunak.mp@parliament.uk",
-                "website": "https://members.parliament.uk/member/4212/contact",
-                "phone": "020 7219 5000",
+        # Look up MP data from our local constituency data
+        constituency_info = self.constituency_data.get("constituencies", {}).get(constituency)
+        if not constituency_info:
+            return {
+                "found": False,
+                "error": "No MP information available for this constituency",
                 "postcode": postcode,
-                "mock": True,
-                "timestamp": datetime.now().isoformat()
-            },
-            # Add more mock data as needed
-        }
-        return mock_mps.get(postcode, {
-            "found": False,
-            "error": "MP data temporarily unavailable. Please try again later.",
+                "constituency": constituency
+            }
+
+        # Return formatted MP info
+        return {
+            "found": True,
+            "name": constituency_info["name"],
+            "party": constituency_info["party"],
+            "constituency": constituency,
+            "email": constituency_info["email"],
+            "phone": constituency_info["phone"],
+            "profile_url": constituency_info["profile_url"],
             "postcode": postcode,
-            "mock": True
-        })
+            "timestamp": datetime.now().isoformat()
+        }
+
+    def get_all_constituencies(self) -> List[str]:
+        """Get a list of all constituencies"""
+        return list(self.constituency_data.get("constituencies", {}).keys())
+
+    def search_constituencies(self, query: str) -> List[str]:
+        """Search constituencies by name"""
+        query = query.lower()
+        all_constituencies = self.get_all_constituencies()
+        return [c for c in all_constituencies if query in c.lower()]
 
 # Create a singleton instance
 mp_service = MPLookupService()

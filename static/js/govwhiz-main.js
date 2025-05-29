@@ -41,6 +41,7 @@ const GovWhiz = {
         // MP Lookup functionality
         const findMpBtn = document.getElementById('find-mp-btn');
         const postcodeInput = document.getElementById('postcode-input');
+        const exampleButtons = document.querySelectorAll('.postcode-example');
 
         if (findMpBtn) {
             findMpBtn.addEventListener('click', () => this.findMP());
@@ -50,7 +51,25 @@ const GovWhiz = {
             postcodeInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') this.findMP();
             });
+            
+            // Add real-time validation
+            postcodeInput.addEventListener('input', (e) => {
+                const postcode = e.target.value.toUpperCase();
+                const isValid = this.validatePostcode(postcode);
+                e.target.classList.toggle('border-red-500', !isValid);
+                e.target.classList.toggle('border-gray-700', isValid);
+            });
         }
+
+        // Example postcode buttons
+        exampleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (postcodeInput) {
+                    postcodeInput.value = button.textContent;
+                    this.findMP();
+                }
+            });
+        });
 
         // Contact form
         const contactForm = document.getElementById('contact-form');
@@ -63,17 +82,26 @@ const GovWhiz = {
     setupMobileMenu() {
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
+        const lines = ['line1', 'line2', 'line3'].map(id => document.getElementById(id));
 
         if (mobileMenuButton && mobileMenu) {
             mobileMenuButton.addEventListener('click', () => {
-                const isOpen = mobileMenu.style.maxHeight && mobileMenu.style.maxHeight !== '0px';
+                const isOpen = mobileMenu.classList.contains('open');
 
                 if (isOpen) {
                     mobileMenu.style.maxHeight = '0px';
                     mobileMenu.style.opacity = '0';
+                    mobileMenu.classList.remove('open');
+                    lines[0].style.transform = '';
+                    lines[1].style.opacity = '1';
+                    lines[2].style.transform = '';
                 } else {
                     mobileMenu.style.maxHeight = '300px';
                     mobileMenu.style.opacity = '1';
+                    mobileMenu.classList.add('open');
+                    lines[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                    lines[1].style.opacity = '0';
+                    lines[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
                 }
             });
         }
@@ -93,6 +121,119 @@ const GovWhiz = {
                 }
             });
         });
+    },
+
+    // Validate UK postcode format
+    validatePostcode(postcode) {
+        const pattern = /^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i;
+        return pattern.test(postcode.trim());
+    },
+
+    // Find MP by postcode
+    async findMP() {
+        const postcodeInput = document.getElementById('postcode-input');
+        const resultsDiv = document.getElementById('mp-results');
+        
+        if (!postcodeInput || !resultsDiv) return;
+
+        const postcode = postcodeInput.value.trim();
+        
+        // Validate postcode
+        if (!this.validatePostcode(postcode)) {
+            resultsDiv.innerHTML = `
+                <div class="text-red-400 text-center">
+                    <svg class="w-6 h-6 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Please enter a valid UK postcode
+                </div>`;
+            return;
+        }
+
+        // Show loading state
+        resultsDiv.innerHTML = `
+            <div class="flex items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
+                <span class="ml-3 text-gray-400">Looking up your MP...</span>
+            </div>`;
+
+        try {
+            const response = await fetch('/api/find_mp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ postcode })
+            });
+
+            const data = await response.json();
+
+            if (data.found) {
+                // Format the party color
+                const partyColors = {
+                    'Conservative': 'text-blue-400',
+                    'Labour': 'text-red-400',
+                    'Liberal Democrat': 'text-yellow-400',
+                    'Scottish National Party': 'text-yellow-400',
+                    'Green': 'text-green-400',
+                    'Independent': 'text-gray-400'
+                };
+                const partyColor = partyColors[data.party] || 'text-gray-400';
+
+                resultsDiv.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-white">${data.name}</h3>
+                                <p class="text-sm ${partyColor}">${data.party}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-400">${data.constituency}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            ${data.email ? `
+                            <a href="mailto:${data.email}" class="px-3 py-2 bg-purple-600/30 hover:bg-purple-600/50 rounded-md text-sm transition-colors flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                Email
+                            </a>
+                            ` : ''}
+                            ${data.phone ? `
+                            <a href="tel:${data.phone}" class="px-3 py-2 bg-cyan-600/30 hover:bg-cyan-600/50 rounded-md text-sm transition-colors flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                </svg>
+                                Call
+                            </a>
+                            ` : ''}
+                        </div>
+                        ${data.profile_url ? `
+                        <a href="${data.profile_url}" target="_blank" rel="noopener noreferrer" class="mt-4 block px-4 py-2 bg-indigo-600/30 hover:bg-indigo-600/50 rounded-md text-sm transition-colors text-center">
+                            View Full Profile
+                        </a>
+                        ` : ''}
+                    </div>`;
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="text-red-400 text-center">
+                        <svg class="w-6 h-6 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        ${data.error || 'Could not find MP information for this postcode'}
+                    </div>`;
+            }
+        } catch (error) {
+            console.error('Error looking up MP:', error);
+            resultsDiv.innerHTML = `
+                <div class="text-red-400 text-center">
+                    <svg class="w-6 h-6 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Sorry, there was an error looking up your MP. Please try again later.
+                </div>`;
+        }
     },
 
     // Comprehensive Legislation Database
@@ -364,354 +505,218 @@ const GovWhiz = {
         'SO14': { name: 'Royston Smith MP', party: 'Conservative', constituency: 'Southampton Itchen', email: 'royston.smith.mp@parliament.uk', phone: '020 7219 4000', website: 'https://www.parliament.uk/biographies/commons/royston-smith/4520' }
     },
 
-    // MP Lookup functionality
-    findMP() {
-        const postcodeInput = document.getElementById('postcode-input');
-        const mpResults = document.getElementById('mp-results');
+    // Validate UK postcode format
+    validatePostcode(postcode) {
+        const pattern = /^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i;
+        return pattern.test(postcode.trim());
+    },
 
-        if (!postcodeInput || !mpResults) return;
+    // Find MP by postcode
+    async findMP() {
+        const postcodeInput = document.getElementById('postcode-input');
+        const resultsDiv = document.getElementById('mp-results');
+        
+        if (!postcodeInput || !resultsDiv) return;
 
         const postcode = postcodeInput.value.trim();
-        if (!postcode) {
-            this.showMessage(mpResults, 'Please enter a postcode', 'warning');
+        
+        // Validate postcode
+        if (!this.validatePostcode(postcode)) {
+            resultsDiv.innerHTML = `
+                <div class="text-red-400 text-center">
+                    <svg class="w-6 h-6 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Please enter a valid UK postcode
+                </div>`;
             return;
         }
 
-        console.log('🔍 Finding MP for postcode:', postcode);
+        // Show loading state
+        resultsDiv.innerHTML = `
+            <div class="flex items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
+                <span class="ml-3 text-gray-400">Looking up your MP...</span>
+            </div>`;
+
+        try {
+            const response = await fetch('/api/find_mp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ postcode })
+            });
+
+            const data = await response.json();
+
+            if (data.found) {
+                // Format the party color
+                const partyColors = {
+                    'Conservative': 'text-blue-400',
+                    'Labour': 'text-red-400',
+                    'Liberal Democrat': 'text-yellow-400',
+                    'Scottish National Party': 'text-yellow-400',
+                    'Green': 'text-green-400',
+                    'Independent': 'text-gray-400'
+                };
+                const partyColor = partyColors[data.party] || 'text-gray-400';
+
+                resultsDiv.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-white">${data.name}</h3>
+                                <p class="text-sm ${partyColor}">${data.party}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-400">${data.constituency}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            ${data.email ? `
+                            <a href="mailto:${data.email}" class="px-3 py-2 bg-purple-600/30 hover:bg-purple-600/50 rounded-md text-sm transition-colors flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                Email
+                            </a>
+                            ` : ''}
+                            ${data.phone ? `
+                            <a href="tel:${data.phone}" class="px-3 py-2 bg-cyan-600/30 hover:bg-cyan-600/50 rounded-md text-sm transition-colors flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                </svg>
+                                Call
+                            </a>
+                            ` : ''}
+                        </div>
+                        ${data.profile_url ? `
+                        <a href="${data.profile_url}" target="_blank" rel="noopener noreferrer" class="mt-4 block px-4 py-2 bg-indigo-600/30 hover:bg-indigo-600/50 rounded-md text-sm transition-colors text-center">
+                            View Full Profile
+                        </a>
+                        ` : ''}
+                    </div>`;
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="text-red-400 text-center">
+                        <svg class="w-6 h-6 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        ${data.error || 'Could not find MP information for this postcode'}
+                    </div>`;
+            }
+        } catch (error) {
+            console.error('Error looking up MP:', error);
+            resultsDiv.innerHTML = `
+                <div class="text-red-400 text-center">
+                    <svg class="w-6 h-6 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Sorry, there was an error looking up your MP. Please try again later.
+                </div>`;
+        }
+    },
+
+    // MP Data Cache
+    mpData: null,
+
+    // Flask MP Lookup Integration
+    async findMPFlask(postcode) {
+        console.log('🏛️ Using static MP lookup for:', postcode);
+
+        const mpResults = document.getElementById('mp-results');
+        if (!mpResults) return;
 
         mpResults.innerHTML = '<div class="text-cyan-400 text-center">🔍 Looking up your MP...</div>';
 
-        setTimeout(() => {
-            const result = this.lookupMP(postcode);
-            this.displayMPResult(result, mpResults);
-        }, 1000);
-    },
-
-    // Lookup MP by postcode
-    lookupMP(postcode) {
-        // Clean and normalize postcode
-        const cleanPostcode = postcode.toUpperCase().replace(/\s+/g, '').trim();
-
-        // Try different prefix lengths for matching
-        const prefixes = [];
-        if (cleanPostcode.length >= 4) prefixes.push(cleanPostcode.substring(0, 4));
-        if (cleanPostcode.length >= 3) prefixes.push(cleanPostcode.substring(0, 3));
-        if (cleanPostcode.length >= 2) prefixes.push(cleanPostcode.substring(0, 2));
-
-        for (const prefix of prefixes) {
-            if (this.mpDatabase[prefix]) {
-                return {
-                    found: true,
-                    postcode: postcode,
-                    mp: this.mpDatabase[prefix],
-                    matchType: `${prefix.length}-character match`
-                };
+        try {
+            // Load MP data if not loaded
+            if (!this.mpData) {
+                const response = await fetch('/static/data/mp_data.json');
+                this.mpData = await response.json();
             }
-        }
 
-        return {
-            found: false,
-            postcode: postcode,
-            message: `No MP found for postcode "${postcode}". Please check the postcode or try another one.`
-        };
-    },
+            const data = this.mpData[postcode.toUpperCase()] || null;
 
-    // Display MP lookup result
-    displayMPResult(result, container) {
-        if (result.found) {
-            const mp = result.mp;
-            const roleDisplay = mp.role ? `<div class="text-sm text-yellow-400 font-medium">🏛️ ${mp.role}</div>` : '';
+            if (data && data.found) {
+                const mockBadge = '<div class="text-xs text-blue-400 mb-2">📋 Demo Data</div>';
 
-            container.innerHTML = `
-                <div class="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border border-purple-500/30 rounded-lg p-6">
-                    <div class="flex items-start justify-between mb-4">
-                        <div>
-                            <h4 class="text-xl font-semibold text-white">${mp.name}</h4>
-                            <div class="text-sm text-purple-400">${mp.party}</div>
-                            ${roleDisplay}
+                mpResults.innerHTML = `
+                    <div class="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border border-purple-500/30 rounded-lg p-6">
+                        ${mockBadge}
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h4 class="text-xl font-semibold text-white">${data.name}</h4>
+                                <div class="text-sm text-purple-400">${data.party}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm text-gray-400">Constituency</div>
+                                <div class="text-white font-medium">${data.constituency}</div>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <div class="text-sm text-gray-400">Constituency</div>
-                            <div class="text-white font-medium">${mp.constituency}</div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            ${data.email ? `
+                                <a href="mailto:${data.email}" class="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Email
+                                </a>
+                            ` : '<div class="text-gray-500 text-sm">Email not available</div>'}
+                            ${data.phone ? `
+                                <a href="tel:${data.phone}" class="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                    </svg>
+                                    Phone
+                                </a>
+                            ` : '<div class="text-gray-500 text-sm">Phone not available</div>'}
+                            ${data.website ? `
+                                <a href="${data.website}" target="_blank" class="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"></path>
+                                    </svg>
+                                    Parliament
+                                </a>
+                            ` : '<div></div>'}
+                            <div class="text-xs text-gray-500">
+                                🆓 Free UK Gov Data
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-400 bg-gray-800/30 rounded p-3">
+                            ✅ Found MP for ${postcode}.
+                            ${new Date().toLocaleString()}
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <a href="mailto:${mp.email}" class="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                            </svg>
-                            Email
-                        </a>
-                        <a href="tel:${mp.phone}" class="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                            </svg>
-                            Phone
-                        </a>
-                        <a href="${mp.website}" target="_blank" class="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                            </svg>
-                            Parliament
-                        </a>
-                        <button onclick="GovWhiz.showEmailTemplate()" class="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
-                            Contact
-                        </button>
+                `;
+            } else {
+                mpResults.innerHTML = `
+                    <div class="bg-red-900/30 border border-red-500/30 rounded-lg p-6 text-center">
+                        <h4 class="text-red-400 font-semibold mb-2">❌ MP Not Found</h4>
+                        <p class="text-gray-400">Please check your postcode and try again.</p>
+                        <div class="mt-4">
+                            <p class="text-gray-300 font-medium mb-2">Try these example postcodes:</p>
+                            <div class="flex flex-wrap gap-2 justify-center">
+                                <button onclick="tryPostcode('SW1A 1AA')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">SW1A 1AA</button>
+                                <button onclick="tryPostcode('M1 1AA')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">M1 1AA</button>
+                                <button onclick="tryPostcode('B1 1AA')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">B1 1AA</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="text-sm text-gray-400 bg-gray-800/30 rounded p-3">
-                        ✅ Found MP for ${result.postcode} (${result.matchType}). Contact details current as of January 2025.
-                    </div>
-                </div>
-            `;
-        } else {
-            container.innerHTML = `
+                `;
+            }
+        } catch (error) {
+            console.error('❌ Error in MP lookup:', error);
+            mpResults.innerHTML = `
                 <div class="bg-red-900/30 border border-red-500/30 rounded-lg p-6 text-center">
-                    <h4 class="text-red-400 font-semibold mb-2">❌ MP Not Found</h4>
-                    <p class="text-gray-400 mb-4">${result.message}</p>
-                    <div class="space-y-2">
-                        <p class="text-gray-300 font-medium">Try these example postcodes:</p>
-                        <div class="flex flex-wrap gap-2 justify-center">
-                            <button onclick="GovWhiz.tryPostcode('SW1A 1AA')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">SW1A 1AA</button>
-                            <button onclick="GovWhiz.tryPostcode('M1 1AA')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">M1 1AA</button>
-                            <button onclick="GovWhiz.tryPostcode('B1 1AA')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">B1 1AA</button>
-                            <button onclick="GovWhiz.tryPostcode('BS1 1AA')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">BS1 1AA</button>
-                        </div>
-                    </div>
+                    <h4 class="text-red-400 font-semibold mb-2">❌ Lookup Error</h4>
+                    <p class="text-gray-400">An error occurred. Please try again.</p>
                 </div>
             `;
         }
-    },
-
-    // Try postcode example
-    tryPostcode(postcode) {
-        const postcodeInput = document.getElementById('postcode-input');
-        if (postcodeInput) {
-            postcodeInput.value = postcode;
-            this.findMP();
-        }
-    },
-
-    // Political News functionality
-    loadPoliticalNews() {
-        const newsContainer = document.getElementById('news-container');
-        if (!newsContainer) return;
-
-        console.log('📰 Loading political news...');
-
-        // Mock news data (in production, this would come from RSS feeds)
-        const mockNews = [
-            {
-                title: "Digital Services Act 2025 Passes Committee Stage",
-                summary: "The comprehensive legislation governing digital platforms has successfully passed through committee review with cross-party support.",
-                link: "#",
-                date: "2025-01-15",
-                category: "Technology"
-            },
-            {
-                title: "Climate Action Framework Receives Royal Assent",
-                summary: "New legally binding targets for carbon reduction are now in effect, establishing the pathway to net-zero emissions by 2050.",
-                link: "#",
-                date: "2025-01-10",
-                category: "Environment"
-            },
-            {
-                title: "Healthcare Modernisation Act Advances to Third Reading",
-                summary: "NHS digital transformation plans move closer to implementation with parliamentary approval for infrastructure upgrades.",
-                link: "#",
-                date: "2025-01-08",
-                category: "Healthcare"
-            },
-            {
-                title: "Transport Infrastructure Investment Approved",
-                summary: "£50 billion funding package for rail, road, and public transport improvements receives parliamentary backing.",
-                link: "#",
-                date: "2025-01-05",
-                category: "Transport"
-            }
-        ];
-
-        const newsHtml = mockNews.map(article => `
-            <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4 hover:border-purple-500/30 transition-colors">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="text-xs text-purple-400 bg-purple-900/30 px-2 py-1 rounded">${article.category}</span>
-                    <span class="text-xs text-gray-500">${article.date}</span>
-                </div>
-                <h4 class="text-white font-semibold mb-2">${article.title}</h4>
-                <p class="text-gray-400 text-sm mb-3">${article.summary}</p>
-                <a href="${article.link}" class="text-cyan-400 hover:text-cyan-300 text-sm transition-colors">
-                    Read more →
-                </a>
-            </div>
-        `).join('');
-
-        newsContainer.innerHTML = `
-            <div class="space-y-4">
-                <h3 class="text-xl font-semibold text-white mb-4">📰 Latest Political News</h3>
-                <div class="grid gap-4">
-                    ${newsHtml}
-                </div>
-            </div>
-        `;
-    },
-
-    // Contact form handling
-    handleContactForm(event) {
-        event.preventDefault();
-
-        const formData = new FormData(event.target);
-        const data = {
-            name: formData.get('name'),
-            email: formData.get('email'),
-            subject: formData.get('subject'),
-            message: formData.get('message')
-        };
-
-        console.log('📧 Contact form submitted:', data);
-
-        // Show success message
-        const submitButton = event.target.querySelector('button[type="submit"]');
-        const originalText = submitButton.textContent;
-
-        submitButton.textContent = 'Sending...';
-        submitButton.disabled = true;
-
-        setTimeout(() => {
-            submitButton.textContent = '✅ Message Sent!';
-            setTimeout(() => {
-                submitButton.textContent = originalText;
-                submitButton.disabled = false;
-                event.target.reset();
-            }, 2000);
-        }, 1000);
-    },
-
-    // Show email template for MP contact
-    showEmailTemplate() {
-        const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4';
-        modal.innerHTML = `
-            <div class="bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-semibold text-white">📧 Email Template for MP Contact</h3>
-                    <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-white">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div class="space-y-4">
-                    <div class="bg-gray-800/50 border border-gray-700 rounded p-4">
-                        <h4 class="text-purple-400 font-semibold mb-2">Subject Line Examples:</h4>
-                        <ul class="text-gray-300 text-sm space-y-1">
-                            <li>• Constituent Inquiry - [Your Issue]</li>
-                            <li>• Request for Support - [Bill/Policy Name]</li>
-                            <li>• Local Issue - [Brief Description]</li>
-                        </ul>
-                    </div>
-                    <div class="bg-gray-800/50 border border-gray-700 rounded p-4">
-                        <h4 class="text-purple-400 font-semibold mb-2">Email Template:</h4>
-                        <div class="bg-gray-900 border border-gray-600 rounded p-3 text-sm text-gray-300 font-mono">
-                            <p>Dear [MP Name],</p><br>
-                            <p>I am writing to you as your constituent in [Constituency Name] regarding [specific issue/concern].</p><br>
-                            <p>[Explain your concern or request clearly and concisely]</p><br>
-                            <p>I would appreciate your support/response on this matter and would be grateful to hear your position.</p><br>
-                            <p>Thank you for your time and service to our constituency.</p><br>
-                            <p>Yours sincerely,<br>
-                            [Your Full Name]<br>
-                            [Your Address]<br>
-                            [Your Postcode]</p>
-                        </div>
-                    </div>
-                    <div class="bg-blue-900/20 border border-blue-500/30 rounded p-4">
-                        <h4 class="text-blue-400 font-semibold mb-2">💡 Tips for Effective MP Communication:</h4>
-                        <ul class="text-gray-300 text-sm space-y-1">
-                            <li>• Be clear and concise about your issue</li>
-                            <li>• Include your full address to confirm you're a constituent</li>
-                            <li>• Be respectful and professional in tone</li>
-                            <li>• Provide specific examples if relevant</li>
-                            <li>• Ask for a specific action or response</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(modal);
-    },
-
-    // Utility function to show messages
-    showMessage(container, message, type = 'info') {
-        const colors = {
-            info: 'bg-blue-900/30 border-blue-500/30 text-blue-400',
-            warning: 'bg-yellow-900/30 border-yellow-500/30 text-yellow-400',
-            error: 'bg-red-900/30 border-red-500/30 text-red-400',
-            success: 'bg-green-900/30 border-green-500/30 text-green-400'
-        };
-
-        container.innerHTML = `
-            <div class="${colors[type]} border rounded-lg p-4 text-center">
-                ${message}
-            </div>
-        `;
-    },
-
-    // Show legislation details
-    showLegislationDetails(title) {
-        const legislation = this.legislationDatabase.find(item => item.title === title);
-        if (!legislation) return;
-
-        const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4';
-        modal.innerHTML = `
-            <div class="bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-2xl font-semibold text-white">${legislation.title}</h3>
-                    <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-white">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div class="space-y-4">
-                    <div class="flex gap-4 mb-4">
-                        <span class="text-xs px-2 py-1 rounded ${this.getStatusColor(legislation.status)}">${legislation.status}</span>
-                        <span class="text-xs text-purple-400 bg-purple-900/30 px-2 py-1 rounded">${legislation.category}</span>
-                        <span class="text-xs text-gray-500">${legislation.date}</span>
-                    </div>
-                    <p class="text-gray-300 text-lg">${legislation.description}</p>
-                    <div class="bg-gray-800/50 border border-gray-700 rounded p-4">
-                        <h4 class="text-purple-400 font-semibold mb-2">Summary</h4>
-                        <p class="text-gray-300">${legislation.summary}</p>
-                    </div>
-                    <div class="bg-gray-800/50 border border-gray-700 rounded p-4">
-                        <h4 class="text-purple-400 font-semibold mb-2">Current Stage</h4>
-                        <p class="text-gray-300">${legislation.stage}</p>
-                    </div>
-                    <div class="bg-gray-800/50 border border-gray-700 rounded p-4">
-                        <h4 class="text-purple-400 font-semibold mb-2">Keywords</h4>
-                        <div class="flex flex-wrap gap-2">
-                            ${legislation.keywords.map(keyword =>
-                                `<span class="text-xs bg-purple-900/30 text-purple-400 px-2 py-1 rounded">${keyword}</span>`
-                            ).join('')}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(modal);
     }
 };
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    GovWhiz.init();
-});
-
-// Global functions for backward compatibility and modal access
-window.trySearch = (term) => GovWhiz.trySearch(term);
-window.tryPostcode = (postcode) => GovWhiz.tryPostcode(postcode);
-window.GovWhiz = GovWhiz;
+// Initialize the application
+GovWhiz.init();
