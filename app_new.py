@@ -1,9 +1,13 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from datetime import datetime
+import os
 from mp_service import mp_service
 
-app = Flask(__name__)
+app = Flask(__name__, 
+    static_folder=os.path.abspath("static"),
+    template_folder=os.path.abspath(".")
+)
 CORS(app)  # Enable CORS for all routes
 
 # API Routes
@@ -11,6 +15,11 @@ CORS(app)  # Enable CORS for all routes
 def home():
     """Serve the main GovWhiz page"""
     return render_template("index.html")
+
+@app.route("/static/<path:path>")
+def serve_static(path):
+    """Serve static files"""
+    return send_from_directory("static", path)
 
 @app.route("/api/find_mp", methods=["POST"])
 def find_mp():

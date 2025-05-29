@@ -13,6 +13,7 @@ class MPLookupService:
         self.mps_file = "data/cleaned_mps.json"
         self.constituencies_file = "data/constituency_lookup.json"
         self.postcode_cache_file = "data/constituency_cache.json"
+        self.api_key = os.getenv('THEYWORKFORYOU_API_KEY', 'your_api_key_here')
         
         # Load data files
         self.mps_data = self._load_json(self.mps_file)
