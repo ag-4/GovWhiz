@@ -1,57 +1,55 @@
 # GovWhiz
 
-GovWhiz is a web application that provides easy access to UK government services and parliamentary information. It features an MP lookup service, legislative information, and various tools to help citizens engage with their government representatives.
+A modern web application for accessing UK government services and MP information. GovWhiz helps citizens easily find and connect with their Members of Parliament while providing access to essential government services.
 
 ## Features
 
-- MP Lookup Service: Find your MP by postcode or constituency
-- Parliament Services Integration: Access various parliamentary services
-- News Feed: Stay updated with the latest parliamentary news
-- Government Services Directory: Easy access to various government services
-- Lords Information: Look up information about members of the House of Lords
+- MP Lookup by postcode
+- Detailed MP information including voting records and contact details
+- Modern, responsive UI built with Tailwind CSS
+- Flask backend with efficient caching system
 
-## Technology Stack
+## Installation
 
-- Backend: Python/Flask
-- Frontend: HTML, CSS (Tailwind), JavaScript
-- Data Sources: UK Parliament API
-- Caching System: Local JSON storage for improved performance
-
-## Getting Started
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   npm install
-   ```
-3. Start the Flask server:
-   ```bash
-   python app_new.py
-   ```
-
-## Project Structure
-
-- `/static` - Static assets (CSS, JS, images)
-- `/templates` - HTML templates
-- `/data` - JSON data files and caches
-- `/scripts` - Utility scripts
-- `/js` - Frontend JavaScript modules
-
-## Configuration
-
-Create a `.env` file with the following variables:
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/GovWhiz.git
+cd GovWhiz
 ```
-FLASK_APP=app_new.py
-FLASK_ENV=development
+
+2. Install Python dependencies:
+```bash
+pip install -r requirements.txt
 ```
+
+3. Install Node.js dependencies:
+```bash
+npm install
+```
+
+4. Set up environment variables:
+Create a `.env` file in the root directory and add:
+```
+THEYWORKFORYOU_API_KEY=your_api_key_here
+```
+
+## Development
+
+Start the Flask development server:
+```bash
+python app_new.py
+```
+
+The application will be available at `http://localhost:5000`
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
