@@ -1,18 +1,22 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+<head>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Find your Member of Parliament using your postcode - GovWhiz MP lookup service">
     <meta name="keywords" content="UK MP, find my MP, parliament, democracy, constituency">
-    <meta name="author" content="GovWhiz">    <!-- MP Lookup Scripts -->
-    <script src="js/postcode-lookup.js"></script>
+    <meta name="author" content="GovWhiz">
     
-    <title>Find Your MP - GovWhiz</title>    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>Find Your MP - GovWhiz</title>
+    
+    <!-- Styles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">    <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="js/styles/mp-lookup.css">
+    <link rel="stylesheet" href="js/styles/email-templates.css">
+
+    <!-- Scripts -->
+    <script src="js/mp-lookup.js"></script>
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
@@ -148,27 +152,74 @@
 
         // Initialize when DOM is fully loaded
         document.addEventListener('DOMContentLoaded', function() {
-            postcodeInput = document.getElementById('postcode-input');
-            findMpBtn = document.getElementById('find-mp-btn');
-            mpResults = document.getElementById('mp-results');
+            postcodeInput = document.getElementById('postcode-input');            const findMpBtn = document.getElementById('find-mp-btn');
+            const mpResults = document.getElementById('mp-results');
+            const mpLookup = window.mpLookup;
+
+            async function displayMP(postcode) {
+                if (!mpResults) return;
+                
+                mpResults.innerHTML = '<div class="loading-message"><div class="spinner"></div><p>Looking up your MP...</p></div>';
+                
+                try {
+                    const mp = await mpLookup.findMP(postcode);
+                    
+                    mpResults.innerHTML = `
+                        <div class="mp-card">
+                            <div class="mp-header">
+                                <h3>Your MP</h3>
+                                <h2>${mp.name}</h2>
+                            </div>
+                            <div class="mp-info">
+                                <p><strong>Constituency:</strong> ${mp.constituency}</p>
+                                <p><strong>Party:</strong> ${mp.party}</p>
+                                <p><strong>Email:</strong> <a href="mailto:${mp.email}">${mp.email}</a></p>
+                                <p><strong>Phone:</strong> <a href="tel:${mp.phone}">${mp.phone}</a></p>
+                                ${mp.role ? `<p><strong>Role:</strong> ${mp.role}</p>` : ''}
+                                ${mp.website ? `<p><strong>Website:</strong> <a href="${mp.website}" target="_blank">Parliament Profile</a></p>` : ''}
+                            </div>
+                            <div class="mp-actions">
+                                <button onclick="showEmailTemplate('meeting')" class="action-btn">Request Meeting</button>
+                                <button onclick="showEmailTemplate('question')" class="action-btn">Ask Question</button>
+                                <button onclick="showEmailTemplate('support')" class="action-btn">Support Bill</button>
+                            </div>
+                        </div>
+                    `;
+                } catch (error) {
+                    mpResults.innerHTML = `<div class="error-message">${error.message}</div>`;
+                }
+            }
             
             // Add event listeners
             if (findMpBtn) {
-                findMpBtn.addEventListener('click', function() {
-                    const postcode = postcodeInput.value;
-                    findMP(postcode);
+                findMpBtn.addEventListener('click', () => {
+                    const postcode = postcodeInput.value.trim();
+                    if (postcode) displayMP(postcode);
                 });
             }
             
             // Add event listener for Enter key on postcode input
             if (postcodeInput) {
-                postcodeInput.addEventListener('keypress', function(e) {
+                postcodeInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
-                        const postcode = postcodeInput.value;
-                        findMP(postcode);
+                        const postcode = postcodeInput.value.trim();
+                        if (postcode) displayMP(postcode);
                     }
                 });
             }
+
+            // Function to show email templates
+            window.showEmailTemplate = function(templateType) {
+                const mp = document.querySelector('.mp-card h2')?.textContent;
+                const constituency = document.querySelector('.mp-info p:first-child')?.textContent.split(': ')[1];
+                if (!mp || !constituency) return;
+                
+                const template = mpLookup.getEmailTemplate(templateType, mp, constituency);
+                const email = document.querySelector('.mp-info a[href^="mailto:"]')?.href.split(':')[1];
+                
+                if (email) {
+                    window.location.href = `mailto:${email}?subject=Constituent Query&body=${encodeURIComponent(template)}`;
+                }
         });
 
         // Function to try example postcodes

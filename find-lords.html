@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Search for members of the House of Lords - GovWhiz Lords database">
     <meta name="keywords" content="UK Lords, House of Lords, parliament, peers, democracy">
-    <meta name="author" content="GovWhiz">
-
-    <!-- MP Lookup Scripts -->
-    <script src="mp-lookup-fix.js"></script>
+    <meta name="author" content="GovWhiz">    <!-- Lords Lookup Scripts -->
+    <script src="js/lords-lookup.js"></script>
+    <link rel="stylesheet" href="js/styles/lords-lookup.css">
     
     <title>House of Lords - GovWhiz</title>
 
@@ -40,16 +39,28 @@
         <section class="lords-lookup-section modern-card">
             <h2>👑 House of Lords Search</h2>
             <p class="section-intro">Find members of the House of Lords by name, position or party</p>
-            
-            <div class="lookup-form">
-                <div class="input-group">
-                    <input type="text" id="lords-search-input" placeholder="Search by name, position or party (e.g., 'Evans', 'Chief Whip', 'Labour')">
-                    <button id="find-lord-btn" class="primary-btn">Search</button>
-                </div>
+              <div class="search-container">
+                <input type="text" id="lords-search" placeholder="Search by name or expertise">
+                <select id="lords-filter">
+                    <option value="all">All Types</option>
+                    <option value="Life Peer">Life Peers</option>
+                    <option value="Hereditary Peer">Hereditary Peers</option>
+                    <option value="Bishop">Lords Spiritual</option>
+                </select>
+                <button id="search-lords-btn">Search</button>
             </div>
-            
+
+            <div id="lords-results">
+                <!-- Results will be populated by JavaScript -->
+            </div>
+
             <div class="example-searches">
-                <p><strong>Try these examples:</strong></p>
+                <p><strong>Try searching for:</strong></p>
+                <ul>
+                    <li>Names (e.g., "Smith", "Brown")</li>
+                    <li>Areas of expertise (e.g., "Health", "Education")</li>
+                    <li>Filter by type using the dropdown</li>
+                </ul>
                 <div class="search-examples">
                     <button class="search-example" onclick="searchLords('Conservative')">Conservative Lords</button>
                     <button class="search-example" onclick="searchLords('Labour')">Labour Lords</button>

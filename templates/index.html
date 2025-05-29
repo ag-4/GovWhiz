@@ -2,19 +2,123 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>GovWhiz - Your Gateway to UK Government</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Access UK government services, find your MP, track legislation, and stay informed about politics - all in one place. Free service for UK citizens.">
+    <meta name="keywords" content="UK government, MP lookup, legislation, parliament, politics, democracy">
+    <meta name="author" content="GovWhiz">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="GovWhiz - Your Gateway to UK Government">
+    <meta property="og:description" content="Access UK government services, find your MP, track legislation, and stay informed about politics - all in one place.">
+    <meta property="og:site_name" content="GovWhiz">
+    
+    <!-- PWA Meta Tags -->
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#1e1b4b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="GovWhiz">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://members-api.parliament.uk">
+    <link rel="preconnect" href="https://api.parliament.uk">
+    <link rel="dns-prefetch" href="https://members-api.parliament.uk">
+    <link rel="dns-prefetch" href="https://api.parliament.uk">
+    
+    <!-- Critical CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+        
         body {
             background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
+        
         .glass-effect {
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(6, 182, 212, 0.5);
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(6, 182, 212, 0.7);
+        }
+        
+        /* Loading States */
+        .loading-skeleton {
+            background: linear-gradient(90deg, #1e1b4b 25%, #2d2a5d 50%, #1e1b4b 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            to { background-position: -200% 0; }
+        }
+
+        .error-message {
+            background-color: rgb(254, 226, 226);
+            border-left: 4px solid rgb(239, 68, 68);
+            color: rgb(185, 28, 28);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.25rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            display: none;
+        }
+
+        .warning-message {
+            background-color: rgb(254, 243, 199);
+            border-left: 4px solid rgb(245, 158, 11);
+            color: rgb(180, 83, 9);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.25rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            display: none;
+        }
+
+        /* Add offline indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            right: 0;
+            margin: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: rgb(245, 158, 11);
+            color: white;
+            border-radius: 0.25rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            display: none;
         }
     </style>
 </head>
@@ -182,6 +286,28 @@
                 </div>
             </section>
         </main>
+
+        <!-- Parliament Live Feed -->
+        <div id="parliament-status" class="fixed bottom-4 left-4 w-3 h-3 rounded-full bg-gray-600 transition-colors cursor-pointer hover:scale-110 transform duration-200"></div>
+        <div id="parliament-feed" class="fixed left-4 bottom-12 w-80 max-h-96 overflow-y-auto bg-gray-900/90 backdrop-blur-lg border border-gray-800 rounded-lg p-4 transform translate-x-[-120%] transition-transform shadow-xl">
+            <div class="text-sm font-medium text-cyan-400 mb-4 flex items-center justify-between">
+                <span>Parliament Live</span>
+                <button class="text-gray-400 hover:text-white transition-colors" onclick="document.getElementById('parliament-feed').style.transform = 'translateX(-120%)'">&times;</button>
+            </div>
+            <div class="text-gray-400 text-center">Loading parliamentary activity...</div>
+        </div>
+
+        <!-- News Feed -->
+        <div id="news-filters" class="fixed right-4 bottom-12 space-x-2 transform translate-x-[120%] transition-transform">
+            <!-- Filters will be populated by News System -->
+        </div>
+        <div id="news-feed" class="fixed right-4 bottom-24 w-80 max-h-96 overflow-y-auto bg-gray-900/90 backdrop-blur-lg border border-gray-800 rounded-lg p-4 transform translate-x-[120%] transition-transform shadow-xl">
+            <div class="text-sm font-medium text-cyan-400 mb-4 flex items-center justify-between">
+                <span>Latest News</span>
+                <button class="text-gray-400 hover:text-white transition-colors" onclick="document.getElementById('news-feed').style.transform = 'translateX(120%)'">&times;</button>
+            </div>
+            <div class="text-gray-400 text-center">Loading news feed...</div>
+        </div>
 
         <!-- Footer -->
         <footer class="bg-gray-900/80 backdrop-blur-lg border-t border-gray-800 py-8">
@@ -388,6 +514,142 @@
                     });
                 }
 
+                // Constants
+                const PARLIAMENT_POLL_INTERVAL = 30000; // 30 seconds
+                const NEWS_POLL_INTERVAL = 60000; // 1 minute
+                
+                // Parliament Live Feed
+                const parliamentStatus = document.getElementById('parliament-status');
+                const parliamentFeed = document.getElementById('parliament-feed');
+                let parliamentVisible = false;
+                
+                if (parliamentStatus) {
+                    parliamentStatus.addEventListener('click', () => {
+                        parliamentVisible = !parliamentVisible;
+                        parliamentFeed.style.transform = parliamentVisible ? 'translateX(0)' : 'translateX(-120%)';
+                    });
+                }
+                
+                async function updateParliamentFeed() {
+                    try {
+                        const response = await fetch('/api/parliament/live');
+                        const data = await response.json();
+                        
+                        if (data.status === 'active') {
+                            parliamentStatus.classList.add('bg-green-500');
+                            parliamentStatus.classList.remove('bg-gray-600', 'bg-red-500');
+                        } else if (data.status === 'inactive') {
+                            parliamentStatus.classList.add('bg-red-500');
+                            parliamentStatus.classList.remove('bg-gray-600', 'bg-green-500');
+                        }
+                        
+                        if (data.updates && data.updates.length > 0) {
+                            parliamentFeed.innerHTML = `
+                                <div class="text-sm font-medium text-cyan-400 mb-4 flex items-center justify-between">
+                                    <span>Parliament Live</span>
+                                    <button class="text-gray-400 hover:text-white transition-colors" onclick="document.getElementById('parliament-feed').style.transform = 'translateX(-120%)'">&times;</button>
+                                </div>
+                                ${data.updates.map(update => `
+                                    <div class="mb-4 last:mb-0">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-sm font-medium text-cyan-400">${update.time}</span>
+                                            <span class="text-xs text-gray-500">${update.category}</span>
+                                        </div>
+                                        <p class="text-gray-300 text-sm">${update.message}</p>
+                                    </div>
+                                `).join('')}
+                            `;
+                        }
+                    } catch (error) {
+                        console.error('Parliament feed error:', error);
+                        parliamentFeed.innerHTML = `
+                            <div class="text-sm font-medium text-cyan-400 mb-4 flex items-center justify-between">
+                                <span>Parliament Live</span>
+                                <button class="text-gray-400 hover:text-white transition-colors" onclick="document.getElementById('parliament-feed').style.transform = 'translateX(-120%)'">&times;</button>
+                            </div>
+                            <div class="text-red-400 text-center">Failed to load updates</div>
+                        `;
+                    }
+                }
+                
+                // News Feed
+                const newsFilters = document.getElementById('news-filters');
+                const newsFeed = document.getElementById('news-feed');
+                let newsVisible = false;
+                
+                async function updateNewsFeed() {
+                    try {
+                        const response = await fetch('/api/news/latest');
+                        const data = await response.json();
+                        
+                        if (data.filters) {
+                            newsFilters.innerHTML = data.filters.map(filter => `
+                                <button class="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 rounded-full text-gray-300 transition-colors" data-filter="${filter.id}">${filter.name}</button>
+                            `).join('');
+                            newsFilters.style.transform = 'translateX(0)';
+                        }
+                        
+                        if (data.articles && data.articles.length > 0) {
+                            newsFeed.innerHTML = `
+                                <div class="text-sm font-medium text-cyan-400 mb-4 flex items-center justify-between">
+                                    <span>Latest News</span>
+                                    <button class="text-gray-400 hover:text-white transition-colors" onclick="document.getElementById('news-feed').style.transform = 'translateX(120%)'">&times;</button>
+                                </div>
+                                ${data.articles.map(article => `
+                                    <div class="mb-6 last:mb-0">
+                                        <span class="inline-block px-2 py-1 text-xs font-medium bg-cyan-500/20 text-cyan-400 rounded-full mb-2">${article.category}</span>
+                                        <h4 class="text-white text-sm font-medium mb-1">${article.title}</h4>
+                                        <p class="text-gray-400 text-xs mb-2">${article.summary}</p>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs text-gray-500">${article.time}</span>
+                                            <a href="${article.url}" target="_blank" class="text-xs text-cyan-400 hover:text-cyan-300 transition-colors">Read More</a>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            `;
+
+                            // Show news feed button
+                            const newsButton = document.createElement('button');
+                            newsButton.className = 'fixed right-4 bottom-4 w-3 h-3 rounded-full bg-cyan-500 transition-colors cursor-pointer hover:scale-110 transform duration-200';
+                            newsButton.addEventListener('click', () => {
+                                newsVisible = !newsVisible;
+                                newsFeed.style.transform = newsVisible ? 'translateX(0)' : 'translateX(120%)';
+                            });
+                            document.body.appendChild(newsButton);
+                        }
+                    } catch (error) {
+                        console.error('News feed error:', error);
+                        newsFeed.innerHTML = `
+                            <div class="text-sm font-medium text-cyan-400 mb-4 flex items-center justify-between">
+                                <span>Latest News</span>
+                                <button class="text-gray-400 hover:text-white transition-colors" onclick="document.getElementById('news-feed').style.transform = 'translateX(120%)'">&times;</button>
+                            </div>
+                            <div class="text-red-400 text-center">Failed to load news</div>
+                        `;
+                    }
+                }
+                
+                // Initialize feeds
+                updateParliamentFeed();
+                updateNewsFeed();
+                
+                // Set up polling
+                setInterval(updateParliamentFeed, PARLIAMENT_POLL_INTERVAL);
+                setInterval(updateNewsFeed, NEWS_POLL_INTERVAL);
+                
+                // Service Worker Registration
+                if ('serviceWorker' in navigator) {
+                    window.addEventListener('load', () => {
+                        navigator.serviceWorker.register('/static/sw.js')
+                            .then(registration => {
+                                console.log('✅ Service Worker registered:', registration.scope);
+                            })
+                            .catch(error => {
+                                console.error('❌ Service Worker registration failed:', error);
+                            });
+                    });
+                }
+                
                 console.log('✅ GovWhiz Flask Integration - All Functions Loaded Successfully');
                 console.log('🏛️ MP lookup: Using Flask backend with TheyWorkForYou API');
                 console.log('🔍 Search: Basic functionality ready');
@@ -395,5 +657,40 @@
             });
         </script>
     </div>
+
+    <!-- Offline Storage Support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+
+    <div id="offline-indicator" class="offline-indicator">
+        You are offline - some features may be limited
+    </div>
+
+    <div id="news-feed-error" class="error-message"></div>
+    <div id="news-feed" class="news-ticker">
+        <!-- News content -->
+    </div>
+
+    <div id="parliament-error" class="error-message"></div>
+    <div id="parliament-feed">
+        <!-- Parliament content -->
+    </div>
+
+    <script>
+        // Handle offline/online status
+        function updateOnlineStatus() {
+            const indicator = document.getElementById('offline-indicator');
+            if (!navigator.onLine) {
+                indicator.style.display = 'block';
+                document.body.classList.add('offline');
+            } else {
+                indicator.style.display = 'none';
+                document.body.classList.remove('offline');
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus(); // Initial check
+    </script>
 </body>
 </html>

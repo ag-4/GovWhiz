@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Find your Member of Parliament using your postcode - GovWhiz MP lookup service">
+    <meta name="keywords" content="UK MP, find my MP, parliament, democracy, constituency">
+    <meta name="author" content="GovWhiz">
+    
+    <title>Find Your MP - GovWhiz</title>
+    
+    <!-- Styles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="js/styles/mp-lookup.css">
+    <link rel="stylesheet" href="js/styles/email-templates.css">
+    
+    <!-- Scripts -->
+    <script src="js/mp-lookup.js"></script>
+    <script src="js/mp-lookup-integration.js"></script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="main-nav">
+                <div class="nav-brand">
+                    <h1>🏛️ GovWhiz</h1>
+                    <p>Find Your MP</p>
+                </div>
+                <div class="nav-actions">
+                    <a href="parliament-services.html" class="nav-link">All Services</a>
+                    <a href="index.html" class="nav-link">Home</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="mp-lookup-section">
+            <h2>🔍 Find Your Member of Parliament</h2>
+            <p class="section-intro">Connect with your local MP and make your voice heard in Parliament</p>
+            
+            <div class="lookup-container">
+                <div class="lookup-form">
+                    <div class="input-group">
+                        <input type="text" 
+                               id="postcode-input" 
+                               placeholder="Enter your postcode (e.g., SW1A 1AA)"
+                               pattern="[A-Za-z]{1,2}[0-9Rr][0-9A-Za-z]? [0-9][ABD-HJLNP-UW-Zabd-hjlnp-uw-z]{2}"
+                               title="Please enter a valid UK postcode"
+                               maxlength="8">
+                        <button id="find-mp-btn" class="action-btn">Find My MP</button>
+                    </div>
+                </div>
+                
+                <div class="example-postcodes">
+                    <p><strong>Try these example postcodes:</strong></p>
+                    <div class="example-grid">
+                        <button onclick="displayMP('SW1A 1AA')" class="action-btn secondary">SW1A 1AA<span>Westminster</span></button>
+                        <button onclick="displayMP('M1 1AA')" class="action-btn secondary">M1 1AA<span>Manchester Central</span></button>
+                        <button onclick="displayMP('B1 1AA')" class="action-btn secondary">B1 1AA<span>Birmingham</span></button>
+                        <button onclick="displayMP('EH1 1AA')" class="action-btn secondary">EH1 1AA<span>Edinburgh</span></button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="mp-results"></div>
+        </section>
+        
+        <section class="mp-info-section">
+            <h2>📋 Working with Your MP</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>What MPs Can Help With</h3>
+                    <ul>
+                        <li>Local constituency issues</li>
+                        <li>Government department problems</li>
+                        <li>Policy and legislation concerns</li>
+                        <li>Immigration and passport matters</li>
+                        <li>Housing and planning issues</li>
+                    </ul>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Tips for Contacting Your MP</h3>
+                    <ul>
+                        <li>Be clear and concise in your communication</li>
+                        <li>Include your full name and address</li>
+                        <li>Focus on one issue per message</li>
+                        <li>Provide relevant documentation if applicable</li>
+                        <li>Be polite and professional</li>
+                    </ul>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Important Notes</h3>
+                    <ul>
+                        <li>MPs can only help their own constituents</li>
+                        <li>Some issues may need local council involvement</li>
+                        <li>Response times can vary based on workload</li>
+                        <li>Complex issues may require multiple communications</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Email Template Dialog -->    <div id="template-dialog" class="template-popup">
+        <div class="template-content">
+            <div class="template-header">
+                <h3>Choose an Email Template</h3>
+                <p class="template-subtitle">Select a template and customize it for your needs</p>
+            </div>
+            <div class="template-options">
+                <div class="template-option" data-template="meeting">
+                    <h4>📅 Request a Meeting</h4>
+                    <p>Schedule a face-to-face or virtual meeting to discuss important matters</p>
+                </div>
+                <div class="template-option" data-template="support">
+                    <h4>✅ Support a Bill</h4>
+                    <p>Express support for proposed legislation and explain your reasoning</p>
+                </div>
+                <div class="template-option" data-template="oppose">
+                    <h4>⚠️ Oppose a Bill</h4>
+                    <p>Voice concerns about proposed legislation and its potential impact</p>
+                </div>
+                <div class="template-option" data-template="question">
+                    <h4>❓ Ask a Question</h4>
+                    <p>Inquire about their position or actions on specific issues</p>
+                </div>
+                <div class="template-option" data-template="local">
+                    <h4>🏘️ Local Issue</h4>
+                    <p>Raise awareness about a local community issue needing attention</p>
+                </div>
+            </div>
+            <div id="template-preview" class="template-preview">
+                <div class="preview-placeholder">
+                    👈 Select a template to preview its content
+                </div>
+            </div>
+            <div class="template-instructions">
+                <p>💡 <strong>Tips for using templates:</strong></p>
+                <ul>
+                    <li>Replace all text in [brackets] with your specific information</li>
+                    <li>Include your full address to confirm you're a constituent</li>
+                    <li>Be clear, concise, and polite in your communication</li>
+                    <li>Proofread before sending</li>
+                </ul>            </div>
+            <div class="template-actions">
+                <button onclick="closeTemplateDialog()" class="action-btn secondary">Cancel</button>
+                <button onclick="useSelectedTemplate()" class="action-btn primary">Use Template</button>
+            </div>
+                <button onclick="closeTemplateDialog()" class="action-btn secondary">Cancel</button>
+                <button onclick="useSelectedTemplate()" class="action-btn">Use Template</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="parliament-services.html">Parliamentary Services</a></li>
+                        <li><a href="find-lords.html">House of Lords</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Official Resources</h3>
+                    <ul>
+                        <li><a href="https://members.parliament.uk/members/commons" target="_blank">MPs Directory</a></li>
+                        <li><a href="https://www.parliament.uk/get-involved/contact-your-mp/" target="_blank">Parliament Guide</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GovWhiz - Simplifying UK Governance</p>
+                <p>Not affiliated with the UK Government or Parliament</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

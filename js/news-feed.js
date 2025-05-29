@@ -9,31 +9,99 @@ class NewsFeedManager {
         this.currentNewsIndex = 0;
         this.newsItems = [];
         this.tickerInterval = null;
+        this.errorRetryDelay = 30000; // 30 seconds
+        this.offlineStore = null;
+        this.errorElement = document.getElementById('news-feed-error');
     }
 
     async initialize() {
         try {
+            await this.setupOfflineStore();
             await this.fetchLatestNews();
             this.startTicker();
-            // Refresh news every 5 minutes
+            
+            // Setup periodic refresh
             setInterval(() => this.fetchLatestNews(), 5 * 60 * 1000);
+            
+            // Listen for online/offline events
+            window.addEventListener('online', () => this.handleOnlineStatus(true));
+            window.addEventListener('offline', () => this.handleOnlineStatus(false));
         } catch (error) {
             console.error('Failed to initialize news feed:', error);
-            this.showError();
+            this.showError('Unable to load news feed. Retrying...');
+            setTimeout(() => this.initialize(), this.errorRetryDelay);
         }
     }
 
     async fetchLatestNews() {
         try {
-            const response = await fetch('/data/latest-news.json');
+            const response = await fetch('/data/latest-news.json', {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
             if (!response.ok) throw new Error('Failed to fetch news');
             
             const data = await response.json();
             this.newsItems = data.articles;
+            
+            // Store for offline use
+            await this.storeOfflineData(data);
+            
+            this.hideError();
             this.updateTicker();
         } catch (error) {
             console.error('Error fetching news:', error);
-            this.showError();
+            
+            // Try to load offline data
+            const offlineData = await this.getOfflineData();
+            if (offlineData) {
+                this.newsItems = offlineData.articles;
+                this.updateTicker();
+                this.showError('Using offline news data');
+            } else {
+                this.showError('Unable to load news feed');
+            }
+        }
+    }
+
+    async setupOfflineStore() {
+        this.offlineStore = await localforage.createInstance({
+            name: 'GovWhiz',
+            storeName: 'news_feed'
+        });
+    }
+
+    async storeOfflineData(data) {
+        try {
+            await this.offlineStore.setItem('latest_news', {
+                timestamp: Date.now(),
+                data: data
+            });
+        } catch (error) {
+            console.warn('Failed to store offline news data:', error);
+        }
+    }
+
+    async getOfflineData() {
+        try {
+            const stored = await this.offlineStore.getItem('latest_news');
+            if (stored && (Date.now() - stored.timestamp) < (24 * 60 * 60 * 1000)) { // 24 hours
+                return stored.data;
+            }
+        } catch (error) {
+            console.warn('Failed to retrieve offline news data:', error);
+        }
+        return null;
+    }
+
+    handleOnlineStatus(isOnline) {
+        if (isOnline) {
+            this.hideError();
+            this.fetchLatestNews();
+        } else {
+            this.showError('Working offline - displaying cached news');
         }
     }
 
@@ -57,13 +125,16 @@ class NewsFeedManager {
         }, 8000); // Change news every 8 seconds
     }
 
-    showError() {
-        if (this.newsTickerElement) {
-            this.newsTickerElement.innerHTML = `
-                <div class="news-ticker-item error">
-                    Unable to load latest political updates. Please try again later.
-                </div>
-            `;
+    showError(message) {
+        if (this.errorElement) {
+            this.errorElement.textContent = message;
+            this.errorElement.style.display = 'block';
+        }
+    }
+
+    hideError() {
+        if (this.errorElement) {
+            this.errorElement.style.display = 'none';
         }
     }
 }

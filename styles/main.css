@@ -1,24 +1,39 @@
 :root {
-    /* Premium Color Palette - Professional & Attractive */
-    --royal-blue: #1e40af;          /* Strong, trustworthy primary */
-    --ocean-blue: #2563eb;          /* Vibrant, engaging blue */
-    --sky-blue: #3b82f6;            /* Bright, friendly accent */
-    --emerald: #059669;             /* Fresh, positive green */
-    --forest: #047857;              /* Deep, reliable green */
-    --amber: #f59e0b;               /* Warm, attention-grabbing */
-    --slate: #334155;               /* Professional neutral */
-    --charcoal: #1f2937;            /* Rich, readable dark */
+    /* Color scheme */
+    --primary-color: #3B82F6;
+    --secondary-color: #6B7280;
+    --success-color: #10B981;
+    --danger-color: #EF4444;
+    --warning-color: #F59E0B;
+    --info-color: #3B82F6;
     
-    /* Modern Design System */
-    --primary: var(--ocean-blue);
-    --primary-dark: var(--royal-blue);
-    --primary-light: var(--sky-blue);
-    --secondary: var(--emerald);
-    --accent: var(--amber);
-    --background: #f8fafc;
-    --surface: #ffffff;
-    --text: var(--charcoal);
-    --text-light: var(--slate);
+    /* Text colors */
+    --text-primary: #111827;
+    --text-secondary: #4B5563;
+    --text-light: #6B7280;
+    --text-muted: #9CA3AF;
+    
+    /* Background colors */
+    --background-main: #F9FAFB;
+    --background-light: #F3F4F6;
+    --background-accent: #E5E7EB;
+    --card-background: #FFFFFF;
+    
+    /* Border colors */
+    --border-color: #E5E7EB;
+    --border-focus: #3B82F6;
+    
+    /* Shadow */
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    
+    /* Border radius */
+    --border-radius: 6px;
+    --border-radius-lg: 8px;
+    
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
     --error: #ef4444;
     --success: #10b981;
     --warning: var(--amber);

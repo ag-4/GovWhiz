@@ -2,6 +2,7 @@
 .loading-message {
     text-align: center;
     padding: 20px;
+    color: var(--text-secondary);
 }
 
 .spinner {
@@ -22,10 +23,84 @@
 .error-message {
     color: var(--danger-color);
     padding: 15px;
-    background-color: #fee2e2;
+    background-color: #FEF2F2;
+    border: 1px solid #FCA5A5;
     border-radius: var(--border-radius);
     margin: 10px 0;
     text-align: center;
+}
+
+.mp-card {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 24px;
+    margin: 20px 0;
+    box-shadow: var(--shadow);
+    transition: var(--transition-normal);
+}
+
+.mp-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.mp-header {
+    margin-bottom: 20px;
+}
+
+.mp-header h2 {
+    color: var(--text-primary);
+    margin: 8px 0 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.mp-header h3 {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.mp-info {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.mp-info p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.mp-info strong {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.mp-info a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.mp-info a:hover {
+    text-decoration: underline;
+}
+
+.mp-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
 }
 
 .mp-card {

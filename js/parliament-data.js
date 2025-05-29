@@ -14,29 +14,98 @@ class ParliamentDataSystem {
         
         this.cacheDuration = 5 * 60 * 1000; // 5 minutes
         this.cache = new Map();
+        this.offlineData = null;
+
+        this.registerServiceWorker();
+    }
+
+    async registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            try {
+                const registration = await navigator.serviceWorker.register('/static/sw.js');
+                console.log('Service Worker registered:', registration);
+            } catch (error) {
+                console.error('Service Worker registration failed:', error);
+            }
+        }
     }
 
     async fetchData(source) {
-        const cachedData = this.cache.get(source);
-        if (cachedData && (Date.now() - cachedData.timestamp) < this.cacheDuration) {
-            return cachedData.data;
-        }
-
+        // Try to fetch from network first
         try {
-            const response = await fetch(this.sources[source]);
-            if (!response.ok) throw new Error('Network response was not ok');
+            const response = await fetch(this.sources[source], {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             
             const data = await response.json();
+            
+            // Cache the successful response
             this.cache.set(source, {
                 timestamp: Date.now(),
                 data: data
             });
             
+            // Store for offline use
+            await this.storeOfflineData(source, data);
+            
             return data;
         } catch (error) {
-            console.warn(`Failed to fetch ${source} data:`, error);
+            console.warn(`Network fetch failed for ${source}, attempting offline fallback:`, error);
+            
+            // Try to get cached data first
+            const cachedData = this.cache.get(source);
+            if (cachedData && (Date.now() - cachedData.timestamp) < this.cacheDuration) {
+                return cachedData.data;
+            }
+            
+            // Try to get stored offline data
+            const offlineData = await this.getOfflineData(source);
+            if (offlineData) {
+                return offlineData;
+            }
+            
+            // If all else fails, use simulated data
             return this.simulateData(source);
         }
+    }
+
+    async storeOfflineData(source, data) {
+        try {
+            const offlineStore = await this.openOfflineStore();
+            await offlineStore.setItem(`parliament_${source}`, {
+                timestamp: Date.now(),
+                data: data
+            });
+        } catch (error) {
+            console.warn('Failed to store offline data:', error);
+        }
+    }
+
+    async getOfflineData(source) {
+        try {
+            const offlineStore = await this.openOfflineStore();
+            const stored = await offlineStore.getItem(`parliament_${source}`);
+            if (stored && (Date.now() - stored.timestamp) < (24 * 60 * 60 * 1000)) { // 24 hours
+                return stored.data;
+            }
+        } catch (error) {
+            console.warn('Failed to retrieve offline data:', error);
+        }
+        return null;
+    }
+
+    async openOfflineStore() {
+        if (!this.offlineStore) {
+            this.offlineStore = await localforage.createInstance({
+                name: 'GovWhiz',
+                storeName: 'parliament_data'
+            });
+        }
+        return this.offlineStore;
     }
 
     simulateData(source) {
