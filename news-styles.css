@@ -1,0 +1,338 @@
+/* 📰 News Integration Styles for GovWhiz */
+
+/* News Container */
+.news-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* News Header Section */
+.news-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.news-header-section h3 {
+    color: #1e40af;
+    font-size: 1.8rem;
+    margin: 0;
+    font-weight: 700;
+}
+
+.news-subtitle {
+    color: #64748b;
+    font-size: 1rem;
+    margin: 5px 0 0 0;
+}
+
+.refresh-news-btn {
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.refresh-news-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.refresh-news-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* News List */
+.news-list {
+    display: grid;
+    gap: 25px;
+}
+
+/* Individual News Article */
+.news-article {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    padding: 25px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.news-article::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+}
+
+.news-article:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* News Header */
+.news-header {
+    margin-bottom: 20px;
+}
+
+.news-title {
+    margin: 0 0 12px 0;
+    font-size: 1.3rem;
+    line-height: 1.4;
+}
+
+.news-title a {
+    color: #1e40af;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.news-title a:hover {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+.news-meta {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.news-category {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.news-date {
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* News Content */
+.news-content {
+    margin-bottom: 20px;
+}
+
+.news-summary {
+    margin-bottom: 15px;
+}
+
+.news-summary p {
+    margin: 0 0 10px 0;
+    line-height: 1.6;
+    color: #374151;
+}
+
+.news-summary strong {
+    color: #1e40af;
+}
+
+.news-details {
+    margin-top: 10px;
+}
+
+.news-details summary {
+    cursor: pointer;
+    color: #2563eb;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 5px 0;
+    transition: color 0.2s ease;
+}
+
+.news-details summary:hover {
+    color: #3b82f6;
+}
+
+.news-details p {
+    margin: 10px 0 0 20px;
+    color: #64748b;
+    font-style: italic;
+    line-height: 1.5;
+}
+
+/* Related Bills */
+.news-bills {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 4px solid #f59e0b;
+}
+
+.news-bills strong {
+    color: #1e40af;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.bill-tag {
+    display: inline-block;
+    background: #fef3c7;
+    color: #92400e;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin: 2px 5px 2px 0;
+    border: 1px solid #fbbf24;
+}
+
+/* News Actions */
+.news-actions {
+    display: flex;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.news-action-btn {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.news-action-btn:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+}
+
+/* Empty State */
+.news-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #64748b;
+}
+
+.news-empty h3 {
+    color: #374151;
+    margin-bottom: 10px;
+}
+
+/* Loading State */
+.news-loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: #64748b;
+}
+
+.news-loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e2e8f0;
+    border-top: 2px solid #2563eb;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .news-container {
+        padding: 15px;
+    }
+    
+    .news-header-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .news-header-section h3 {
+        font-size: 1.5rem;
+    }
+    
+    .refresh-news-btn {
+        align-self: stretch;
+        text-align: center;
+    }
+    
+    .news-article {
+        padding: 20px;
+    }
+    
+    .news-title {
+        font-size: 1.2rem;
+    }
+    
+    .news-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .news-actions {
+        flex-direction: column;
+    }
+    
+    .news-action-btn {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .news-container {
+        padding: 10px;
+    }
+    
+    .news-article {
+        padding: 15px;
+    }
+    
+    .news-title {
+        font-size: 1.1rem;
+    }
+    
+    .news-bills {
+        padding: 12px;
+    }
+    
+    .bill-tag {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+    }
+}

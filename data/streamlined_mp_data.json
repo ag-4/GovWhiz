@@ -1,0 +1,82 @@
+{
+  "export_time": "2025-05-27T19:18:07.885039",
+  "system": "Streamlined MP Lookup",
+  "approach": "postcode → constituency → MP (your elegant design)",
+  "test_results": [
+    {
+      "postcode": "SW1A 1AA",
+      "result": {
+        "success": true,
+        "name": "Nickie Aiken",
+        "party": "Conservative",
+        "constituency": "Cities of London and Westminster",
+        "member_id": "4591",
+        "email": "nickie.aiken.mp@parliament.uk",
+        "profile": "https://members.parliament.uk/member/4591",
+        "phone": "020 7219 3000",
+        "api_source": "Comprehensive MP Database",
+        "postcode": "SW1A 1AA",
+        "lookup_time": "2025-05-27T19:18:02.362736"
+      }
+    },
+    {
+      "postcode": "W1A 0AX",
+      "result": {
+        "success": true,
+        "name": "Emily Thornberry",
+        "party": "Labour",
+        "constituency": "Islington South and Finsbury",
+        "member_id": "1536",
+        "email": "emily.thornberry.mp@parliament.uk",
+        "profile": "https://members.parliament.uk/member/1536",
+        "phone": "020 7219 3000",
+        "api_source": "Comprehensive MP Database",
+        "postcode": "W1A 0AX",
+        "lookup_time": "2025-05-27T19:18:03.504328"
+      }
+    },
+    {
+      "postcode": "DL10 4DQ",
+      "result": {
+        "success": true,
+        "name": "Rishi Sunak",
+        "party": "Conservative",
+        "constituency": "Richmond and Northallerton",
+        "member_id": "4591",
+        "email": "rishi.sunak.mp@parliament.uk",
+        "profile": "https://members.parliament.uk/member/4591",
+        "phone": "020 7219 3000",
+        "api_source": "Comprehensive MP Database",
+        "postcode": "DL10 4DQ",
+        "lookup_time": "2025-05-27T19:18:04.619003"
+      }
+    },
+    {
+      "postcode": "B1 1AA",
+      "result": {
+        "success": true,
+        "name": "Shabana Mahmood",
+        "party": "Labour",
+        "constituency": "Birmingham Ladywood",
+        "member_id": "4000",
+        "email": "shabana.mahmood.mp@parliament.uk",
+        "profile": "https://members.parliament.uk/member/4000",
+        "phone": "020 7219 3000",
+        "api_source": "Comprehensive MP Database",
+        "postcode": "B1 1AA",
+        "lookup_time": "2025-05-27T19:18:05.730010"
+      }
+    },
+    {
+      "postcode": "M1 1AA",
+      "result": {
+        "error": "Invalid postcode or API failed."
+      }
+    }
+  ],
+  "api_sources": [
+    "MySociety MapIt API",
+    "UK Parliament Members API",
+    "Comprehensive MP Database"
+  ]
+}

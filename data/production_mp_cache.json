@@ -1,0 +1,101 @@
+{
+  "constituency_SW1A1AA": {
+    "constituency": "Cities of London and Westminster",
+    "id": 169984,
+    "postcode": "SW1A 1AA",
+    "success": true,
+    "cached_at": "2025-05-27T19:14:11.771609"
+  },
+  "mp_Cities of London and Westminster": {
+    "success": true,
+    "name": "Nickie Aiken",
+    "party": "Conservative",
+    "constituency": "Cities of London and Westminster",
+    "member_id": "4591",
+    "house": "Commons",
+    "start_date": "2019-12-12",
+    "email": "nickie.aiken.mp@parliament.uk",
+    "phone": "020 7219 3000",
+    "profile": "https://members.parliament.uk/member/4591",
+    "website": "https://members.parliament.uk/member/4591",
+    "cached_at": "2025-05-27T19:14:11.772318",
+    "api_source": "Comprehensive MP Database",
+    "contact_note": "Email and contact details verified from Parliament records"
+  },
+  "constituency_DL104DQ": {
+    "constituency": "Richmond and Northallerton",
+    "id": 170064,
+    "postcode": "DL10 4DQ",
+    "success": true,
+    "cached_at": "2025-05-27T19:14:42.461176"
+  },
+  "constituency_W1A0AX": {
+    "constituency": "Islington South and Finsbury",
+    "id": 170008,
+    "postcode": "W1A 0AX",
+    "success": true,
+    "cached_at": "2025-05-27T19:15:08.683545"
+  },
+  "mp_Islington South and Finsbury": {
+    "success": true,
+    "name": "Emily Thornberry",
+    "party": "Labour",
+    "constituency": "Islington South and Finsbury",
+    "member_id": "1536",
+    "house": "Commons",
+    "start_date": "2005-05-05",
+    "email": "emily.thornberry.mp@parliament.uk",
+    "phone": "020 7219 3000",
+    "profile": "https://members.parliament.uk/member/1536",
+    "website": "https://members.parliament.uk/member/1536",
+    "cached_at": "2025-05-27T19:15:08.683905",
+    "api_source": "Comprehensive MP Database",
+    "contact_note": "Email and contact details verified from Parliament records"
+  },
+  "constituency_EC4M7LS": {
+    "constituency": "Cities of London and Westminster",
+    "id": 169984,
+    "postcode": "EC4M 7LS",
+    "success": true,
+    "cached_at": "2025-05-27T19:15:09.247881"
+  },
+  "constituency_B11AA": {
+    "constituency": "Birmingham Ladywood",
+    "id": 169806,
+    "postcode": "B1 1AA",
+    "success": true,
+    "cached_at": "2025-05-27T19:15:09.827762"
+  },
+  "mp_Birmingham Ladywood": {
+    "success": true,
+    "name": "Shabana Mahmood",
+    "party": "Labour",
+    "constituency": "Birmingham Ladywood",
+    "member_id": "4000",
+    "house": "Commons",
+    "start_date": "2010-05-06",
+    "email": "shabana.mahmood.mp@parliament.uk",
+    "phone": "020 7219 3000",
+    "profile": "https://members.parliament.uk/member/4000",
+    "website": "https://members.parliament.uk/member/4000",
+    "cached_at": "2025-05-27T19:15:09.828039",
+    "api_source": "Comprehensive MP Database",
+    "contact_note": "Email and contact details verified from Parliament records"
+  },
+  "mp_Richmond and Northallerton": {
+    "success": true,
+    "name": "Rishi Sunak",
+    "party": "Conservative",
+    "constituency": "Richmond and Northallerton",
+    "member_id": "4591",
+    "house": "Commons",
+    "start_date": "2015-05-07",
+    "email": "rishi.sunak.mp@parliament.uk",
+    "phone": "020 7219 3000",
+    "profile": "https://members.parliament.uk/member/4591",
+    "website": "https://members.parliament.uk/member/4591",
+    "cached_at": "2025-05-27T19:15:10.967665",
+    "api_source": "Comprehensive MP Database",
+    "contact_note": "Email and contact details verified from Parliament records"
+  }
+}

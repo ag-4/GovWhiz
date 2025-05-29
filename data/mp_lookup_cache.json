@@ -1,0 +1,18 @@
+{
+  "mp_Cities of London and Westminster": {
+    "success": true,
+    "name": "Nickie Aiken",
+    "party": "Conservative",
+    "constituency": "Cities of London and Westminster",
+    "member_id": "4591",
+    "house": "Commons",
+    "start_date": "2019-12-12",
+    "cached_at": "2025-05-27T19:10:22.907294",
+    "api_source": "Fallback Data (Parliament API unavailable)",
+    "email": "mp.contact@parliament.uk",
+    "phone": "020 7219 3000",
+    "website": "https://members.parliament.uk/member/4591/contact",
+    "parliament_profile": "https://members.parliament.uk/member/4591",
+    "contact_note": "Contact details may vary. Use Parliament profile for most current information."
+  }
+}

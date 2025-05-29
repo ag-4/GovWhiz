@@ -1,0 +1,455 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Search for members of the House of Lords - GovWhiz Lords database">
+    <meta name="keywords" content="UK Lords, House of Lords, parliament, peers, democracy">
+    <meta name="author" content="GovWhiz">
+
+    <!-- MP Lookup Scripts -->
+    <script src="mp-lookup-fix.js"></script>
+    
+    <title>House of Lords - GovWhiz</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="main-nav">
+                <div class="nav-brand">
+                    <h1>🏛️ GovWhiz</h1>
+                    <p>House of Lords</p>
+                </div>
+                <div class="nav-actions">
+                    <a href="parliament-services.html" class="nav-link">All Services</a>
+                    <a href="index.html" class="nav-link">Home</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="lords-lookup-section modern-card">
+            <h2>👑 House of Lords Search</h2>
+            <p class="section-intro">Find members of the House of Lords by name, position or party</p>
+            
+            <div class="lookup-form">
+                <div class="input-group">
+                    <input type="text" id="lords-search-input" placeholder="Search by name, position or party (e.g., 'Evans', 'Chief Whip', 'Labour')">
+                    <button id="find-lord-btn" class="primary-btn">Search</button>
+                </div>
+            </div>
+            
+            <div class="example-searches">
+                <p><strong>Try these examples:</strong></p>
+                <div class="search-examples">
+                    <button class="search-example" onclick="searchLords('Conservative')">Conservative Lords</button>
+                    <button class="search-example" onclick="searchLords('Labour')">Labour Lords</button>
+                    <button class="search-example" onclick="searchLords('Leader')">Leadership Positions</button>
+                    <button class="search-example" onclick="searchLords('Archbishop')">Lords Spiritual</button>
+                </div>
+            </div>
+            
+            <div id="lords-results" class="lords-results"></div>
+            
+            <div class="westminster-area">
+                <h3>Westminster Postcode (SW1A)</h3>
+                <p>The Westminster area (SW1A) is home to the Houses of Parliament including the House of Lords. If you're using the postcode SW1A 1AA, this will return information about members of the House of Lords rather than a specific MP.</p>
+                <button class="search-example prominent" onclick="searchLordsByPostcode('SW1A 1AA')">View Lords for SW1A 1AA</button>
+            </div>
+            
+            <div class="info-box">
+                <h3>About the House of Lords</h3>
+                <p>The House of Lords is the second chamber of the UK Parliament. Unlike MPs in the House of Commons, members of the House of Lords (known as peers) are not elected by the public. They are appointed by the Queen on the advice of the Prime Minister, or are bishops of the Church of England (Lords Spiritual) or inherit their titles (hereditary peers).</p>
+                <p>The main functions of the House of Lords are:</p>
+                <ul>
+                    <li>Reviewing legislation passed by the House of Commons</li>
+                    <li>Proposing amendments to bills</li>
+                    <li>Initiating legislation (although not finance bills)</li>
+                    <li>Providing expertise through debates and committee work</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="parliament-services.html">Parliamentary Services</a></li>
+                        <li><a href="find-mp.html">Find Your MP</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Official Resources</h3>
+                    <ul>
+                        <li><a href="https://members.parliament.uk/members/lords" target="_blank">Official Lords Directory</a></li>
+                        <li><a href="https://www.parliament.uk/business/lords/" target="_blank">House of Lords - Official Site</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GovWhiz - Simplifying UK Legislation</p>
+                <p>Not affiliated with the UK Government. Information for educational purposes.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Lords Lookup Scripts -->
+    <script>
+        let lordsSearchInput;
+        let findLordBtn;
+        let lordsResults;
+
+        // Initialize when DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            lordsSearchInput = document.getElementById('lords-search-input');
+            findLordBtn = document.getElementById('find-lord-btn');
+            lordsResults = document.getElementById('lords-results');
+            
+            // Add event listeners
+            if (findLordBtn) {
+                findLordBtn.addEventListener('click', function() {
+                    const searchTerm = lordsSearchInput.value;
+                    searchLords(searchTerm);
+                });
+            }
+            
+            // Add event listener for Enter key on search input
+            if (lordsSearchInput) {
+                lordsSearchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const searchTerm = lordsSearchInput.value;
+                        searchLords(searchTerm);
+                    }
+                });
+            }
+        });
+
+        // Function to search Lords by name, position or party
+        function searchLords(searchTerm) {
+            lordsResults.innerHTML = '<div class="loading">Searching the House of Lords...</div>';
+            
+            try {
+                // Use the Lords search function
+                const results = window.findLords ? window.findLords(searchTerm) : [];
+                
+                if (results.length > 0) {
+                    // Lords found
+                    lordsResults.innerHTML = `
+                        <div class="results-header">
+                            <h3>Found ${results.length} member${results.length === 1 ? '' : 's'}</h3>
+                        </div>
+                        <div class="lords-grid"></div>
+                    `;
+                    
+                    const lordsGrid = lordsResults.querySelector('.lords-grid');
+                    
+                    // Add each Lord to the grid
+                    results.forEach(lord => {
+                        let partyColor = '#999';
+                        if (lord.party === 'Conservative') partyColor = '#0087DC';
+                        if (lord.party === 'Labour') partyColor = '#E4003B';
+                        if (lord.party === 'Liberal Democrat') partyColor = '#FAA61A';
+                        if (lord.party === 'Crossbench') partyColor = '#A9A9A9';
+                        if (lord.party === 'Lords Spiritual') partyColor = '#4B0082';
+                        
+                        const lordCard = document.createElement('div');
+                        lordCard.className = 'lord-card';
+                        lordCard.innerHTML = `
+                            <div class="lord-header" style="border-color: ${partyColor}">
+                                <h3>${lord.name}</h3>
+                                <div class="lord-party" style="background-color: ${partyColor}">${lord.party}</div>
+                            </div>
+                            <div class="lord-details">
+                                <p><strong>Position:</strong> ${lord.position}</p>
+                                <p><strong>Email:</strong> <a href="mailto:${lord.email}">${lord.email}</a></p>
+                                <p><strong>Phone:</strong> <a href="tel:${lord.phone}">${lord.phone}</a></p>
+                                <p><strong>Website:</strong> <a href="${lord.website}" target="_blank">Parliamentary Profile</a></p>
+                            </div>
+                        `;
+                        
+                        lordsGrid.appendChild(lordCard);
+                    });
+                } else {
+                    // No Lords found
+                    lordsResults.innerHTML = `
+                        <div class="error-message">
+                            <h3>⚠️ No Results Found</h3>
+                            <p>Sorry, we could not find any members of the House of Lords matching "${searchTerm}".</p>
+                            <p>Try these options:</p>
+                            <ul>
+                                <li>Check your spelling</li>
+                                <li>Try a different search term</li>
+                                <li>Try one of our example searches above</li>
+                                <li>Visit the <a href="https://members.parliament.uk/members/lords" target="_blank">official Parliament website</a></li>
+                            </ul>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error("Error searching Lords:", error);
+                lordsResults.innerHTML = `
+                    <div class="error-message">
+                        <h3>⚠️ Error</h3>
+                        <p>Sorry, an error occurred while searching. Please try again later.</p>
+                        <p><small>Technical details: ${error.message}</small></p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Function to search Lords by postcode (specifically for Westminster)
+        function searchLordsByPostcode(postcode) {
+            lordsResults.innerHTML = '<div class="loading">Searching the House of Lords for Westminster...</div>';
+            
+            try {
+                // Use the fixed MP lookup function with Lords focus
+                const result = window.findMPFixed(postcode, { includeLords: true });
+                
+                if (result.found && result.chamberType === 'lords' && result.allLords) {
+                    // Lords found
+                    lordsResults.innerHTML = `
+                        <div class="results-header">
+                            <h3>House of Lords - Westminster (${postcode})</h3>
+                            <p>The Houses of Parliament are located in the Westminster area. Found ${result.allLords.length} members of the House of Lords.</p>
+                        </div>
+                        <div class="lords-grid"></div>
+                    `;
+                    
+                    const lordsGrid = lordsResults.querySelector('.lords-grid');
+                    
+                    // Add each Lord to the grid
+                    result.allLords.forEach(lord => {
+                        let partyColor = '#999';
+                        if (lord.party === 'Conservative') partyColor = '#0087DC';
+                        if (lord.party === 'Labour') partyColor = '#E4003B';
+                        if (lord.party === 'Liberal Democrat') partyColor = '#FAA61A';
+                        if (lord.party === 'Crossbench') partyColor = '#A9A9A9';
+                        if (lord.party === 'Lords Spiritual') partyColor = '#4B0082';
+                        
+                        const lordCard = document.createElement('div');
+                        lordCard.className = 'lord-card';
+                        lordCard.innerHTML = `
+                            <div class="lord-header" style="border-color: ${partyColor}">
+                                <h3>${lord.name}</h3>
+                                <div class="lord-party" style="background-color: ${partyColor}">${lord.party}</div>
+                            </div>
+                            <div class="lord-details">
+                                <p><strong>Position:</strong> ${lord.position}</p>
+                                <p><strong>Email:</strong> <a href="mailto:${lord.email}">${lord.email}</a></p>
+                                <p><strong>Phone:</strong> <a href="tel:${lord.phone}">${lord.phone}</a></p>
+                                <p><strong>Website:</strong> <a href="${lord.website}" target="_blank">Parliamentary Profile</a></p>
+                            </div>
+                        `;
+                        
+                        lordsGrid.appendChild(lordCard);
+                    });
+                } else {
+                    // No Lords found or unexpected result
+                    lordsResults.innerHTML = `
+                        <div class="error-message">
+                            <h3>⚠️ No Lords Data Found</h3>
+                            <p>Sorry, we could not find House of Lords data for postcode ${postcode}.</p>
+                            <p>If you're looking for your local MP instead, please <a href="find-mp.html">visit our MP lookup page</a>.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error("Error searching Lords by postcode:", error);
+                lordsResults.innerHTML = `
+                    <div class="error-message">
+                        <h3>⚠️ Error</h3>
+                        <p>Sorry, an error occurred while searching. Please try again later.</p>
+                        <p><small>Technical details: ${error.message}</small></p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+
+    <!-- Add custom CSS for this page -->
+    <style>
+        .lords-lookup-section {
+            margin-bottom: 2rem;
+        }
+        
+        .lookup-form {
+            margin: 2rem 0;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        #lords-search-input {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        
+        .primary-btn {
+            background: #1d3557;
+            color: white;
+            border: none;
+            padding: 0 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .primary-btn:hover {
+            background: #2a4a79;
+        }
+        
+        .example-searches {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+        
+        .search-examples {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .search-example {
+            background: #f0f4f8;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .search-example:hover {
+            background: #dbe4f0;
+        }
+        
+        .search-example.prominent {
+            background: #1d3557;
+            color: white;
+            padding: 0.75rem 1.5rem;
+        }
+        
+        .search-example.prominent:hover {
+            background: #2a4a79;
+        }
+        
+        .lords-results {
+            margin: 2rem 0;
+        }
+        
+        .results-header {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .lords-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .lord-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .lord-header {
+            padding: 1.5rem;
+            border-bottom: 4px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .lord-header h3 {
+            margin: 0;
+            color: #1d3557;
+            font-size: 1.2rem;
+        }
+        
+        .lord-party {
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        .lord-details {
+            padding: 1.5rem;
+        }
+        
+        .lord-details p {
+            margin: 0.5rem 0;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 5px solid #e63946;
+        }
+        
+        .error-message h3 {
+            color: #721c24;
+            margin-top: 0;
+        }
+        
+        .westminster-area {
+            background: #e6f2ff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .westminster-area h3 {
+            margin-top: 0;
+            color: #1d3557;
+        }
+        
+        .info-box {
+            background: #f0f4f8;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+        }
+        
+        .info-box h3 {
+            margin-top: 0;
+            color: #1d3557;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem 0;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</body>
+</html>

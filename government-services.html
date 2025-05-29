@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UK Government Services - GovWhiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <nav class="main-nav">
+                <div class="nav-brand">
+                    <h1>🏛️ GovWhiz</h1>
+                    <p>UK Government Services</p>
+                </div>
+                <div class="nav-actions">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="housing-rights.html" class="nav-link">Housing Rights</a>
+                    <a href="contact.html" class="nav-link">Contact</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Services Navigation -->
+        <nav class="services-nav">
+            <button class="service-tab active" data-tab="mp">Find Your MP</button>
+            <button class="service-tab" data-tab="lords">House of Lords</button>
+            <button class="service-tab" data-tab="housing">Housing Rights</button>
+        </nav>
+
+        <!-- MP Search Section -->
+        <section id="mp-section" class="service-section active">
+            <div class="search-container">
+                <h2>Find Your Member of Parliament</h2>
+                <div class="search-box">
+                    <input type="text" 
+                           id="postcode-input" 
+                           placeholder="Enter your postcode (e.g., SW1A 1AA)"
+                           maxlength="8">
+                    <button id="find-mp-btn" class="search-btn">
+                        Find My MP
+                        <span class="btn-icon">→</span>
+                    </button>
+                </div>
+                <div id="postcode-suggestions" class="suggestions"></div>
+                <div id="mp-results" class="results-container"></div>
+            </div>
+
+            <div class="quick-access">
+                <h3>Popular Postcodes</h3>
+                <div class="postcode-grid">
+                    <button class="quick-postcode" data-postcode="SW1A 1AA">Westminster (SW1A 1AA)</button>
+                    <button class="quick-postcode" data-postcode="E1 6AN">Tower Hamlets (E1 6AN)</button>
+                    <button class="quick-postcode" data-postcode="M1 1AE">Manchester (M1 1AE)</button>
+                    <button class="quick-postcode" data-postcode="B1 1HQ">Birmingham (B1 1HQ)</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- House of Lords Section -->
+        <section id="lords-section" class="service-section">
+            <div class="search-container">
+                <h2>Search House of Lords Members</h2>
+                <div class="search-box">
+                    <input type="text" 
+                           id="lords-search" 
+                           placeholder="Search by name or area of expertise">
+                    <button id="search-lords-btn" class="search-btn">
+                        Search Lords
+                        <span class="btn-icon">→</span>
+                    </button>
+                </div>
+                <div id="lords-suggestions" class="suggestions"></div>
+                <div id="lords-results" class="results-container"></div>
+            </div>
+
+            <div class="expertise-areas">
+                <h3>Browse by Expertise</h3>
+                <div class="expertise-grid">
+                    <button class="expertise-btn" data-area="Economy">Economy & Finance</button>
+                    <button class="expertise-btn" data-area="Health">Healthcare & NHS</button>
+                    <button class="expertise-btn" data-area="Environment">Environment</button>
+                    <button class="expertise-btn" data-area="Education">Education</button>
+                    <button class="expertise-btn" data-area="Technology">Technology</button>
+                    <button class="expertise-btn" data-area="Foreign">Foreign Affairs</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Housing Rights Section -->
+        <section id="housing-section" class="service-section">
+            <div class="housing-container">
+                <h2>Know Your Housing Rights</h2>
+                
+                <div class="rights-categories">
+                    <div class="rights-card">
+                        <h3>Tenant Rights</h3>
+                        <ul>
+                            <li>Right to live in a property that's safe and in good repair</li>
+                            <li>Protection from unfair eviction and unfair rent</li>
+                            <li>Right to have your deposit protected</li>
+                            <li>Right to challenge excessively high charges</li>
+                            <li>Right to know who your landlord is</li>
+                        </ul>
+                        <button class="learn-more-btn" data-topic="tenant">Learn More</button>
+                    </div>
+
+                    <div class="rights-card">
+                        <h3>Council Housing</h3>
+                        <ul>
+                            <li>Right to apply for council housing</li>
+                            <li>Right to emergency housing if homeless</li>
+                            <li>Right to challenge council decisions</li>
+                            <li>Right to repair and maintenance</li>
+                            <li>Right to buy options</li>
+                        </ul>
+                        <button class="learn-more-btn" data-topic="council">Learn More</button>
+                    </div>
+
+                    <div class="rights-card">
+                        <h3>Housing Benefits</h3>
+                        <ul>
+                            <li>Universal Credit housing payment</li>
+                            <li>Local Housing Allowance</li>
+                            <li>Council Tax Reduction</li>
+                            <li>Discretionary Housing Payments</li>
+                            <li>Support for mortgage interest</li>
+                        </ul>
+                        <button class="learn-more-btn" data-topic="benefits">Learn More</button>
+                    </div>
+                </div>
+
+                <div class="emergency-support">
+                    <h3>Emergency Housing Support</h3>
+                    <p>If you're at risk of homelessness or need urgent housing support:</p>
+                    <ul>
+                        <li>Call Shelter's helpline: 0808 800 4444</li>
+                        <li>Contact your local council's housing department</li>
+                        <li>Visit the nearest Citizens Advice Bureau</li>
+                    </ul>
+                    <button class="emergency-btn">Get Emergency Help</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="housing-rights.html">Housing Rights</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Official Resources</h3>
+                    <ul>
+                        <li><a href="https://www.parliament.uk/" target="_blank">UK Parliament</a></li>
+                        <li><a href="https://www.gov.uk/housing" target="_blank">Government Housing</a></li>
+                        <li><a href="https://www.shelter.org.uk/" target="_blank">Shelter UK</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GovWhiz - Making Government Services Accessible</p>
+                <p>This is an educational service and is not affiliated with the UK Government.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

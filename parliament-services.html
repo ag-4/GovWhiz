@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GovWhiz Parliamentary Services - Find your MP, Lords and more">
+    <meta name="keywords" content="UK MP, House of Lords, parliament, democracy, civic engagement">
+    <meta name="author" content="GovWhiz">
+
+    <title>Parliamentary Services - GovWhiz</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="main-nav">
+                <div class="nav-brand">
+                    <h1>🏛️ GovWhiz</h1>
+                    <p>Parliamentary Services</p>
+                </div>
+                <div class="nav-actions">
+                    <a href="index.html" class="nav-link">Home</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="modern-card">
+            <h2>🏛️ UK Parliamentary Services</h2>
+            <p class="section-intro">Connect with your elected representatives and explore the UK Parliament</p>
+            
+            <div class="services-grid">
+                <a href="find-mp.html" class="service-card">
+                    <div class="service-icon">👤</div>
+                    <h3>Find Your MP</h3>
+                    <p>Look up your local Member of Parliament by postcode and get their contact information</p>
+                </a>
+                
+                <a href="find-lords.html" class="service-card">
+                    <div class="service-icon">👑</div>
+                    <h3>House of Lords</h3>
+                    <p>Search for members of the House of Lords and learn about their roles</p>
+                </a>
+                
+                <a href="#" class="service-card">
+                    <div class="service-icon">📊</div>
+                    <h3>Voting Records</h3>
+                    <p>Explore how your MP has voted on key issues and legislation</p>
+                    <span class="coming-soon">Coming Soon</span>
+                </a>
+                
+                <a href="#" class="service-card">
+                    <div class="service-icon">📝</div>
+                    <h3>Committee Tracker</h3>
+                    <p>Follow parliamentary committees and their current inquiries</p>
+                    <span class="coming-soon">Coming Soon</span>
+                </a>
+                
+                <a href="#" class="service-card">
+                    <div class="service-icon">🔍</div>
+                    <h3>MP Interests</h3>
+                    <p>Find MPs with specific policy interests or expertise</p>
+                    <span class="coming-soon">Coming Soon</span>
+                </a>
+                
+                <a href="#" class="service-card">
+                    <div class="service-icon">📋</div>
+                    <h3>Constituency Reports</h3>
+                    <p>Get detailed information about any UK constituency</p>
+                    <span class="coming-soon">Coming Soon</span>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="find-mp.html">Find Your MP</a></li>
+                        <li><a href="find-lords.html">House of Lords</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="index.html#contact">Contact Us</a></li>
+                        <li><a href="mailto:help@govwhiz.uk">help@govwhiz.uk</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GovWhiz - Simplifying UK Legislation</p>
+                <p>Not affiliated with the UK Government. Information for educational purposes.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add custom CSS for this page -->
+    <style>
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .service-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
+            position: relative;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+        }
+        
+        .service-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .service-card h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #1d3557;
+        }
+        
+        .service-card p {
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+        
+        .coming-soon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #e63946;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+    </style>
+</body>
+</html>

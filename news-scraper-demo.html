@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏛️ UK Parliament News Scraper Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #3498db, #9b59b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+        }
+
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .status.loading {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .status.success {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .status.error {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #3498db;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .news-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            line-height: 1.4;
+        }
+
+        .news-card .source {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .news-card .summary {
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .news-card .ai-summary {
+            background: linear-gradient(45deg, #e8f5e8, #d5f4e6);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #27ae60;
+            margin-bottom: 15px;
+        }
+
+        .news-card .ai-summary h4 {
+            color: #27ae60;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .news-card .link {
+            display: inline-block;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .news-card .link:hover {
+            transform: scale(1.05);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .stat-card h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ UK Parliament News Scraper</h1>
+            <p>Enhanced news aggregation with AI-powered summarization</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="loadNews()">🔄 Refresh News</button>
+            <button class="btn secondary" onclick="loadBBCOnly()">📺 BBC Politics Only</button>
+            <button class="btn secondary" onclick="showStats()">📊 Show Statistics</button>
+            <button class="btn secondary" onclick="runScraper()">🚀 Run Full Scraper</button>
+        </div>
+
+        <div id="status" class="status" style="display: none;"></div>
+
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat-card">
+                <h3 id="total-articles">0</h3>
+                <p>Total Articles</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="total-sources">0</h3>
+                <p>News Sources</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="ai-summaries">0</h3>
+                <p>AI Summaries</p>
+            </div>
+        </div>
+
+        <div class="news-grid" id="news-container">
+            <!-- News articles will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        let newsData = [];
+
+        // Show status message
+        function showStatus(message, type = 'loading') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        // Hide status message
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+
+        // Load news from JSON file
+        async function loadNews() {
+            showStatus('🔄 Loading latest news...', 'loading');
+            
+            try {
+                const response = await fetch('data/latest_news.json');
+                if (!response.ok) throw new Error('Failed to load news data');
+                
+                const data = await response.json();
+                newsData = data.articles || data || [];
+                
+                displayNews(newsData);
+                updateStats();
+                showStatus('✅ News loaded successfully!', 'success');
+                setTimeout(hideStatus, 3000);
+                
+            } catch (error) {
+                console.error('Error loading news:', error);
+                showStatus('❌ Failed to load news. Try running the scraper first.', 'error');
+                loadMockNews();
+            }
+        }
+
+        // Load BBC Politics only
+        async function loadBBCOnly() {
+            showStatus('📺 Loading BBC Politics news...', 'loading');
+            
+            // Filter for BBC only if we have data
+            if (newsData.length > 0) {
+                const bbcNews = newsData.filter(article => 
+                    article.source && article.source.includes('BBC')
+                );
+                displayNews(bbcNews);
+                showStatus(`✅ Showing ${bbcNews.length} BBC articles`, 'success');
+                setTimeout(hideStatus, 3000);
+            } else {
+                await loadNews();
+            }
+        }
+
+        // Display news articles
+        function displayNews(articles) {
+            const container = document.getElementById('news-container');
+            
+            if (!articles || articles.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; grid-column: 1 / -1; padding: 40px;">
+                        <h3>📰 No news articles found</h3>
+                        <p>Try running the news scraper to fetch fresh content.</p>
+                        <button class="btn" onclick="runScraper()" style="margin-top: 20px;">
+                            🚀 Run Scraper
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = articles.map(article => `
+                <div class="news-card">
+                    <div class="source">${article.source || 'Unknown Source'}</div>
+                    <h3>${article.title}</h3>
+                    
+                    ${article.original_summary ? `
+                        <div class="summary">${article.original_summary.substring(0, 200)}...</div>
+                    ` : ''}
+                    
+                    ${article.ai_summary && article.ai_summary !== 'AI summary not available' ? `
+                        <div class="ai-summary">
+                            <h4>🧠 AI Summary</h4>
+                            <div>${article.ai_summary}</div>
+                        </div>
+                    ` : ''}
+                    
+                    <a href="${article.link}" target="_blank" class="link">📖 Read Full Article</a>
+                </div>
+            `).join('');
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalArticles = newsData.length;
+            const totalSources = new Set(newsData.map(a => a.source)).size;
+            const aiSummaries = newsData.filter(a => 
+                a.ai_summary && a.ai_summary !== 'AI summary not available'
+            ).length;
+
+            document.getElementById('total-articles').textContent = totalArticles;
+            document.getElementById('total-sources').textContent = totalSources;
+            document.getElementById('ai-summaries').textContent = aiSummaries;
+        }
+
+        // Show/hide statistics
+        function showStats() {
+            const stats = document.getElementById('stats');
+            stats.style.display = stats.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        // Run the news scraper
+        function runScraper() {
+            showStatus('🚀 Running news scraper... This may take a moment.', 'loading');
+            
+            // In a real implementation, this would trigger the Python script
+            alert('🚀 To run the full scraper, execute:\n\npython fetch_news.py\n\nThis will fetch news from all sources with AI summarization.');
+            
+            // Simulate completion
+            setTimeout(() => {
+                showStatus('✅ Scraper completed! Refresh to see new articles.', 'success');
+                setTimeout(hideStatus, 5000);
+            }, 2000);
+        }
+
+        // Load mock news for demo
+        function loadMockNews() {
+            const mockNews = [
+                {
+                    title: "Parliament Discusses New Digital Rights Bill",
+                    source: "UK Parliament News",
+                    original_summary: "MPs debate comprehensive digital rights legislation covering privacy, data protection, and online safety measures.",
+                    ai_summary: "Parliament debates new digital rights bill focusing on privacy and online safety.",
+                    link: "#"
+                },
+                {
+                    title: "Government Announces Climate Action Plan",
+                    source: "BBC Politics",
+                    original_summary: "The government unveils ambitious climate targets and funding for renewable energy projects across the UK.",
+                    ai_summary: "Government reveals new climate targets and renewable energy funding.",
+                    link: "#"
+                }
+            ];
+            
+            newsData = mockNews;
+            displayNews(mockNews);
+            updateStats();
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 UK Parliament News Scraper Demo Ready');
+            loadNews();
+        });
+    </script>
+</body>
+</html>

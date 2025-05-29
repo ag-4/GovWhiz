@@ -1,0 +1,481 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Find your Member of Parliament using your postcode - GovWhiz MP lookup service">
+    <meta name="keywords" content="UK MP, find my MP, parliament, democracy, constituency">
+    <meta name="author" content="GovWhiz">    <!-- MP Lookup Scripts -->
+    <script src="js/postcode-lookup.js"></script>
+    
+    <title>Find Your MP - GovWhiz</title>    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="js/styles/mp-lookup.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="main-nav">
+                <div class="nav-brand">
+                    <h1>🏛️ GovWhiz</h1>
+                    <p>Find Your MP</p>
+                </div>
+                <div class="nav-actions">
+                    <a href="parliament-services.html" class="nav-link">All Services</a>
+                    <a href="index.html" class="nav-link">Home</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="mp-lookup-section modern-card">
+            <h2>👤 Find Your MP</h2>
+            <p class="section-intro">Enter your postcode to find your Member of Parliament's contact information</p>
+              <div class="lookup-form">
+                <div class="input-group">
+                    <input type="text" id="postcode-input" placeholder="Enter your postcode (e.g., SW1A 1AA)" maxlength="8">
+                    <button id="find-mp-btn" class="primary-btn">Find My MP</button>
+                </div>
+                <div id="postcodeSuggestions" class="postcode-suggestions"></div>
+            </div>
+            
+            <div class="example-postcodes">
+                <p><strong>Try these example postcodes:</strong></p>                <div class="postcode-examples">
+                    <button class="postcode-example" data-postcode="SW1A 1AA">SW1A 1AA (Westminster)</button>
+                    <button class="postcode-example" data-postcode="WC1H 9JE">WC1H 9JE (Holborn)</button>
+                    <button class="postcode-example" data-postcode="M1 1AA">M1 1AA (Manchester)</button>
+                    <button class="postcode-example" data-postcode="B1 1AA">B1 1AA (Birmingham)</button>
+                    <button class="postcode-example" data-postcode="EH1 1AA">EH1 1AA (Edinburgh)</button>
+                </div>
+            </div>
+            
+            <div id="mp-results" class="mp-results"></div>
+            
+            <div class="info-box">
+                <h3>What can your MP help with?</h3>
+                <ul>
+                    <li><strong>Local issues</strong> in your constituency</li>
+                    <li><strong>Individual concerns</strong> with government departments</li>
+                    <li><strong>Policy matters</strong> and pending legislation</li>
+                    <li><strong>Passport problems</strong> and other official documentation</li>
+                    <li><strong>Housing issues</strong> and local planning concerns</li>
+                </ul>
+                <p><strong>Note:</strong> MPs can only help their own constituents. If you're contacting about a matter outside their jurisdiction, they'll typically direct you to the appropriate representative.</p>
+            </div>
+        </section>
+        
+        <section class="mp-templates modern-card">
+            <h2>📝 Email Templates</h2>
+            <p class="section-intro">Use these templates to effectively communicate with your MP</p>
+            
+            <div class="template-grid">
+                <div class="template-card">
+                    <h3>Support a Bill</h3>
+                    <div class="template-preview">
+                        <p>Dear [MP Name],</p>
+                        <p>As your constituent in [Constituency], I'm writing to express my support for [Bill Name]...</p>
+                    </div>
+                    <button class="template-btn" data-template="support">Use Template</button>
+                </div>
+                
+                <div class="template-card">
+                    <h3>Oppose a Bill</h3>
+                    <div class="template-preview">
+                        <p>Dear [MP Name],</p>
+                        <p>I am writing as a concerned constituent regarding [Bill Name], which I believe will negatively impact...</p>
+                    </div>
+                    <button class="template-btn" data-template="oppose">Use Template</button>
+                </div>
+                
+                <div class="template-card">
+                    <h3>Request a Meeting</h3>
+                    <div class="template-preview">
+                        <p>Dear [MP Name],</p>
+                        <p>I am a constituent in [Constituency] and would like to request a meeting to discuss...</p>
+                    </div>
+                    <button class="template-btn" data-template="meeting">Use Template</button>
+                </div>
+                
+                <div class="template-card">
+                    <h3>Ask a Question</h3>
+                    <div class="template-preview">
+                        <p>Dear [MP Name],</p>
+                        <p>I'm writing as your constituent in [Constituency] to inquire about your position on...</p>
+                    </div>
+                    <button class="template-btn" data-template="question">Use Template</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="parliament-services.html">Parliamentary Services</a></li>
+                        <li><a href="find-lords.html">House of Lords</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Official Resources</h3>
+                    <ul>
+                        <li><a href="https://members.parliament.uk/members/commons" target="_blank">Official MPs Directory</a></li>
+                        <li><a href="https://www.parliament.uk/get-involved/contact-your-mp/" target="_blank">Parliament.uk - Contact Your MP</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GovWhiz - Simplifying UK Legislation</p>
+                <p>Not affiliated with the UK Government. Information for educational purposes.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MP Lookup Scripts -->
+    <script>
+        let postcodeInput;
+        let findMpBtn;
+        let mpResults;
+
+        // Initialize when DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            postcodeInput = document.getElementById('postcode-input');
+            findMpBtn = document.getElementById('find-mp-btn');
+            mpResults = document.getElementById('mp-results');
+            
+            // Add event listeners
+            if (findMpBtn) {
+                findMpBtn.addEventListener('click', function() {
+                    const postcode = postcodeInput.value;
+                    findMP(postcode);
+                });
+            }
+            
+            // Add event listener for Enter key on postcode input
+            if (postcodeInput) {
+                postcodeInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const postcode = postcodeInput.value;
+                        findMP(postcode);
+                    }
+                });
+            }
+        });
+
+        // Function to try example postcodes
+        function tryPostcode(postcode) {
+            postcodeInput.value = postcode;
+            findMP(postcode);
+        }
+
+        // Main MP lookup function
+        function findMP(postcode) {
+            mpResults.innerHTML = '<div class="loading">Searching for your MP...</div>';
+            
+            try {
+                // Use the fixed MP lookup function with Commons focus
+                const result = window.findMPFixed(postcode, { includeLords: false });
+                
+                if (result.found && result.mp) {
+                    // MP found
+                    const mp = result.mp;
+                    const party = mp.party;
+                    
+                    // Determine party color for styling
+                    let partyColor = '#999';
+                    if (party === 'Conservative') partyColor = '#0087DC';
+                    if (party === 'Labour') partyColor = '#E4003B';
+                    if (party === 'Liberal Democrat') partyColor = '#FAA61A';
+                    if (party === 'Green') partyColor = '#6AB023';
+                    if (party === 'Scottish National Party') partyColor = '#FFF95D';
+                    
+                    // Create MP card
+                    mpResults.innerHTML = `
+                        <div class="mp-card">
+                            <div class="mp-header" style="border-color: ${partyColor}">
+                                <h3>${mp.name}</h3>
+                                <div class="mp-party" style="background-color: ${partyColor}">${mp.party}</div>
+                            </div>
+                            <div class="mp-details">
+                                <div class="mp-info">
+                                    <p><strong>Constituency:</strong> ${mp.constituency}</p>
+                                    <p><strong>Role:</strong> ${mp.role || 'Member of Parliament'}</p>
+                                    <p><strong>Email:</strong> <a href="mailto:${mp.email}">${mp.email}</a></p>
+                                    <p><strong>Phone:</strong> <a href="tel:${mp.phone}">${mp.phone}</a></p>
+                                    <p><strong>Website:</strong> <a href="${mp.website}" target="_blank">Parliamentary Profile</a></p>
+                                    ${mp.twitter ? `<p><strong>Twitter:</strong> <a href="https://twitter.com/${mp.twitter.replace('@', '')}" target="_blank">${mp.twitter}</a></p>` : ''}
+                                </div>
+                                <div class="mp-actions">
+                                    <button class="action-btn" onclick="window.open('mailto:${mp.email}')">Email MP</button>
+                                    <button class="action-btn secondary" onclick="showTemplates('${mp.name}', '${mp.constituency}')">Use Template</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // MP not found
+                    mpResults.innerHTML = `
+                        <div class="error-message">
+                            <h3>⚠️ MP Not Found</h3>
+                            <p>${result.message || 'Sorry, we could not find an MP for that postcode.'}</p>
+                            ${result.constituency ? `<p>Constituency found: <strong>${result.constituency}</strong></p>` : ''}
+                            <p>Try these options:</p>
+                            <ul>
+                                <li>Check your postcode and try again</li>
+                                <li>Try a different postcode in your area</li>
+                                <li>Visit the <a href="https://members.parliament.uk/FindYourMP" target="_blank">official Parliament website</a></li>
+                                <li>Looking for a Lord? <a href="find-lords.html">Search the House of Lords</a></li>
+                            </ul>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error("Error finding MP:", error);
+                mpResults.innerHTML = `
+                    <div class="error-message">
+                        <h3>⚠️ Error</h3>
+                        <p>Sorry, an error occurred while looking up your MP. Please try again later.</p>
+                        <p><small>Technical details: ${error.message}</small></p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Function to show email templates
+        function showTemplates(mpName, constituency) {
+            alert(`Email templates for ${mpName} (${constituency}) would be shown here in the full application.`);
+            // This would be replaced with actual template functionality
+        }
+    </script>
+
+    <!-- Add custom CSS for this page -->
+    <style>
+        .mp-lookup-section {
+            margin-bottom: 2rem;
+        }
+        
+        .lookup-form {
+            margin: 2rem 0;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        #postcode-input {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        
+        .primary-btn {
+            background: #1d3557;
+            color: white;
+            border: none;
+            padding: 0 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .primary-btn:hover {
+            background: #2a4a79;
+        }
+        
+        .example-postcodes {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .postcode-examples {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .postcode-example {
+            background: #f0f4f8;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .postcode-example:hover {
+            background: #dbe4f0;
+        }
+        
+        .mp-results {
+            margin: 2rem 0;
+        }
+        
+        .mp-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .mp-header {
+            padding: 1.5rem;
+            border-bottom: 4px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .mp-header h3 {
+            margin: 0;
+            color: #1d3557;
+        }
+        
+        .mp-party {
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .mp-details {
+            padding: 1.5rem;
+        }
+        
+        .mp-info p {
+            margin: 0.5rem 0;
+        }
+        
+        .mp-actions {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .action-btn:not(.secondary) {
+            background: #1d3557;
+            color: white;
+        }
+        
+        .action-btn:not(.secondary):hover {
+            background: #2a4a79;
+        }
+        
+        .action-btn.secondary {
+            background: transparent;
+            border: 1px solid #1d3557;
+            color: #1d3557;
+        }
+        
+        .action-btn.secondary:hover {
+            background: #f0f4f8;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 5px solid #e63946;
+        }
+        
+        .error-message h3 {
+            color: #721c24;
+            margin-top: 0;
+        }
+        
+        .info-box {
+            background: #f0f4f8;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+        }
+        
+        .info-box h3 {
+            margin-top: 0;
+            color: #1d3557;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem 0;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .template-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .template-card h3 {
+            background: #1d3557;
+            color: white;
+            margin: 0;
+            padding: 1rem;
+        }
+        
+        .template-preview {
+            padding: 1rem;
+            flex-grow: 1;
+            background: #f9f9f9;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .template-btn {
+            background: #457b9d;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            width: 100%;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .template-btn:hover {
+            background: #2a6080;
+        }
+    </style>
+</body>
+</html>

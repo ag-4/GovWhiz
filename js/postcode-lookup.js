@@ -1,8 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     const postcodeInput = document.getElementById('postcode-input');
     const findMpBtn = document.getElementById('find-mp-btn');
-    const postcodeSuggestions = document.getElementById('postcode-suggestions');
+    const postcodeSuggestions = document.getElementById('postcodeSuggestions');
     const mpResults = document.getElementById('mp-results');
+
+    // Regular expression for UK postcode validation
+    const postcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i;
 
     // Sample data for demonstration
     const sampleData = {
@@ -14,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     postcodeInput.addEventListener('input', debounce(getSuggestions, 300));
-    findMpBtn.addEventListener('click', findMP);
+    findMpBtn.addEventListener('click', () => findMP());
 
     function debounce(func, delay) {
         let debounceTimer;
@@ -26,6 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function validatePostcode(postcode) {
+        return postcodeRegex.test(postcode);
+    }
+
     function getSuggestions() {
         const postcode = postcodeInput.value.trim().toUpperCase();
         if (postcode.length < 2) {
@@ -33,60 +40,127 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const suggestions = Object.keys(sampleData)
-            .filter(pc => pc.startsWith(postcode))
-            .map(pc => `<div class="suggestion" data-postcode="${pc}">${pc}</div>`)
-            .join('');
+        // Show loading state for suggestions
+        postcodeSuggestions.innerHTML = '<div class="loading">Loading suggestions...</div>';
 
-        postcodeSuggestions.innerHTML = suggestions || '<div>No suggestions found</div>';
+        // Simulate API delay for demonstration
+        setTimeout(() => {
+            const suggestions = Object.keys(sampleData)
+                .filter(pc => pc.startsWith(postcode))
+                .map(pc => `<div class="suggestion" data-postcode="${pc}">${pc}</div>`)
+                .join('');
+
+            postcodeSuggestions.innerHTML = suggestions || '<div class="no-results">No suggestions found</div>';
+        }, 300);
     }
 
-    function findMP() {
-        const postcode = postcodeInput.value.trim();
+    async function findMP() {
+        const postcode = postcodeInput.value.trim().toUpperCase();
+        
+        // Clear previous results
+        mpResults.innerHTML = '';
+        
         if (!postcode) {
-            mpResults.innerHTML = '<div>Please enter a valid postcode</div>';
+            showError('Please enter a postcode');
             return;
         }
 
-        mpResults.innerHTML = '<div>Searching...</div>';
+        if (!validatePostcode(postcode)) {
+            showError('Please enter a valid UK postcode');
+            return;
+        }
 
-        fetch(`https://members-api.parliament.uk/api/Location/Constituency/Search?searchText=${postcode}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.items && data.items.length > 0) {
-                    const constituency = data.items[0].value;
-                    return fetch(`https://members-api.parliament.uk/api/Location/Constituency/${constituency.id}/Members`);
-                } else {
-                    throw new Error('No constituency found for this postcode');
-                }
-            })
-            .then(response => response.json())
-            .then(mpData => {
-                if (mpData.items && mpData.items.length > 0) {
-                    const mp = mpData.items[0].value;
-                    mpResults.innerHTML = `
-                        <div>
-                            <h3>Your Constituency: ${mp.latestHouseMembership.membershipFrom}</h3>
-                            <h4>Your MP: ${mp.nameDisplayAs}</h4>
-                            <p>Party: ${mp.latestParty.name}</p>
-                            <p>Email: ${mp.contactDetails.find(c => c.type === 'Email')?.value || 'Not available'}</p>
-                            <p>Phone: ${mp.contactDetails.find(c => c.type === 'Phone')?.value || 'Not available'}</p>
+        showLoading();
+
+        try {
+            // First API call to get constituency
+            const constituencyResponse = await fetch(`https://members-api.parliament.uk/api/Location/Constituency/Search?searchText=${encodeURIComponent(postcode)}`);
+            if (!constituencyResponse.ok) throw new Error('Failed to fetch constituency data');
+            
+            const constituencyData = await constituencyResponse.json();
+            if (!constituencyData.items?.length) {
+                throw new Error('No constituency found for this postcode');
+            }
+
+            const constituency = constituencyData.items[0].value;
+
+            // Second API call to get MP details
+            const mpResponse = await fetch(`https://members-api.parliament.uk/api/Location/Constituency/${constituency.id}/Members`);
+            if (!mpResponse.ok) throw new Error('Failed to fetch MP data');
+
+            const mpData = await mpResponse.json();
+            if (!mpData.items?.length) {
+                throw new Error('No current MP found for this constituency');
+            }
+
+            const mp = mpData.items[0].value;
+            
+            // Get MP's social media links if available
+            const socialLinks = mp.socialLinks || [];
+            const twitterHandle = socialLinks.find(s => s.type === 'Twitter')?.value || '';
+            const facebookPage = socialLinks.find(s => s.type === 'Facebook')?.value || '';
+
+            // Format and display the results
+            mpResults.innerHTML = `
+                <div class="mp-card">
+                    <div class="mp-header">
+                        <h3>Your Constituency</h3>
+                        <h2>${mp.latestHouseMembership.membershipFrom}</h2>
+                    </div>
+                    <div class="mp-details">
+                        <h3>Your MP: ${mp.nameDisplayAs}</h3>
+                        <div class="mp-info">
+                            <p><strong>Party:</strong> ${mp.latestParty.name}</p>
+                            <p><strong>Email:</strong> ${mp.contactDetails.find(c => c.type === 'Email')?.value || 'Not available'}</p>
+                            <p><strong>Phone:</strong> ${mp.contactDetails.find(c => c.type === 'Phone')?.value || 'Not available'}</p>
+                            ${mp.contactDetails.find(c => c.type === 'Address')?.value ? 
+                                `<p><strong>Address:</strong> ${mp.contactDetails.find(c => c.type === 'Address').value}</p>` : ''}
+                            ${twitterHandle ? `<p><strong>Twitter:</strong> <a href="https://twitter.com/${twitterHandle}" target="_blank">@${twitterHandle}</a></p>` : ''}
+                            ${facebookPage ? `<p><strong>Facebook:</strong> <a href="${facebookPage}" target="_blank">View Profile</a></p>` : ''}
                         </div>
-                    `;
-                } else {
-                    throw new Error('No current MP found for this constituency');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                mpResults.innerHTML = `<div>Error: ${error.message}</div>`;
-            });
+                    </div>
+                </div>
+            `;
+
+        } catch (error) {
+            console.error('Error:', error);
+            showError(error.message || 'An error occurred while fetching MP data');
+        }
+    }
+
+    function showError(message) {
+        mpResults.innerHTML = `<div class="error-message">${message}</div>`;
+    }
+
+    function showLoading() {
+        mpResults.innerHTML = `
+            <div class="loading-message">
+                <div class="spinner"></div>
+                <p>Searching for your MP...</p>
+            </div>
+        `;
     }
 
     postcodeSuggestions.addEventListener('click', (e) => {
         if (e.target.classList.contains('suggestion')) {
             postcodeInput.value = e.target.dataset.postcode;
             postcodeSuggestions.innerHTML = '';
+            findMP();
+        }
+    });
+
+    // Handle example postcode buttons
+    document.querySelectorAll('.postcode-example').forEach(button => {
+        button.addEventListener('click', () => {
+            const postcode = button.dataset.postcode;
+            postcodeInput.value = postcode;
+            findMP();
+        });
+    });
+
+    // Add keyboard navigation
+    postcodeInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
             findMP();
         }
     });

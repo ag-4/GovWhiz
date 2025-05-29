@@ -1,0 +1,30 @@
+{
+  "SW1A1AA": {
+    "constituency": "Cities of London and Westminster",
+    "id": 169984,
+    "type": "WMC",
+    "postcode": "SW1A 1AA",
+    "lookup_time": "2025-05-27T19:06:18.831888"
+  },
+  "W1A0AX": {
+    "constituency": "Islington South and Finsbury",
+    "id": 170008,
+    "type": "WMC",
+    "postcode": "W1A 0AX",
+    "lookup_time": "2025-05-27T19:06:18.940635"
+  },
+  "EC4M7LS": {
+    "constituency": "Cities of London and Westminster",
+    "id": 169984,
+    "type": "WMC",
+    "postcode": "EC4M 7LS",
+    "lookup_time": "2025-05-27T19:06:19.275392"
+  },
+  "B11AA": {
+    "constituency": "Birmingham Ladywood",
+    "id": 169806,
+    "type": "WMC",
+    "postcode": "B1 1AA",
+    "lookup_time": "2025-05-27T19:06:19.510338"
+  }
+}

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Find your UK Parliamentary Representatives - MPs and Lords">
+    <meta name="keywords" content="UK Parliament, MP lookup, House of Lords, constituency, democracy">
+    <meta name="author" content="GovWhiz">
+
+    <title>Find Your Representatives - GovWhiz</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="js/styles/representatives.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="main-nav">
+                <div class="nav-brand">
+                    <h1>🏛️ GovWhiz</h1>
+                    <p>Parliamentary Representatives</p>
+                </div>
+                <div class="nav-actions">
+                    <a href="parliament-services.html" class="nav-link">All Services</a>
+                    <a href="index.html" class="nav-link">Home</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Representatives Lookup Section -->
+        <section class="lookup-section modern-card" id="representatives-section">
+            <div class="section-header">
+                <h2>🏛️ Find Your Representatives</h2>
+                <p class="section-intro">Access information about your MP and Members of the House of Lords</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="mp">Member of Parliament</button>
+                <button class="tab-btn" data-tab="lords">House of Lords</button>
+            </div>
+
+            <!-- MP Tab Content -->
+            <div class="tab-content active" id="mp-tab">
+                <div class="lookup-form">
+                    <div class="input-group">
+                        <div class="search-wrapper">
+                            <input type="text" 
+                                id="postcode-input" 
+                                placeholder="Enter your postcode (e.g., SW1A 1AA)" 
+                                maxlength="8"
+                                aria-label="Enter your postcode">
+                            <div id="postcode-suggestions" class="suggestions-dropdown"></div>
+                        </div>
+                        <button id="find-mp-btn" class="primary-btn">
+                            <span class="btn-text">Find My MP</span>
+                            <span class="btn-icon">→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="mp-results" class="results-area">
+                    <!-- Results will be populated here -->
+                </div>
+
+                <div class="quick-links">
+                    <h3>Try These Areas:</h3>
+                    <div class="postcode-buttons">
+                        <button class="postcode-example" data-postcode="SW1A 0AA">Westminster (SW1A 0AA)</button>
+                        <button class="postcode-example" data-postcode="E1 6AN">Tower Hamlets (E1 6AN)</button>
+                        <button class="postcode-example" data-postcode="M1 1AE">Manchester (M1 1AE)</button>
+                        <button class="postcode-example" data-postcode="G1 1XQ">Glasgow (G1 1XQ)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lords Tab Content -->
+            <div class="tab-content" id="lords-tab">
+                <div class="lookup-form">
+                    <div class="input-group">
+                        <div class="search-wrapper">
+                            <input type="text" 
+                                id="lords-search" 
+                                placeholder="Search by name, expertise, or area of interest"
+                                aria-label="Search House of Lords members">
+                            <div id="lords-suggestions" class="suggestions-dropdown"></div>
+                        </div>
+                        <button id="find-lords-btn" class="primary-btn">
+                            <span class="btn-text">Search Lords</span>
+                            <span class="btn-icon">→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="lords-results" class="results-area">
+                    <!-- Results will be populated here -->
+                </div>
+
+                <div class="expertise-areas">
+                    <h3>Browse by Expertise:</h3>
+                    <div class="expertise-buttons">
+                        <button class="expertise-btn" data-expertise="Economy">Economy & Finance</button>
+                        <button class="expertise-btn" data-expertise="Health">Healthcare & NHS</button>
+                        <button class="expertise-btn" data-expertise="Environment">Environment & Climate</button>
+                        <button class="expertise-btn" data-expertise="Education">Education</button>
+                        <button class="expertise-btn" data-expertise="Foreign">Foreign Affairs</button>
+                        <button class="expertise-btn" data-expertise="Technology">Technology & Digital</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-cards">
+                <div class="info-card mp-info">
+                    <h3>Your MP Can Help With:</h3>
+                    <ul>
+                        <li>🏘️ Housing and Planning Issues</li>
+                        <li>📋 Immigration and Passports</li>
+                        <li>🏥 NHS and Healthcare</li>
+                        <li>💼 Employment Concerns</li>
+                        <li>📚 Education Matters</li>
+                        <li>🏛️ Local Development</li>
+                    </ul>
+                    <div class="card-footer">
+                        <a href="https://www.parliament.uk/get-involved/contact-your-mp/" target="_blank" class="learn-more">
+                            Learn More About MP Services →
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="info-card lords-info">
+                    <h3>The House of Lords:</h3>
+                    <ul>
+                        <li>📜 Reviews and Improves Laws</li>
+                        <li>🔍 Scrutinizes Government</li>
+                        <li>💡 Provides Expert Knowledge</li>
+                        <li>⚖️ Upholds Democracy</li>
+                        <li>🤝 Works Across Parties</li>
+                        <li>🎓 Specialist Committees</li>
+                    </ul>
+                    <div class="card-footer">
+                        <a href="https://www.parliament.uk/business/lords/" target="_blank" class="learn-more">
+                            Learn About the Lords →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="parliament-services.html">All Services</a></li>
+                        <li><a href="find-mp.html">Find MP Only</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Official Resources</h3>
+                    <ul>
+                        <li><a href="https://members.parliament.uk/members/commons" target="_blank">MPs Directory</a></li>
+                        <li><a href="https://members.parliament.uk/members/lords" target="_blank">Lords Directory</a></li>
+                        <li><a href="https://www.parliament.uk/" target="_blank">UK Parliament</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GovWhiz - Making Government Accessible</p>
+                <p>Not affiliated with the UK Parliament. For educational purposes only.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/representatives.js"></script>
+</body>
+</html>

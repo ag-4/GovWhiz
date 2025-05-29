@@ -161,6 +161,38 @@
         }
     </style>
 
+    <script>
+        // Create a real-time system for testing if it doesn't exist
+        if (!window.realTimeSystem) {
+            window.realTimeSystem = {
+                getRandomBill: function() {
+                    const bills = ["Online Safety Bill", "Climate Action Bill", "Healthcare Reform Act", "Education Funding Bill", "Transport Infrastructure Bill"];
+                    return bills[Math.floor(Math.random() * bills.length)];
+                },
+                getRandomMP: function() {
+                    const mps = ["John Smith", "Sarah Johnson", "Mohammed Ahmed", "Fiona MacDonald", "Rhys Williams", "Siobhan O'Neill"];
+                    return mps[Math.floor(Math.random() * mps.length)];
+                },
+                getRandomStage: function() {
+                    const stages = ["First Reading", "Second Reading", "Committee Stage", "Report Stage", "Third Reading", "Royal Assent"];
+                    return stages[Math.floor(Math.random() * stages.length)];
+                },
+                getRandomTopic: function() {
+                    const topics = ["Health", "Education", "Environment", "Economy", "Technology", "Transport"];
+                    return topics[Math.floor(Math.random() * topics.length)];
+                },
+                getRandomRole: function() {
+                    const roles = ["Secretary of State", "Minister", "Shadow Minister", "Committee Chair", "Committee Member"];
+                    return roles[Math.floor(Math.random() * roles.length)];
+                },
+                showErrorInLivePanel: function(message) {
+                    console.error("Live Panel Error:", message);
+                    alert("Live Panel Error: " + message);
+                }
+            };
+            console.log("Created mock real-time system for testing");
+        }
+    </script>
     <script src="real-time-system.js"></script>
 </body>
 </html>

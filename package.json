@@ -1,0 +1,25 @@
+{
+  "name": "govwhiz",
+  "version": "1.0.0",
+  "main": "sw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ag-4/GovWh.iz.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ag-4/GovWh.iz/issues"
+  },
+  "homepage": "https://github.com/ag-4/GovWh.iz#readme",
+  "description": "",
+  "dependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.4",
+    "tailwindcss": "^4.1.8"
+  }
+}
