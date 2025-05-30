@@ -1,0 +1,62 @@
+{
+    "postcodes": {
+        "SW1A 0AA": {
+            "constituency": "Cities of London and Westminster",
+            "mp": {
+                "name": "Nickie Aiken",
+                "party": "Conservative",
+                "email": "nickie.aiken.mp@parliament.uk",
+                "phone": "020 7219 4226",
+                "office": "House of Commons, London, SW1A 0AA",
+                "website": "https://www.parliament.uk/biographies/commons/nickie-aiken/4801"
+            }
+        },
+        "E14 5AB": {
+            "constituency": "Poplar and Limehouse",
+            "mp": {
+                "name": "Apsana Begum",
+                "party": "Labour",
+                "email": "apsana.begum.mp@parliament.uk",
+                "phone": "020 7219 6607",
+                "office": "House of Commons, London, SW1A 0AA",
+                "website": "https://www.parliament.uk/biographies/commons/apsana-begum/4790"
+            }
+        },
+        "N1 9GU": {
+            "constituency": "Islington South and Finsbury",
+            "mp": {
+                "name": "Emily Thornberry",
+                "party": "Labour",
+                "email": "emily.thornberry.mp@parliament.uk",
+                "phone": "020 7219 3706",
+                "office": "House of Commons, London, SW1A 0AA",
+                "website": "https://www.parliament.uk/biographies/commons/emily-thornberry/1536"
+            }
+        },
+        "M1 1AE": {
+            "constituency": "Manchester Central",
+            "mp": {
+                "name": "Lucy Powell",
+                "party": "Labour",
+                "email": "lucy.powell.mp@parliament.uk",
+                "phone": "020 7219 4402",
+                "office": "House of Commons, London, SW1A 0AA",
+                "website": "https://www.parliament.uk/biographies/commons/lucy-powell/4263"
+            }
+        },
+        "B1 1HF": {
+            "constituency": "Birmingham, Ladywood",
+            "mp": {
+                "name": "Shabana Mahmood",
+                "party": "Labour",
+                "email": "shabana.mahmood.mp@parliament.uk",
+                "phone": "020 7219 5181",
+                "office": "House of Commons, London, SW1A 0AA",
+                "website": "https://www.parliament.uk/biographies/commons/shabana-mahmood/4057"
+            }
+        }
+    },
+    "lastUpdated": "2025-05-30T00:00:00Z",
+    "dataSource": "UK Parliament",
+    "totalConstituencies": 650
+}

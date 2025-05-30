@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mp-profile">
+    <div class="mp-header">
+        {% if mp.image %}
+        <img src="{{ mp.image }}" alt="{{ mp.name }}" class="mp-photo">
+        {% endif %}
+        <div class="mp-details">
+            <h1>{{ mp.name }}</h1>
+            <h2>{{ mp.constituency }}</h2>
+            <span class="party-badge {{ mp.party|lower }}">{{ mp.party }}</span>
+        </div>
+    </div>
+
+    <div class="mp-info">
+        <div class="contact-info">
+            <h3>Contact Information</h3>
+            {% if mp.email %}
+            <p><i class="fas fa-envelope"></i> <a href="mailto:{{ mp.email }}">{{ mp.email }}</a></p>
+            {% endif %}
+            {% if mp.phone %}
+            <p><i class="fas fa-phone"></i> <a href="tel:{{ mp.phone }}">{{ mp.phone }}</a></p>
+            {% endif %}
+            {% if mp.website %}
+            <p><i class="fas fa-globe"></i> <a href="{{ mp.website }}" target="_blank">Parliamentary Profile</a></p>
+            {% endif %}
+            {% if mp.office %}
+            <p><i class="fas fa-building"></i> {{ mp.office }}</p>
+            {% endif %}
+        </div>
+
+        <div class="mp-actions">
+            <button onclick="showContactForm('{{ mp.email }}')" class="action-btn primary">Contact MP</button>
+            <button onclick="showVotingRecord()" class="action-btn secondary">Voting Record</button>
+            <button onclick="showParliamentaryWork()" class="action-btn info">Parliamentary Work</button>
+        </div>
+    </div>
+
+    <!-- Contact Form Modal -->
+    <div id="contactFormModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Contact Your MP</h2>
+            <form id="mpContactForm" onsubmit="submitContactForm(event)">
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Your Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="6" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="constituency">Your Constituency</label>
+                    <input type="text" id="constituency" name="constituency" value="{{ mp.constituency }}" readonly>
+                </div>
+                <button type="submit" class="submit-btn">Send Message</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

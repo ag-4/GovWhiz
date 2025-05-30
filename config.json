@@ -1,0 +1,51 @@
+{
+    "api": {
+        "caching": {
+            "enabled": true,
+            "duration": 3600,
+            "maxItems": 1000
+        },
+        "rateLimit": {
+            "enabled": true,
+            "maxRequests": 100,
+            "perMinute": 60
+        },
+        "timeout": {
+            "request": 10,
+            "connect": 5
+        }
+    },
+    "monitoring": {
+        "enabled": true,
+        "logLevel": "info",
+        "metrics": {
+            "collect": true,
+            "interval": 60
+        }
+    },
+    "security": {
+        "cors": {
+            "allowedOrigins": ["*"],
+            "allowedMethods": ["GET", "POST", "OPTIONS"],
+            "maxAge": 86400
+        },
+        "rateLimit": {
+            "enabled": true,
+            "windowMs": 60000,
+            "max": 100
+        }
+    },
+    "optimization": {
+        "compression": true,
+        "minify": true,
+        "cacheControl": {
+            "maxAge": 86400,
+            "sMaxAge": 43200
+        }
+    },
+    "errorHandling": {
+        "detailedErrors": false,
+        "retryAttempts": 3,
+        "retryDelay": 1000
+    }
+}

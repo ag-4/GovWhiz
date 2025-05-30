@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from mp_service import mp_service
+from contact_handler import handle_contact_form
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -205,6 +206,11 @@ def test_postcodes():
         "timestamp": datetime.now().isoformat()
     })
 
+@app.route("/api/contact", methods=["POST"])
+def contact_mp():
+    """Handle MP contact form submissions"""
+    return handle_contact_form()
+
 if __name__ == "__main__":
     print("🏛️ Starting GovWhiz MP Lookup API Server")
     print("=" * 50)
@@ -214,6 +220,7 @@ if __name__ == "__main__":
     print("  GET /api/mp?postcode=... - MP lookup")
     print("  GET /api/health          - Health check")
     print("  GET /api/test            - Test with sample data")
+    print("  POST /api/contact        - Contact MP form submission")
     print("=" * 50)
     
     app.run(debug=True, host="0.0.0.0", port=5000)

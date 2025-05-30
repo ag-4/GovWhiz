@@ -3,9 +3,17 @@
  * Enables offline functionality and push notifications
  */
 
-const CACHE_NAME = 'govwhiz-v1.0.0';
-const STATIC_CACHE = 'govwhiz-static-v1';
-const DYNAMIC_CACHE = 'govwhiz-dynamic-v1';
+const CACHE_NAME = 'govwhiz-v2.0.0';
+const STATIC_CACHE = 'govwhiz-static-v2';
+const DYNAMIC_CACHE = 'govwhiz-dynamic-v2';
+const API_CACHE = 'govwhiz-api-v2';
+
+// Cache duration in seconds
+const CACHE_DURATION = {
+    static: 7 * 24 * 60 * 60,  // 1 week
+    dynamic: 24 * 60 * 60,     // 1 day
+    api: 60 * 60               // 1 hour
+};
 
 // API endpoint paths that should be handled by Netlify functions
 const API_PATHS = [
