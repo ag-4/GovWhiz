@@ -13,12 +13,15 @@ class MPLookupService:
         self.mps_file = "data/cleaned_mps.json"
         self.constituencies_file = "data/constituency_lookup.json"
         self.postcode_cache_file = "data/constituency_cache.json"
+        self.mp_database_file = "data/mp_database.json"
         self.api_key = os.getenv('THEYWORKFORYOU_API_KEY', 'your_api_key_here')
         
         # Load data files
         self.mps_data = self._load_json(self.mps_file)
         self.constituency_data = self._load_json(self.constituencies_file)
         self.postcode_cache = self._load_json(self.postcode_cache_file)
+        self.mp_database = self._load_json(self.mp_database_file)
+        
         if self.postcode_cache is None:
             self.postcode_cache = {}
 
@@ -34,25 +37,45 @@ class MPLookupService:
         """Save postcode to constituency mapping cache"""
         os.makedirs(os.path.dirname(self.postcode_cache_file), exist_ok=True)
         with open(self.postcode_cache_file, 'w', encoding='utf-8') as f:
-            json.dump(self.postcode_cache, f, indent=2)
-
-    def _validate_postcode(self, postcode: str) -> bool:
+            json.dump(self.postcode_cache, f, indent=2)    def _validate_postcode(self, postcode: str) -> bool:
         """Validate UK postcode format"""
         # UK postcode regex pattern
         pattern = r'^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$'
         return bool(re.match(pattern, postcode.upper().strip()))
 
     def _get_constituency_from_postcode(self, postcode: str) -> Optional[str]:
-        """Get constituency name from postcode using the ONS Postcodes API"""
-        postcode = postcode.upper().strip().replace(" ", "")
+        """Get constituency name from postcode using local database and API fallback"""
+        postcode = postcode.upper().strip()
         
-        # Check cache first
+        # First try the cache
         if postcode in self.postcode_cache:
             return self.postcode_cache[postcode]["constituency"]
 
+        # Load the postcode mapping database
         try:
-            # Use the ONS Postcodes API (free, no key required)
-            url = f"https://api.postcodes.io/postcodes/{postcode}"
+            with open("data/mp_database.json", 'r', encoding='utf-8') as f:
+                mp_db = json.load(f)
+                postcode_map = mp_db.get("postcode_map", {})
+        except (FileNotFoundError, json.JSONDecodeError):
+            postcode_map = {}
+
+        # Extract district from full postcode (e.g., "SW1A 1AA" -> "SW1A")
+        district = postcode.split()[0] if ' ' in postcode else postcode[:4].rstrip()
+        
+        # Check if we have the district in our local database
+        if district in postcode_map:
+            constituency = postcode_map[district]
+            # Cache the result
+            self.postcode_cache[postcode] = {
+                "constituency": constituency,
+                "timestamp": datetime.now().isoformat()
+            }
+            self._save_postcode_cache()
+            return constituency
+
+        # Fallback to API if district not found
+        try:
+            url = f"https://api.postcodes.io/postcodes/{postcode.replace(' ', '')}"
             response = requests.get(url, timeout=5)
             response.raise_for_status()
             data = response.json()
