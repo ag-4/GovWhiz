@@ -273,9 +273,7 @@
                         </div>
                     </div>
                 </div>
-            </section>
-
-            <!-- Services Section -->
+            </section>            <!-- Services Section -->
             <section id="services" class="min-h-screen flex items-center relative py-20">
                 <div class="container mx-auto px-6">
                     <div class="max-w-5xl mx-auto">
@@ -286,6 +284,10 @@
                             </div>
                             <div class="w-20 h-1 bg-gradient-to-r from-cyan-500 to-indigo-500 mx-auto"></div>
                         </div>
+
+        <!-- Add script tags for functionality -->
+        <script src="js/postcode-search.js"></script>
+        <script src="js/news-feed.js"></script>
                         <div class="grid md:grid-cols-3 gap-6">
                             <!-- Service Card 1 -->
                             <div class="relative group">
@@ -436,13 +438,20 @@
                     <div class="max-w-5xl mx-auto">
                         <div class="text-center mb-12">
                             <div class="inline-block mb-3">
-                                <div class="text-xs text-cyan-400 tracking-widest uppercase mb-1">Latest News & Insights</div>
+                                <div class="text-xs text-cyan-400 tracking-widest uppercase mb-1">Stay Informed</div>
                                 <div class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Live Political News</div>
                             </div>
                             <div class="w-20 h-1 bg-gradient-to-r from-cyan-500 to-indigo-500 mx-auto"></div>
                         </div>
                         <div id="political-news-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                             <!-- News articles will be dynamically inserted here by JavaScript -->
+                        </div>
+                        <!-- News filter buttons -->
+                        <div class="flex justify-center gap-4 mt-8">
+                            <button onclick="filterNews('all')" class="px-4 py-2 bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-lg text-white text-sm font-medium hover:from-indigo-800/90 hover:to-purple-800/90 transition-all duration-300">All News</button>
+                            <button onclick="filterNews('parliament')" class="px-4 py-2 bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-lg text-white text-sm font-medium hover:from-indigo-800/90 hover:to-purple-800/90 transition-all duration-300">Parliament</button>
+                            <button onclick="filterNews('legislation')" class="px-4 py-2 bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-lg text-white text-sm font-medium hover:from-indigo-800/90 hover:to-purple-800/90 transition-all duration-300">Legislation</button>
+                            <button onclick="filterNews('government')" class="px-4 py-2 bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-lg text-white text-sm font-medium hover:from-indigo-800/90 hover:to-purple-800/90 transition-all duration-300">Government</button>
                         </div>
                     </div>
                 </div>

@@ -52,5 +52,6 @@
     "BS5": "Bristol East",
     "M21": "Manchester Withington",
     "BS1": "Bristol Central"
-  }
+  },
+  "postcode_exact_map": {}
 }

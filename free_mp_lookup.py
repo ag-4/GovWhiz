@@ -18,28 +18,22 @@ import os
 
 def validate_postcode(postcode):
     """
-    Validate UK postcode format with support for common variations
-    Accepts formats like:
+    Strict UK postcode validation
+    Accepts only valid full postcodes like:
     - SW1A 1AA
-    - M1 1AA 
-    - B1  1AA (extra spaces)
-    - sw1a1aa (no spaces)
+    - M1 1AA
+    - BN1 1ZZ
     """
+    if not postcode or not isinstance(postcode, str):
+        return False
+
     # Clean postcode - remove excess spaces and convert to uppercase
     postcode = postcode.strip().upper()
     
-    # Remove all spaces to check basic pattern first
-    nospace = postcode.replace(" ", "")
+    # Standard UK postcode pattern for full postcodes
+    pattern = r'^[A-Z]{1,2}[0-9][A-Z0-9]?\s*[0-9][A-Z]{2}$'
     
-    # More lenient pattern matching outward and inward code
-    patterns = [
-        # Full format with strict spacing
-        r'^[A-Z]{1,2}[0-9][A-Z0-9]?\s*[0-9][A-Z]{2}$',
-        # Just the outward code for partial matches
-        r'^[A-Z]{1,2}[0-9][A-Z0-9]?$'
-    ]
-    
-    return any(bool(re.match(pattern, postcode)) for pattern in patterns)
+    return bool(re.match(pattern, postcode))
 
 def format_postcode(postcode):
     """Format postcode to standard format"""
@@ -50,100 +44,109 @@ def format_postcode(postcode):
 def get_constituency(postcode):
     """
     Get constituency from postcode using local database first, then MapIt API as fallback
+    Uses a strict validation and full postcode lookup
     """
     try:
+        # First validate the postcode
+        if not validate_postcode(postcode):
+            return {
+                "found": False,
+                "error": "Invalid postcode format",
+                "postcode": postcode,
+                "step_failed": "validation"
+            }
+
         formatted_postcode = format_postcode(postcode)
         outward_code = formatted_postcode.split(' ')[0]
 
-        # First try local database
+        # First try local database with exact postcode match
         try:
             with open("data/mp_database.json", "r") as f:
                 db = json.load(f)
-                if "postcode_map" in db and outward_code in db["postcode_map"]:
-                    print(f"📋 Found constituency in local database for {outward_code}")
+                if "postcode_exact_map" in db and formatted_postcode in db["postcode_exact_map"]:
                     return {
                         "found": True,
-                        "constituency": db["postcode_map"][outward_code],
+                        "constituency": db["postcode_exact_map"][formatted_postcode],
                         "postcode": formatted_postcode,
-                        "data_source": "Local Database"
+                        "data_source": "Local Database (Exact)"
                     }
-        except (FileNotFoundError, json.JSONDecodeError) as e:
-            print(f"⚠️ Local database error: {e}")
-        outward_code = formatted_postcode.split(' ')[0]
-
-        # First try local database
-        try:
-            with open("data/mp_database.json", "r") as f:
-                db = json.load(f)
-                if "postcode_map" in db and outward_code in db["postcode_map"]:
-                    print(f"📋 Found constituency in local database for {outward_code}")
+                # Fall back to outward code only if we have high confidence mapping
+                elif "postcode_map" in db and outward_code in db["postcode_map"]:
+                    constituency = db["postcode_map"][outward_code]
                     return {
                         "found": True,
-                        "constituency": db["postcode_map"][outward_code],
+                        "constituency": constituency,
                         "postcode": formatted_postcode,
-                        "data_source": "Local Database"
+                        "data_source": "Local Database (District)"
                     }
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"⚠️ Local database error: {e}")
 
-        # If not in local database, try MapIt API
-        clean_postcode = formatted_postcode.replace(" ", "")
-        headers = {
-            'User-Agent': 'GovWhiz/1.0 (https://govwhiz.uk; contact@govwhiz.uk)',
-            'Accept': 'application/json'
-        }
-        
-        print(f"🌐 Looking up constituency for {formatted_postcode}...")
-        response = requests.get(
-            f"https://mapit.mysociety.org/postcode/{clean_postcode}",
-            headers=headers,
-            timeout=10
-        )
+        # Fall back to postcodes.io API for authoritative lookup
+        try:
+            print(f"🔍 Looking up constituency via API for {formatted_postcode}")
+            response = requests.get(
+                f"https://api.postcodes.io/postcodes/{formatted_postcode.replace(' ', '')}",
+                timeout=10
+            )
 
-        if response.status_code == 200:
-            data = response.json()
-            for area in data['areas'].values():
-                if area['type'] == 'WMC':
+            if response.status_code == 200:
+                data = response.json()
+                if 'result' in data and 'parliamentary_constituency' in data['result']:
+                    constituency = data['result']['parliamentary_constituency']
+                    
+                    # Update our database with the exact match
+                    try:
+                        with open("data/mp_database.json", "r+") as f:
+                            db = json.load(f)
+                            if "postcode_exact_map" not in db:
+                                db["postcode_exact_map"] = {}
+                            db["postcode_exact_map"][formatted_postcode] = constituency
+                            if "postcode_map" not in db:
+                                db["postcode_map"] = {}
+                            db["postcode_map"][outward_code] = constituency
+                            f.seek(0)
+                            json.dump(db, f, indent=2)
+                            f.truncate()
+                    except Exception as e:
+                        print(f"⚠️ Error updating database: {e}")
+
                     return {
                         "found": True,
-                        "constituency": area['name'],
+                        "constituency": constituency,
                         "postcode": formatted_postcode,
-                        "data_source": "MapIt API"
+                        "data_source": "Postcodes.io API"
                     }
+                
+            elif response.status_code == 404:
+                return {
+                    "found": False,
+                    "error": "Invalid postcode",
+                    "postcode": formatted_postcode,
+                    "step_failed": "constituency_lookup"
+                }
+            else:
+                return {
+                    "found": False,
+                    "error": f"API error (Status: {response.status_code})",
+                    "postcode": formatted_postcode,
+                    "step_failed": "constituency_lookup"
+                }
+                
+        except requests.exceptions.RequestException as e:
             return {
                 "found": False,
-                "error": "No parliamentary constituency found",
+                "error": f"Network error: {str(e)}",
                 "postcode": formatted_postcode,
                 "step_failed": "constituency_lookup"
             }
-        elif response.status_code == 404:
-            return {
-                "found": False,
-                "error": "Invalid postcode",
-                "postcode": formatted_postcode,
-                "step_failed": "constituency_lookup"
-            }
-        else:
-            return {
-                "found": False,
-                "error": f"MapIt API error (Status: {response.status_code})",
-                "postcode": formatted_postcode,
-                "step_failed": "constituency_lookup"
-            }
-            
-    except requests.exceptions.RequestException as e:
-        return {
-            "found": False,
-            "error": f"Network error: {str(e)}",
-            "postcode": postcode,
-            "step_failed": "constituency_lookup"
-        }
+
     except Exception as e:
         return {
             "found": False,
             "error": f"Unexpected error: {str(e)}",
             "postcode": postcode,
-            "step_failed": "constituency_lookup"
+            "step_failed": "lookup_process"
         }
 
 def get_mp_by_constituency(constituency_name):
@@ -255,18 +258,10 @@ def get_mp_by_constituency(constituency_name):
 def lookup_mp(postcode):
     """
     Complete MP lookup: postcode → constituency → MP
-    Uses local database first, then falls back to free UK government APIs
+    Uses strict validation and multiple data sources with proper error handling
     """
     print(f"\n🏛️ Looking up MP for {postcode}")
     print("=" * 50)
-    
-    if not validate_postcode(postcode):
-        return {
-            "found": False,
-            "error": "Invalid postcode format",
-            "postcode": postcode,
-            "step_failed": "validation"
-        }
     
     # Step 1: Get constituency from postcode
     constituency_result = get_constituency(postcode)
@@ -280,21 +275,87 @@ def lookup_mp(postcode):
             "data_source": constituency_result.get("data_source", "Unknown")
         }
     
-    # Step 2: Get MP from constituency
-    mp_info = get_mp_by_constituency(constituency_result["constituency"])
+    constituency = constituency_result["constituency"]
     
-    if isinstance(mp_info, dict) and "error" in mp_info:
+    # Step 2: Get MP from constituency
+    try:
+        # First check local database
+        with open("data/mp_database.json", "r") as f:
+            db = json.load(f)
+            if "constituencies" in db and constituency in db["constituencies"]:
+                mp_info = db["constituencies"][constituency]
+                if mp_info.get("last_updated"):
+                    # Check if data is older than 24 hours
+                    last_updated = datetime.fromisoformat(mp_info["last_updated"])
+                    if (datetime.now() - last_updated).days < 1:
+                        mp_info["postcode"] = postcode
+                        mp_info["found"] = True
+                        mp_info["data_source"] = "Local Database"
+                        return mp_info
+
+        # If not in database or outdated, look up from Parliament API
+        print(f"🔍 Looking up MP info for constituency: {constituency}")
+        search_url = "https://members-api.parliament.uk/api/Location/Constituency/Search"
+        response = requests.get(
+            search_url,
+            params={"searchText": constituency},
+            timeout=10
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("items"):
+                constituency_id = data["items"][0]["value"]["id"]
+                
+                # Get current MP
+                mp_url = f"https://members-api.parliament.uk/api/Location/Constituency/{constituency_id}/Members"
+                mp_response = requests.get(mp_url, timeout=10)
+                
+                if mp_response.status_code == 200:
+                    mp_data = mp_response.json()
+                    if mp_data.get("items"):
+                        mp = mp_data["items"][0]["value"]
+                        
+                        mp_info = {
+                            "found": True,
+                            "name": mp["nameDisplayAs"],
+                            "party": mp["latestParty"]["name"],
+                            "constituency": constituency,
+                            "email": next((c["value"] for c in mp["contactDetails"] if c["type"] == "Email"), "Not available"),
+                            "phone": next((c["value"] for c in mp["contactDetails"] if c["type"] == "Phone"), "Not available"),
+                            "profile_url": f"https://members.parliament.uk/member/{mp['id']}",
+                            "last_updated": datetime.now().isoformat(),
+                            "postcode": postcode,
+                            "data_source": "Parliament API"
+                        }
+                        
+                        # Update our database
+                        try:
+                            db["constituencies"][constituency] = mp_info
+                            with open("data/mp_database.json", "w") as f:
+                                json.dump(db, f, indent=2)
+                        except Exception as e:
+                            print(f"⚠️ Error updating MP database: {e}")
+                        
+                        return mp_info
+
+        # If API fails, try fallback source
         return {
             "found": False,
-            "error": mp_info["error"],
+            "error": "Could not retrieve current MP information",
             "postcode": postcode,
             "constituency": constituency,
             "step_failed": "mp_lookup"
         }
-    
-    # Add postcode to result
-    mp_info["postcode"] = postcode
-    return mp_info
+
+    except Exception as e:
+        return {
+            "found": False,
+            "error": str(e),
+            "postcode": postcode,
+            "constituency": constituency,
+            "step_failed": "mp_lookup"
+        }
 
 def get_lords_info(limit=10):
     """

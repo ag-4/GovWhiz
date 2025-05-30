@@ -19,9 +19,13 @@ class NewsFeedManager {
             await this.setupOfflineStore();
             await this.fetchLatestNews();
             this.startTicker();
+            this.displayNews(); // Display initial news
             
             // Setup periodic refresh
-            setInterval(() => this.fetchLatestNews(), 5 * 60 * 1000);
+            setInterval(() => {
+                this.fetchLatestNews();
+                this.displayNews();
+            }, 5 * 60 * 1000);
             
             // Listen for online/offline events
             window.addEventListener('online', () => this.handleOnlineStatus(true));
@@ -137,10 +141,71 @@ class NewsFeedManager {
             this.errorElement.style.display = 'none';
         }
     }
+
+    displayNews() {
+        const container = document.getElementById('political-news-container');
+        if (!container) return;
+
+        container.innerHTML = this.newsItems.map(news => `
+            <article class="bg-white/5 backdrop-blur-lg rounded-xl p-6 hover:bg-white/10 transition-all duration-300">
+                <img src="${news.image || '/images/placeholder-news.jpg'}" alt="${news.title}" class="w-full h-48 object-cover rounded-lg mb-4">
+                <div class="mb-3">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold text-cyan-400 bg-cyan-900/30 rounded-full">${news.category}</span>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-2">${news.title}</h3>
+                <p class="text-gray-300 mb-4">${news.summary}</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-400">${new Date(news.date).toLocaleDateString()}</span>
+                    <a href="${news.url}" target="_blank" class="text-cyan-400 hover:text-cyan-300">Read More →</a>
+                </div>
+            </article>
+        `).join('');
+    }
+
+    filterNews(category) {
+        if (category === 'all') {
+            this.displayNews();
+            return;
+        }
+        
+        const container = document.getElementById('political-news-container');
+        if (!container) return;
+
+        const filteredNews = this.newsItems.filter(news => 
+            news.category.toLowerCase() === category.toLowerCase()
+        );
+
+        container.innerHTML = filteredNews.map(news => `
+            <article class="bg-white/5 backdrop-blur-lg rounded-xl p-6 hover:bg-white/10 transition-all duration-300">
+                <img src="${news.image || '/images/placeholder-news.jpg'}" alt="${news.title}" class="w-full h-48 object-cover rounded-lg mb-4">
+                <div class="mb-3">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold text-cyan-400 bg-cyan-900/30 rounded-full">${news.category}</span>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-2">${news.title}</h3>
+                <p class="text-gray-300 mb-4">${news.summary}</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-400">${new Date(news.date).toLocaleDateString()}</span>
+                    <a href="${news.url}" target="_blank" class="text-cyan-400 hover:text-cyan-300">Read More →</a>
+                </div>
+            </article>
+        `).join('');
+    }
 }
 
-// Initialize news feed when the document is ready
+// Create global instance
+const newsManager = new NewsFeedManager();
+
+// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const newsFeed = new NewsFeedManager();
-    newsFeed.initialize();
+    newsManager.initialize();
 });
+
+// Global filter function for the buttons
+function filterNews(category) {
+    newsManager.filterNews(category);
+}
+
+// Export for module usage
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { NewsFeedManager, newsManager };
+}
