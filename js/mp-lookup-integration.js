@@ -15,8 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         mpResults.innerHTML = '<div class="loading-message"><div class="spinner"></div><p>Looking up your MP...</p></div>';
         
-        try {
-            const mp = await mpLookup.findMP(postcode);
+        try {            const mp = await mpLookup.findMP(postcode);
             currentMP = mp;
             
             mpResults.innerHTML = `
@@ -28,9 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="mp-info">
                         <p><strong>Constituency:</strong> ${mp.constituency}</p>
                         <p><strong>Party:</strong> ${mp.party}</p>
-                        <p><strong>Email:</strong> <a href="mailto:${mp.email}">${mp.email}</a></p>
-                        <p><strong>Phone:</strong> <a href="tel:${mp.phone}">${mp.phone}</a></p>
-                        ${mp.role ? `<p><strong>Role:</strong> ${mp.role}</p>` : ''}
+                        <p><strong>Email:</strong> ${mp.email ? `<a href="mailto:${mp.email}">${mp.email}</a>` : 'Not available'}</p>
+                        <p><strong>Phone:</strong> ${mp.phone ? `<a href="tel:${mp.phone}">${mp.phone}</a>` : 'Not available'}</p>
+                        ${mp.office ? `<p><strong>Office:</strong> ${mp.office}</p>` : ''}
                         ${mp.website ? `<p><strong>Website:</strong> <a href="${mp.website}" target="_blank">Parliament Profile</a></p>` : ''}
                     </div>
                     <div class="mp-actions">

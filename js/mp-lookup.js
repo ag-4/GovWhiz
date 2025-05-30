@@ -36,9 +36,7 @@ class MPLookupSystem {
         if (!postcode) return false;
         postcode = postcode.toString().replace(/\s/g, '').toUpperCase();
         return this.postcodeRegex.test(postcode);
-    }
-
-    /**
+    }    /**
      * Multi-strategy postcode lookup that tries several methods to find the correct MP
      */
     async findMP(postcode) {
@@ -48,6 +46,19 @@ class MPLookupSystem {
             if (!this.validatePostcode(postcode)) {
                 throw new Error('Please enter a valid UK postcode');
             }
+
+            // Call the Netlify serverless function endpoint
+            const response = await fetch(`/.netlify/functions/app/api/mp?postcode=${encodeURIComponent(postcode)}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch MP data');
+            }
+            const data = await response.json();
+            
+            if (!data.found) {
+                throw new Error(data.error || 'Could not find MP for this postcode');
+            }
+
+            return data;
             
             // Check cache first
             if (this.cache.has(postcode)) {

@@ -7,18 +7,22 @@ const CACHE_NAME = 'govwhiz-v1.0.0';
 const STATIC_CACHE = 'govwhiz-static-v1';
 const DYNAMIC_CACHE = 'govwhiz-dynamic-v1';
 
+// API endpoint paths that should be handled by Netlify functions
+const API_PATHS = [
+    '/.netlify/functions/app/api/mp',
+    '/.netlify/functions/app/api/health',
+    '/.netlify/functions/app/api/test'
+];
+
 // Files to cache for offline functionality
 const STATIC_FILES = [
     '/',
     '/index.html',
     '/styles.css',
     '/script.js',
-    '/auto-updater.js',
-    '/user-system.js',
-    '/advanced-search.js',
-    '/real-time-system.js',
-    '/data-visualization.js',
-    '/update-config.json'
+    '/js/mp-lookup.js',
+    '/js/mp-lookup-integration.js',
+    '/govwhiz-main.js'
 ];
 
 // Install event - cache static files
@@ -66,50 +70,39 @@ self.addEventListener('activate', event => {
 
 // Fetch event - serve from cache or network
 self.addEventListener('fetch', event => {
-    const { request } = event;
+    const url = new URL(event.request.url);
     
-    // Skip non-GET requests
-    if (request.method !== 'GET') {
+    // Check if this is an API request
+    if (API_PATHS.some(path => url.pathname.startsWith(path))) {
+        // Don't cache API requests, always go to network
+        event.respondWith(
+            fetch(event.request)
+                .catch(error => {
+                    console.error('Service Worker: API fetch failed', error);
+                    return caches.match('/offline.html');
+                })
+        );
         return;
     }
-    
-    // Skip external requests
-    if (!request.url.startsWith(self.location.origin)) {
-        return;
-    }
-    
+
+    // For non-API requests, use cache-first strategy
     event.respondWith(
-        caches.match(request)
-            .then(cachedResponse => {
-                if (cachedResponse) {
-                    // Serve from cache
-                    return cachedResponse;
+        caches.match(event.request)
+            .then(response => {
+                if (response) {
+                    return response;
                 }
-                
-                // Fetch from network and cache dynamic content
-                return fetch(request)
-                    .then(networkResponse => {
-                        // Check if response is valid
-                        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-                            return networkResponse;
-                        }
-                        
-                        // Clone response for caching
-                        const responseToCache = networkResponse.clone();
-                        
-                        // Cache dynamic content
-                        caches.open(DYNAMIC_CACHE)
+                return fetch(event.request)
+                    .then(res => {
+                        return caches.open(DYNAMIC_CACHE)
                             .then(cache => {
-                                cache.put(request, responseToCache);
+                                cache.put(event.request.url, res.clone());
+                                return res;
                             });
-                        
-                        return networkResponse;
                     })
-                    .catch(() => {
-                        // Return offline page for navigation requests
-                        if (request.destination === 'document') {
-                            return caches.match('/index.html');
-                        }
+                    .catch(error => {
+                        console.error('Service Worker: Fetch failed', error);
+                        return caches.match('/offline.html');
                     });
             })
     );
