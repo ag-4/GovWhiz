@@ -1,0 +1,56 @@
+{
+  "version": "2024.1",
+  "last_updated": "2024-05-30",
+  "constituencies": {
+    "Cities of London and Westminster": {
+      "name": "Nickie Aiken",
+      "party": "Conservative",
+      "member_id": "4591",
+      "email": "nickie.aiken.mp@parliament.uk",
+      "phone": "020 7219 4000"
+    },
+    "Bristol Central": {
+      "name": "Thangam Debbonaire",
+      "party": "Labour",
+      "member_id": "4523",
+      "email": "thangam.debbonaire.mp@parliament.uk",
+      "phone": "020 7219 5473"
+    },
+    "Manchester Central": {
+      "name": "Lucy Powell",
+      "party": "Labour",
+      "member_id": "4182",
+      "email": "lucy.powell.mp@parliament.uk",
+      "phone": "020 7219 4402"
+    },
+    "Birmingham Ladywood": {
+      "name": "Shabana Mahmood",
+      "party": "Labour",
+      "member_id": "4000",
+      "email": "shabana.mahmood.mp@parliament.uk",
+      "phone": "020 7219 5044"
+    },
+    "Bristol East": {
+      "name": "Kerry McCarthy",
+      "party": "Labour",
+      "member_id": "1491",
+      "email": "kerry.mccarthy.mp@parliament.uk",
+      "phone": "020 7219 0939"
+    },
+    "Manchester Withington": {
+      "name": "Jeff Smith",
+      "party": "Labour",
+      "member_id": "4456",
+      "email": "jeff.smith.mp@parliament.uk",
+      "phone": "020 7219 5174"
+    }
+  },
+  "postcode_map": {
+    "SW1A": "Cities of London and Westminster",
+    "M1": "Manchester Central",
+    "B1": "Birmingham Ladywood",
+    "BS5": "Bristol East",
+    "M21": "Manchester Withington",
+    "BS1": "Bristol Central"
+  }
+}
