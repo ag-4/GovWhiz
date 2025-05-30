@@ -1,0 +1,91 @@
+/* MP Search Styles */
+.parliament-search {
+    position: relative;
+}
+
+.mp-lookup {
+    position: relative;
+}
+
+.quick-link {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: rgba(79, 70, 229, 0.2);
+    color: #a5b4fc;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.3s;
+}
+
+.quick-link:hover {
+    background-color: rgba(79, 70, 229, 0.3);
+    color: #c7d2fe;
+}
+
+.info-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: white;
+    transition: all 0.3s;
+}
+
+.info-btn i {
+    font-size: 1rem;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #4f46e5;
+    color: white;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.3s;
+}
+
+.action-btn:hover {
+    background-color: #4338ca;
+}
+
+.action-btn.secondary {
+    background-color: #374151;
+}
+
+.action-btn.secondary:hover {
+    background-color: #1f2937;
+}
+
+.action-btn.info {
+    background-color: #0891b2;
+}
+
+.action-btn.info:hover {
+    background-color: #0e7490;
+}
+
+.template-btn {
+    transition: all 0.3s;
+}
+
+.template-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Loading Animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
