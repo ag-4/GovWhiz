@@ -13,204 +13,226 @@ from datetime import datetime
 from typing import Dict, Optional
 
 class MPLookupService:
-    def __init__(self):
-        self.base_url = "https://www.parliament.uk"
-        self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        })
-        
-        # Set up database path
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        self.mp_database_file = os.path.join(script_dir, "data", "mp_database.json")
+    def __init__(self, db_path="data/mp_database.json"):
+        self.db_path = db_path
+        self.validate_regex = re.compile(r'^[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2}$', re.IGNORECASE)
         self.load_database()
-
+        
     def load_database(self):
-        """Load the MP database"""
         try:
-            with open(self.mp_database_file, 'r', encoding='utf-8') as f:
-                self.database = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError) as e:
+            if os.path.exists(self.db_path):
+                with open(self.db_path, 'r') as f:
+                    self.db = json.load(f)
+            else:
+                self.db = {
+                    "version": "2024.1",
+                    "last_updated": datetime.now().isoformat(),
+                    "constituencies": {},
+                    "postcode_map": {},
+                    "postcode_exact_map": {}
+                }
+                self.save_database()
+        except Exception as e:
             print(f"Error loading database: {e}")
-            self.database = {
+            self.db = {
                 "version": "2024.1",
-                "last_updated": datetime.now().strftime("%Y-%m-%d"),
+                "last_updated": datetime.now().isoformat(),
                 "constituencies": {},
-                "postcode_map": {}
+                "postcode_map": {},
+                "postcode_exact_map": {}
             }
 
     def save_database(self):
-        """Save updates to the database"""
         try:
-            self.database["last_updated"] = datetime.now().strftime("%Y-%m-%d")
-            os.makedirs(os.path.dirname(self.mp_database_file), exist_ok=True)
-            with open(self.mp_database_file, 'w', encoding='utf-8') as f:
-                json.dump(self.database, f, indent=2, ensure_ascii=False)
-            return True
+            os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+            with open(self.db_path, 'w') as f:
+                json.dump(self.db, f, indent=2)
         except Exception as e:
             print(f"Error saving database: {e}")
-            return False
+
+    def format_mp(self, mp):
+        return {
+            "name": mp["name"],
+            "party": mp["party"],
+            "email": mp["email"],
+            "phone": mp["phone"],
+            "website": mp.get("website", ""),
+            "member_id": mp.get("member_id", "")
+        }
 
     def lookup_mp(self, postcode: str) -> Dict:
-        """Look up MP information by postcode"""
-        postcode = postcode.upper().strip()
-        district = postcode.split()[0] if ' ' in postcode else postcode[:4].rstrip()
-        
-        # First check local database
-        if district in self.database["postcode_map"]:
-            constituency = self.database["postcode_map"][district]
-            if constituency in self.database["constituencies"]:
-                mp_info = self.database["constituencies"][constituency]
-                print(f"Found MP in local database: {mp_info['name']}")
-                return {"found": True, "mp": mp_info}
-        
-        # Try postcodes.io API
         try:
-            url = f"https://api.postcodes.io/postcodes/{postcode.replace(' ', '')}"
-            response = requests.get(url, timeout=5)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if 'result' in data and 'parliamentary_constituency' in data['result']:
-                    constituency = data['result']['parliamentary_constituency']
-                    print(f"Found constituency via API: {constituency}")
-                    
-                    # Update postcode map
-                    self.database["postcode_map"][district] = constituency
-                    
-                    # Check if we have MP info
-                    if constituency in self.database["constituencies"]:
-                        return {"found": True, "mp": self.database["constituencies"][constituency]}
-                    
-                    # Try to scrape MP info
-                    mp_info = self.scrape_mp_info(constituency)
-                    if mp_info:
-                        self.database["constituencies"][constituency] = mp_info
-                        self.save_database()
-                        return {"found": True, "mp": mp_info}
-            
+            if not self.validate_regex.match(postcode):
+                return {
+                    "found": False,
+                    "error": "Invalid postcode format",
+                    "postcode": postcode
+                }
+
+            formatted = postcode.strip().upper()
+            outcode = formatted.split()[0] if ' ' in formatted else formatted[:len(formatted)-3]
+
+            # First try exact match
+            if formatted in self.db["postcode_exact_map"]:
+                constituency = self.db["postcode_exact_map"][formatted]
+                if constituency in self.db["constituencies"]:
+                    return {
+                        "found": True,
+                        "mp": self.format_mp(self.db["constituencies"][constituency]),
+                        "constituency": constituency,
+                        "postcode": formatted
+                    }
+
+            # Then try outcode match
+            if outcode in self.db["postcode_map"]:
+                constituency = self.db["postcode_map"][outcode]
+                if constituency in self.db["constituencies"]:
+                    return {
+                        "found": True,
+                        "mp": self.format_mp(self.db["constituencies"][constituency]),
+                        "constituency": constituency,
+                        "postcode": formatted
+                    }
+
+            # Fall back to API lookup
+            return self._lookup_from_api(formatted)
+
         except Exception as e:
-            print(f"Error looking up postcode: {e}")
-        
-        return {"found": False, "error": "Could not find MP information"}
+            return {
+                "found": False,
+                "error": str(e),
+                "postcode": postcode
+            }
 
-    def scrape_mp_info(self, constituency: str) -> Optional[Dict]:
-        """Scrape MP information from Parliament website"""
+    def _lookup_from_api(self, postcode: str) -> Dict:
         try:
-            # Search for MP
-            search_url = f"https://www.parliament.uk/mps-lords-and-offices/mps/?search_term={quote_plus(constituency)}"
-            response = self.session.get(search_url, timeout=10)
+            # Get constituency from postcode
+            response = requests.get(
+                f"https://api.postcodes.io/postcodes/{postcode.replace(' ', '')}"
+            )
             
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.content, 'html.parser')
-                mp_links = soup.find_all('a', href=re.compile(r'/mp/'))
-                
-                if mp_links:
-                    # Get MP profile
-                    mp_url = urljoin(self.base_url, mp_links[0]['href'])
-                    response = self.session.get(mp_url, timeout=10)
-                    
-                    if response.status_code == 200:
-                        soup = BeautifulSoup(response.content, 'html.parser')
-                        return self.extract_mp_info(soup, mp_url)
-        
+            if response.status_code != 200:
+                return {
+                    "found": False,
+                    "error": "Could not find constituency for this postcode",
+                    "postcode": postcode
+                }
+
+            data = response.json()
+            if not data["result"] or not data["result"]["parliamentary_constituency"]:
+                return {
+                    "found": False,
+                    "error": "No constituency found for this postcode",
+                    "postcode": postcode
+                }
+
+            constituency = data["result"]["parliamentary_constituency"]
+
+            # Get MP details from Parliament API
+            mp_response = requests.get(
+                "https://members-api.parliament.uk/api/Location/Constituency/Search",
+                params={"searchText": constituency}
+            )
+
+            if mp_response.status_code != 200:
+                return {
+                    "found": False,
+                    "error": "Could not fetch MP information",
+                    "postcode": postcode,
+                    "constituency": constituency
+                }
+
+            mp_data = mp_response.json()
+            if not mp_data["items"]:
+                return {
+                    "found": False,
+                    "error": "No MP found for this constituency",
+                    "postcode": postcode,
+                    "constituency": constituency
+                }
+
+            constituency_id = mp_data["items"][0]["value"]["id"]
+            
+            # Get current MP
+            current_mp_response = requests.get(
+                f"https://members-api.parliament.uk/api/Location/Constituency/{constituency_id}/Members/Current"
+            )
+
+            if current_mp_response.status_code != 200:
+                return {
+                    "found": False,
+                    "error": "Could not fetch current MP details",
+                    "postcode": postcode,
+                    "constituency": constituency
+                }
+
+            current_mp_data = current_mp_response.json()
+            if not current_mp_data["items"]:
+                return {
+                    "found": False,
+                    "error": "No current MP found for this constituency",
+                    "postcode": postcode,
+                    "constituency": constituency
+                }
+
+            mp = current_mp_data["items"][0]["value"]
+            
+            # Format MP info
+            mp_info = {
+                "name": mp["nameDisplayAs"],
+                "party": mp["latestParty"]["name"],
+                "email": next((c["value"] for c in mp["contactDetails"] if c["type"] == "Email"), 
+                            f"{mp['nameDisplayAs'].lower().replace(' ', '.')}@parliament.uk"),
+                "phone": next((c["value"] for c in mp["contactDetails"] if c["type"] == "Phone"), 
+                            "020 7219 3000"),
+                "website": f"https://members.parliament.uk/member/{mp['id']}",
+                "member_id": str(mp["id"])
+            }
+
+            # Update our database
+            self.db["constituencies"][constituency] = mp_info
+            self.db["postcode_exact_map"][postcode] = constituency
+            self.db["postcode_map"][postcode.split()[0]] = constituency
+            self.save_database()
+
+            return {
+                "found": True,
+                "mp": mp_info,
+                "constituency": constituency,
+                "postcode": postcode
+            }
+
         except Exception as e:
-            print(f"Error scraping MP info: {e}")
-        
-        return None
+            return {
+                "found": False,
+                "error": str(e),
+                "postcode": postcode
+            }
 
-    def extract_mp_info(self, soup: BeautifulSoup, mp_url: str) -> Dict:
-        """Extract MP information from their profile page"""
-        mp_info = {
-            "name": "N/A",
-            "party": "N/A",
-            "email": "N/A",
-            "phone": "N/A",
-            "website": "N/A",
-            "parliament_url": mp_url
-        }
-        
-        # Extract name from heading
-        name_elem = soup.find('h1')
-        if name_elem:
-            name = name_elem.get_text().strip()
-            if 'MP' in name:
-                mp_info["name"] = name.split('MP')[0].strip()
-        
-        # Extract party
-        parties = ['Conservative', 'Labour', 'Liberal Democrat', 'Scottish National Party']
-        for elem in soup.find_all(['p', 'span', 'div']):
-            text = elem.get_text().lower()
-            for party in parties:
-                if party.lower() in text:
-                    mp_info["party"] = party
-                    break
-        
-        # Extract email
-        email_links = soup.find_all('a', href=re.compile(r'mailto:'))
-        if email_links:
-            mp_info["email"] = email_links[0]['href'].replace('mailto:', '')
-        
-        # Extract phone
-        phone_pattern = r'(?:\+44|0)[\s-]?(?:\d{1,5}[\s-]?\d{3,4}[\s-]?\d{3,4})'
-        phones = re.findall(phone_pattern, soup.get_text())
-        if phones:
-            mp_info["phone"] = phones[0].strip()
-        
-        return mp_info
-
-def main():
-    """Main function - test the MP lookup system"""
-    service = MPLookupService()
-    
-    while True:
-        print("\n=== UK MP Information System ===")
-        print("1. Look up MP by postcode")
-        print("2. Show database stats")
-        print("3. Exit")
-        
+    def test_lookup(self, postcode="SW1A 0AA"):
+        """
+        Test the MP lookup functionality with a known postcode
+        Returns True if successful, False otherwise
+        """
+        print(f"🧪 Testing MP lookup with postcode: {postcode}")
         try:
-            choice = input("\nEnter your choice (1-3): ").strip()
-            
-            if choice == '1':
-                postcode = input("Enter postcode (e.g., SW1A 1AA): ").strip()
-                if postcode:
-                    print("\nLooking up MP information...")
-                    result = service.lookup_mp(postcode)
-                    
-                    if result["found"]:
-                        mp = result["mp"]
-                        print("\nFound MP:")
-                        print(f"Name: {mp['name']}")
-                        print(f"Party: {mp['party']}")
-                        
-                        # Show additional info if available
-                        if mp["email"] != "N/A":
-                            print(f"Email: {mp['email']}")
-                        if mp["phone"] != "N/A":
-                            print(f"Phone: {mp['phone']}")                        website = mp.get("website")
-                        if website and website != "N/A":
-                            print(f"Website: {website}")
-                    else:
-                        print(f"\nError: {result.get('error', 'Could not find MP')}")
-            
-            elif choice == '2':
-                print("\nDatabase Statistics:")
-                print(f"Total MPs: {len(service.database['constituencies'])}")
-                print(f"Total Postcode Districts: {len(service.database['postcode_map'])}")
-                print(f"Last Updated: {service.database['last_updated']}")
-                print(f"Version: {service.database['version']}")
-            
-            elif choice == '3':
-                print("Goodbye!")
-                break
-            
+            result = self.lookup_mp(postcode)
+            if result:
+                print("✅ MP lookup successful:")
+                print(json.dumps(result, indent=2))
+                return True
             else:
-                print("Invalid choice. Please try again.")
-                
+                print("❌ MP lookup failed - no results")
+                return False
         except Exception as e:
-            print(f"Error: {e}")
-            print("Please try again.")
+            print(f"❌ MP lookup failed with error: {str(e)}")
+            return False
 
 if __name__ == "__main__":
-    main()
+    import sys
+    service = MPLookupService()
+    if "--test" in sys.argv:
+        test_postcode = sys.argv[sys.argv.index("--test") + 1] if len(sys.argv) > sys.argv.index("--test") + 1 else "SW1A 0AA"
+        service.test_lookup(test_postcode)
+    else:
+        service.update_database()  # Regular update mode
