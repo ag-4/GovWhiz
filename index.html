@@ -19,14 +19,15 @@
     <meta property="twitter:title" content="GovWhiz - UK Legislation Simplified">
     <meta property="twitter:description" content="Making UK legislation and government policies understandable for everyone.">
 
-    <title>GovWhiz - UK Legislation Simplified</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>GovWhiz - UK Legislation Simplified</title>    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/unified-search.css">
+    <link rel="stylesheet" href="styles/contact-form.css">
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
@@ -37,18 +38,76 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="GovWhiz">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%231d3557'/><text x='96' y='120' font-size='120' text-anchor='middle' fill='white'>⚖️</text></svg>">
-
-    <!-- Main Application Script -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%231d3557'/><text x='96' y='120' font-size='120' text-anchor='middle' fill='white'>⚖️</text></svg>">    <!-- Application Scripts -->
+    <script src="js/api-client.js" defer></script>
+    <script src="js/error-tracker.js" defer></script>
+    <script src="js/performance-monitor.js" defer></script>
+    <script src="js/contact-form.js" defer></script>
+    <script src="js/unified-search.js" defer></script>
     <script src="govwhiz-main.js" defer></script>
 </head>
-<body>
-    <div class="bg-black text-white font-['Space_Grotesk'] overflow-x-hidden">
+<body>    <div class="bg-black text-white font-['Space_Grotesk'] overflow-x-hidden">
         <!-- Background elements -->
         <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
             <div class="absolute top-20 left-10 w-96 h-96 bg-indigo-900/10 rounded-full blur-3xl"></div>
             <div class="absolute bottom-10 right-10 w-80 h-80 bg-purple-900/10 rounded-full blur-3xl"></div>
             <div class="absolute top-40 right-20 w-64 h-64 bg-cyan-900/10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-40 left-20 w-72 h-72 bg-blue-900/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <!-- Parliament Search Section -->
+        <section class="parliament-search">
+            <div class="search-container">
+                <div class="search-header">
+                    <h2>Find Your Representatives</h2>
+                    <p>Connect with your Members of Parliament and the House of Lords</p>
+                </div>
+
+                <div class="search-tabs">
+                    <button class="tab-button active" data-tab="mp">Members of Parliament</button>
+                    <button class="tab-button" data-tab="lords">House of Lords</button>
+                </div>
+
+                <div class="tab-content" id="mpSearch">
+                    <form class="search-form" id="mpSearchForm" onsubmit="return searchMP(event)">
+                        <input type="text" class="search-input" placeholder="Enter your postcode (e.g., SW1A 1AA)" 
+                               id="postcodeInput" pattern="^[A-Za-z]{1,2}[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}$">
+                        <button type="submit" class="search-button">
+                            <i class="fas fa-search"></i>
+                            Find MP
+                        </button>
+                    </form>
+                    <div class="quick-links">
+                        <a href="#" class="quick-link" onclick="quickSearch('SW1A 1AA')">Westminster (SW1A 1AA)</a>
+                        <a href="#" class="quick-link" onclick="quickSearch('M1 1AE')">Manchester (M1 1AE)</a>
+                        <a href="#" class="quick-link" onclick="quickSearch('B1 1HF')">Birmingham (B1 1HF)</a>
+                    </div>
+                </div>
+
+                <div class="tab-content hidden" id="lordsSearch">
+                    <form class="search-form" id="lordsSearchForm" onsubmit="return searchLords(event)">
+                        <input type="text" class="search-input" placeholder="Search by name or area of expertise">
+                        <button type="submit" class="search-button">
+                            <i class="fas fa-search"></i>
+                            Find Lord
+                        </button>
+                    </form>
+                    <div class="quick-links">
+                        <a href="#" class="quick-link" onclick="filterLords('Economics')">Economics</a>
+                        <a href="#" class="quick-link" onclick="filterLords('Law')">Law</a>
+                        <a href="#" class="quick-link" onclick="filterLords('Health')">Health</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="loader">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+
+            <div id="searchResults" class="results-container"></div>
+        </section>
             <!-- Decorative grid lines -->
             <div class="absolute inset-0 grid grid-cols-12 opacity-5 pointer-events-none">
                 <div class="border-r border-cyan-500"></div>
