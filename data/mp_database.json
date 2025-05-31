@@ -53,5 +53,20 @@
     "M21": "Manchester Withington",
     "BS1": "Bristol Central"
   },
-  "postcode_exact_map": {}
+  "postcode_exact_map": {},
+  "cache": {
+    "constituency_Test Constituency": {
+      "data": {
+        "name": "",
+        "party": "Test Party",
+        "constituency": "Test Constituency",
+        "email": "",
+        "phone": "",
+        "website": "",
+        "twitter": "",
+        "image_url": ""
+      },
+      "timestamp": "2025-05-31T20:37:27.539596"
+    }
+  }
 }
