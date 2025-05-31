@@ -497,65 +497,172 @@ const GovWhiz = {
     // Political News functionality
     loadPoliticalNews() {
         const newsContainer = document.getElementById('news-container');
+        const loadMoreBtn = document.getElementById('load-more-news');
+        
         if (!newsContainer) return;
 
-        console.log('📰 Loading political news...');
-
-        // Mock news data (in production, this would come from RSS feeds)
-        const mockNews = [
-            {
-                title: "Digital Services Act 2025 Passes Committee Stage",
-                summary: "The comprehensive legislation governing digital platforms has successfully passed through committee review with cross-party support.",
-                link: "#",
-                date: "2025-01-15",
-                category: "Technology"
-            },
-            {
-                title: "Climate Action Framework Receives Royal Assent",
-                summary: "New legally binding targets for carbon reduction are now in effect, establishing the pathway to net-zero emissions by 2050.",
-                link: "#",
-                date: "2025-01-10",
-                category: "Environment"
-            },
-            {
-                title: "Healthcare Modernisation Act Advances to Third Reading",
-                summary: "NHS digital transformation plans move closer to implementation with parliamentary approval for infrastructure upgrades.",
-                link: "#",
-                date: "2025-01-08",
-                category: "Healthcare"
-            },
-            {
-                title: "Transport Infrastructure Investment Approved",
-                summary: "£50 billion funding package for rail, road, and public transport improvements receives parliamentary backing.",
-                link: "#",
-                date: "2025-01-05",
-                category: "Transport"
+        try {
+            if (page === 1) {
+                newsContainer.innerHTML = `
+                    <div class="loading-placeholder text-center py-8">
+                        <div class="animate-spin inline-block w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full"></div>
+                        <p class="text-gray-400 mt-4">Loading latest news...</p>
+                    </div>`;
             }
-        ];
 
-        const newsHtml = mockNews.map(article => `
-            <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4 hover:border-purple-500/30 transition-colors">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="text-xs text-purple-400 bg-purple-900/30 px-2 py-1 rounded">${article.category}</span>
-                    <span class="text-xs text-gray-500">${article.date}</span>
-                </div>
-                <h4 class="text-white font-semibold mb-2">${article.title}</h4>
-                <p class="text-gray-400 text-sm mb-3">${article.summary}</p>
-                <a href="${article.link}" class="text-cyan-400 hover:text-cyan-300 text-sm transition-colors">
-                    Read more →
-                </a>
-            </div>
-        `).join('');
+            const response = await fetch(`/api/political-news?page=${page}&limit=${newsPerPage}`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch news');
+            }
 
-        newsContainer.innerHTML = `
-            <div class="space-y-4">
-                <h3 class="text-xl font-semibold text-white mb-4">📰 Latest Political News</h3>
-                <div class="grid gap-4">
-                    ${newsHtml}
-                </div>
-            </div>
-        `;
+            const data = await response.json();
+            
+            if (page === 1) {
+                newsContainer.innerHTML = '';
+            }
+
+            data.articles.forEach(article => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item bg-gray-800/30 rounded-lg overflow-hidden transition-all duration-300 hover:bg-gray-800/50';
+                newsItem.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex items-center gap-2 text-sm text-cyan-400 mb-2">
+                            <i class="fas fa-clock"></i>
+                            <span>${formatDate(new Date(article.publishedAt))}</span>
+                            ${article.source ? `<span class="text-gray-500">•</span>
+                            <span>${article.source}</span>` : ''}
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3 hover:text-cyan-400 transition-colors">
+                            <a href="${article.url}" target="_blank" rel="noopener noreferrer">
+                                ${article.title}
+                            </a>
+                        </h3>
+                        <p class="text-gray-400 mb-4">${article.description}</p>
+                        <div class="flex items-center gap-4">
+                            <a href="${article.url}" target="_blank" rel="noopener noreferrer" 
+                               class="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors">
+                                Read More
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                newsContainer.appendChild(newsItem);
+            });
+
+            if (data.hasMore) {
+                loadMoreBtn.classList.remove('hidden');
+                currentPage = page;
+            } else {
+                loadMoreBtn.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Error loading news:', error);
+            newsContainer.innerHTML = `
+                <div class="text-center py-8">
+                    <p class="text-red-400">Failed to load news. Please try again later.</p>
+                    <button onclick="loadPoliticalNews(1)" class="mt-4 px-4 py-2 bg-cyan-900/50 hover:bg-cyan-800/50 rounded-lg text-cyan-400 transition-all duration-300">
+                        Retry
+                    </button>
+                </div>`;
+        }
     },
+
+    // News Loading Functions
+    currentPage: 1,
+    newsPerPage: 5,
+
+    async loadPoliticalNews(page = 1) {
+        const newsContainer = document.getElementById('news-container');
+        const loadMoreBtn = document.getElementById('load-more-news');
+        
+        if (!newsContainer) return;
+
+        try {
+            if (page === 1) {
+                newsContainer.innerHTML = `
+                    <div class="loading-placeholder text-center py-8">
+                        <div class="animate-spin inline-block w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full"></div>
+                        <p class="text-gray-400 mt-4">Loading latest news...</p>
+                    </div>`;
+            }
+
+            const response = await fetch(`/api/political-news?page=${page}&limit=${newsPerPage}`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch news');
+            }
+
+            const data = await response.json();
+            
+            if (page === 1) {
+                newsContainer.innerHTML = '';
+            }
+
+            data.articles.forEach(article => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item bg-gray-800/30 rounded-lg overflow-hidden transition-all duration-300 hover:bg-gray-800/50';
+                newsItem.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex items-center gap-2 text-sm text-cyan-400 mb-2">
+                            <i class="fas fa-clock"></i>
+                            <span>${formatDate(new Date(article.publishedAt))}</span>
+                            ${article.source ? `<span class="text-gray-500">•</span>
+                            <span>${article.source}</span>` : ''}
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3 hover:text-cyan-400 transition-colors">
+                            <a href="${article.url}" target="_blank" rel="noopener noreferrer">
+                                ${article.title}
+                            </a>
+                        </h3>
+                        <p class="text-gray-400 mb-4">${article.description}</p>
+                        <div class="flex items-center gap-4">
+                            <a href="${article.url}" target="_blank" rel="noopener noreferrer" 
+                               class="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors">
+                                Read More
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                newsContainer.appendChild(newsItem);
+            });
+
+            if (data.hasMore) {
+                loadMoreBtn.classList.remove('hidden');
+                currentPage = page;
+            } else {
+                loadMoreBtn.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Error loading news:', error);
+            newsContainer.innerHTML = `
+                <div class="text-center py-8">
+                    <p class="text-red-400">Failed to load news. Please try again later.</p>
+                    <button onclick="loadPoliticalNews(1)" class="mt-4 px-4 py-2 bg-cyan-900/50 hover:bg-cyan-800/50 rounded-lg text-cyan-400 transition-all duration-300">
+                        Retry
+                    </button>
+                </div>`;
+        }
+    },
+
+    formatDate(date) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-GB', options);
+    },
+
+    // Setup news loading event listener
+    document.addEventListener('DOMContentLoaded', () => {
+        const loadMoreBtn = document.getElementById('load-more-news');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => {
+                loadPoliticalNews(currentPage + 1);
+            });
+        }
+        // Initial news load
+        loadPoliticalNews(1);
+    }),
 
     // Contact form handling
     handleContactForm(event) {
@@ -705,6 +812,91 @@ const GovWhiz = {
         document.body.appendChild(modal);
     }
 };
+
+// MP Lookup Core Functions
+async function findMP() {
+    const postcodeInput = document.getElementById('postcodeInput');
+    const resultsDiv = document.getElementById('mp-results');
+    
+    if (!postcodeInput || !resultsDiv) {
+        console.error('Required elements not found');
+        return;
+    }
+
+    const postcode = postcodeInput.value.trim().toUpperCase();
+    
+    // Basic postcode validation
+    if (!isValidPostcode(postcode)) {
+        resultsDiv.innerHTML = `
+            <div class="p-6 text-red-400 text-center">
+                Please enter a valid UK postcode
+            </div>`;
+        return;
+    }
+
+    try {
+        resultsDiv.innerHTML = `
+            <div class="p-6 text-cyan-400 text-center">
+                <i class="fas fa-spinner fa-spin mr-2"></i> Looking up your MP...
+            </div>`;
+
+        const response = await fetch(`/api/mp-lookup?postcode=${encodeURIComponent(postcode)}`);
+        
+        if (!response.ok) {
+            throw new Error('MP lookup failed');
+        }
+
+        const data = await response.json();
+        
+        if (!data || !data.name) {
+            throw new Error('No MP found for this postcode');
+        }
+
+        resultsDiv.innerHTML = `
+            <div class="p-6">
+                <div class="flex items-center gap-4 mb-4">
+                    ${data.image ? `<img src="${data.image}" alt="${data.name}" class="w-24 h-24 rounded-lg object-cover">` : ''}
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-1">${data.name}</h3>
+                        <p class="text-cyan-400">${data.constituency}</p>
+                        <p class="text-gray-400">${data.party}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div class="bg-gray-800/30 p-4 rounded-lg">
+                        <h4 class="text-cyan-400 mb-2">Contact Information</h4>
+                        <p class="text-gray-300">${data.email || 'Email not available'}</p>
+                        <p class="text-gray-300">${data.phone || 'Phone not available'}</p>
+                    </div>
+                    <div class="bg-gray-800/30 p-4 rounded-lg">
+                        <h4 class="text-cyan-400 mb-2">Quick Actions</h4>
+                        <div class="flex gap-2">
+                            ${data.email ? `<a href="mailto:${data.email}" class="px-3 py-1 bg-cyan-900/50 hover:bg-cyan-800/50 rounded text-sm">Email MP</a>` : ''}
+                            <a href="#" onclick="viewMPProfile('${data.id}')" class="px-3 py-1 bg-purple-900/50 hover:bg-purple-800/50 rounded text-sm">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    } catch (error) {
+        resultsDiv.innerHTML = `
+            <div class="p-6 text-red-400 text-center">
+                ${error.message || 'An error occurred while looking up your MP'}
+            </div>`;
+    }
+}
+
+function isValidPostcode(postcode) {
+    const postcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i;
+    return postcodeRegex.test(postcode);
+}
+
+function quickSearch(postcode) {
+    const postcodeInput = document.getElementById('postcodeInput');
+    if (postcodeInput) {
+        postcodeInput.value = postcode;
+        findMP();
+    }
+}
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
