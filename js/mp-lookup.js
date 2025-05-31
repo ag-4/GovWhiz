@@ -7,44 +7,20 @@ class MPLookupSystem {
         this.cache = new Map();
         // UK Postcode regex pattern
         this.postcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i;
-        
-        // Comprehensive MP Database
-        this.mpDatabase = {
-            'SW1A': { 
-                name: 'Rt Hon Sir Keir Starmer MP', 
-                party: 'Labour', 
-                constituency: 'Holborn and St Pancras', 
-                email: 'keir.starmer.mp@parliament.uk', 
-                phone: '020 7219 4000', 
-                website: 'https://www.parliament.uk/biographies/commons/sir-keir-starmer/4514', 
-                role: 'Prime Minister'
-            },
-            'SW1H': {
-                name: 'Nickie Aiken MP',
-                party: 'Conservative',
-                constituency: 'Cities of London and Westminster',
-                email: 'nickie.aiken.mp@parliament.uk',
-                phone: '020 7219 4000', 
-                website: 'https://www.parliament.uk/biographies/commons/nickie-aiken/4656',
-                role: 'Member of Parliament'
-            },
-            // More MPs from database...
-        };
+        this.backendUrl = '/api/mp-lookup'; // Backend service URL
     }
 
     validatePostcode(postcode) {
         if (!postcode) return false;
         postcode = postcode.toString().replace(/\s/g, '').toUpperCase();
         return this.postcodeRegex.test(postcode);
-    }
-
-    /**
-     * Multi-strategy postcode lookup that tries several methods to find the correct MP
+    }    /**
+     * Multi-strategy postcode lookup using direct API calls
      */
     async findMP(postcode) {
         try {
             // Clean and validate postcode
-            postcode = postcode.toString().replace(/\s/g, '').toUpperCase();
+            postcode = postcode.toString().replace(/\s+/g, ' ').trim().toUpperCase();
             if (!this.validatePostcode(postcode)) {
                 throw new Error('Please enter a valid UK postcode');
             }
@@ -54,25 +30,19 @@ class MPLookupSystem {
                 return this.cache.get(postcode);
             }
 
-            // Try local database first to reduce API calls
-            const localResult = await this.findLocalMP(postcode);
-            if (localResult) {
-                this.cache.set(postcode, localResult);
-                return localResult;
+            // Call the API directly
+            const result = await this.findMPFromAPI(postcode);
+            
+            if (result && result.found) {
+                // Cache the result
+                this.cache.set(postcode, result);
+                return result;
+            } else {
+                throw new Error(result.error || 'Could not find MP for this postcode');
             }
-
-            // If not in local database, try Parliament API
-            const apiResult = await this.findMPFromAPI(postcode);
-            if (apiResult) {
-                // Cache the API result
-                this.cache.set(postcode, apiResult);
-                await this.updateLocalDatabase(apiResult);
-                return apiResult;
-            }
-
-            throw new Error('Could not find MP for this postcode');
 
         } catch (error) {
+            console.error('MP lookup error:', error);
             throw new Error('Error finding MP: ' + error.message);
         }
     }
@@ -114,68 +84,83 @@ class MPLookupSystem {
             console.error('Error reading local database:', error);
             return null;
         }
-    }
+    }    async findMPFromAPI(postcode) {
+        try {
+            // Get constituency from postcode
+            const constituencyResponse = await fetch(
+                `https://api.postcodes.io/postcodes/${postcode.replace(/\s/g, '')}`
+            );
+            
+            if (!constituencyResponse.ok) {
+                throw new Error('Unable to find your constituency. Please try again later.');
+            }
 
-    async findMPFromAPI(postcode) {
-        // Get constituency from postcode
-        const constituencyResponse = await fetch(
-            `https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}`
-        );
-        
-        if (!constituencyResponse.ok) {
-            throw new Error('Unable to find your constituency. Please try again later.');
+            const constituencyData = await constituencyResponse.json();
+            if (!constituencyData.result?.parliamentary_constituency) {
+                throw new Error('No constituency found for this postcode');
+            }
+
+            const constituencyName = constituencyData.result.parliamentary_constituency;
+
+            // Get MP details from Parliament API
+            const mpResponse = await fetch(
+                `https://members-api.parliament.uk/api/Location/Constituency/Search?searchText=${encodeURIComponent(constituencyName)}`
+            );
+            
+            if (!mpResponse.ok) {
+                throw new Error('Unable to fetch MP information. Please try again later.');
+            }
+
+            const mpData = await mpResponse.json();
+            if (!mpData.items?.length) {
+                throw new Error('No current MP found for this constituency');
+            }
+
+            const constituency = mpData.items[0].value;
+            
+            // Get current MP
+            const currentMPResponse = await fetch(
+                `https://members-api.parliament.uk/api/Location/Constituency/${constituency.id}/Members/Current`
+            );
+            
+            if (!currentMPResponse.ok) {
+                throw new Error('Unable to fetch current MP information.');
+            }
+
+            const currentMPData = await currentMPResponse.json();
+            if (!currentMPData.items?.length) {
+                throw new Error('No current MP found for this constituency');
+            }
+
+            const mp = currentMPData.items[0].value;
+            
+            // Format the MP data consistently with proper structure
+            const mpInfo = {
+                name: mp.nameDisplayAs,
+                party: mp.latestParty.name,
+                email: mp.contactDetails?.find(c => c.type === 'Email')?.value || 
+                       `${mp.nameDisplayAs.toLowerCase().replace(/ /g, '.')}@parliament.uk`,
+                phone: mp.contactDetails?.find(c => c.type === 'Phone')?.value || '020 7219 3000',
+                website: `https://members.parliament.uk/member/${mp.id}`,
+                member_id: mp.id.toString()
+            };
+
+            // Return in the expected format
+            return {
+                found: true,
+                mp: mpInfo,
+                constituency: constituencyName,
+                postcode: postcode
+            };
+
+        } catch (error) {
+            console.error('API lookup error:', error);
+            return {
+                found: false,
+                error: error.message,
+                postcode: postcode
+            };
         }
-
-        const constituencyData = await constituencyResponse.json();
-        if (!constituencyData.result?.parliamentary_constituency) {
-            throw new Error('No constituency found for this postcode');
-        }
-
-        const constituencyName = constituencyData.result.parliamentary_constituency;
-
-        // Get MP details from Parliament API
-        const mpResponse = await fetch(
-            `https://members-api.parliament.uk/api/Location/Constituency/Search?searchText=${encodeURIComponent(constituencyName)}`
-        );
-        
-        if (!mpResponse.ok) {
-            throw new Error('Unable to fetch MP information. Please try again later.');
-        }
-
-        const mpData = await mpResponse.json();
-        if (!mpData.items?.length) {
-            throw new Error('No current MP found for this constituency');
-        }
-
-        const constituency = mpData.items[0].value;
-        
-        // Get current MP
-        const currentMPResponse = await fetch(
-            `https://members-api.parliament.uk/api/Location/Constituency/${constituency.id}/Members/Current`
-        );
-        
-        if (!currentMPResponse.ok) {
-            throw new Error('Unable to fetch current MP information.');
-        }
-
-        const currentMPData = await currentMPResponse.json();
-        if (!currentMPData.items?.length) {
-            throw new Error('No current MP found for this constituency');
-        }
-
-        const mp = currentMPData.items[0].value;
-        
-        // Format the MP data consistently
-        return {
-            name: mp.nameDisplayAs,
-            party: mp.latestParty.name,
-            constituency: constituencyName,
-            email: mp.contactDetails.find(c => c.type === 'Email')?.value || 
-                   `${mp.nameDisplayAs.toLowerCase().replace(/ /g, '.')}@parliament.uk`,
-            phone: mp.contactDetails.find(c => c.type === 'Phone')?.value || '020 7219 3000',
-            website: `https://members.parliament.uk/member/${mp.id}`,
-            member_id: mp.id.toString()
-        };
     }
 
     async updateLocalDatabase(mpInfo) {

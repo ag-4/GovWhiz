@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP Lookup Test - GovWhiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #dcfce7;
+            border: 1px solid #16a34a;
+        }
+        .error {
+            background: #fef2f2;
+            border: 1px solid #dc2626;
+        }
+        .loading {
+            background: #e0f2fe;
+            border: 1px solid #0284c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏛️ MP Lookup Test</h1>
+        <p>Test the MP lookup functionality with real postcodes</p>
+        
+        <div class="input-group">
+            <input type="text" id="postcode" placeholder="Enter UK postcode (e.g., SW1A 0AA)" maxlength="10">
+            <button onclick="testLookup()">Find MP</button>
+        </div>
+        
+        <div class="input-group">
+            <button onclick="testSample('SW1A 0AA')">Test Westminster</button>
+            <button onclick="testSample('M1 1AA')">Test Manchester</button>
+            <button onclick="testSample('B1 1AA')">Test Birmingham</button>
+            <button onclick="testSample('E1 6AN')">Test London</button>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+
+    <script src="js/mp-lookup.js"></script>
+    <script>
+        async function testLookup() {
+            const postcode = document.getElementById('postcode').value.trim();
+            if (!postcode) {
+                showResult('Please enter a postcode', 'error');
+                return;
+            }
+            await performLookup(postcode);
+        }
+
+        async function testSample(postcode) {
+            document.getElementById('postcode').value = postcode;
+            await performLookup(postcode);
+        }
+
+        async function performLookup(postcode) {
+            const resultDiv = document.getElementById('result');
+            
+            showResult(`🔍 Looking up MP for ${postcode}...`, 'loading');
+            
+            try {
+                console.log('Starting MP lookup for:', postcode);
+                const result = await window.mpLookup.findMP(postcode);
+                console.log('MP lookup result:', result);
+                
+                if (result && result.found) {
+                    const mp = result.mp;
+                    showResult(`
+                        <h3>✅ MP Found</h3>
+                        <p><strong>Name:</strong> ${mp.name}</p>
+                        <p><strong>Constituency:</strong> ${result.constituency}</p>
+                        <p><strong>Party:</strong> ${mp.party}</p>
+                        <p><strong>Email:</strong> ${mp.email}</p>
+                        <p><strong>Phone:</strong> ${mp.phone}</p>
+                        <p><strong>Website:</strong> <a href="${mp.website}" target="_blank">${mp.website}</a></p>
+                        <p><strong>Member ID:</strong> ${mp.member_id}</p>
+                        <p><strong>Postcode:</strong> ${result.postcode}</p>
+                    `, 'success');
+                } else {
+                    showResult(`❌ MP not found: ${result.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('MP lookup error:', error);
+                showResult(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.className = `result ${type}`;
+        }
+
+        // Test when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('MP Lookup Test page loaded');
+            console.log('mpLookup object:', window.mpLookup);
+        });
+    </script>
+</body>
+</html>
