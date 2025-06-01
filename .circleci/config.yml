@@ -1,5 +1,3 @@
-# This config was automatically generated from your source code
-# Stacks detected: cicd:github-actions:.github/workflows,deps:node:.,deps:python:.
 version: 2.1
 orbs:
   node: circleci/node@5
@@ -15,7 +13,7 @@ jobs:
           override-ci-command: npm install
       - run:
           name: Run tests
-          command: echo \"No test specified in package.json\"
+          command: echo "No test specified in package.json"
   build-node:
     # Build node project
     executor: node/default
@@ -43,6 +41,9 @@ jobs:
     steps:
       - checkout
       - python/install-packages
+      - run:
+          name: Install pytest
+          command: pip install pytest
       - run:
           name: Run tests
           command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
