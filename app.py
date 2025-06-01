@@ -6,9 +6,13 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from mp_service import mp_service
 from contact_handler import handle_contact_form
+from scripts.automated_mp_updater import AutomatedMPUpdater
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
+
+# Initialize automated MP updater
+mp_updater = AutomatedMPUpdater()
 
 # Configuration
 BASE_URL = "https://www.theyworkforyou.com/api"
@@ -48,10 +52,28 @@ def format_postcode(postcode):
 
 def get_mp_by_postcode(postcode):
     """
-    Get MP information by postcode using TheyWorkForYou API with improved error handling
+    Get MP information by postcode using automated updater with pattern matching support
     """
     formatted_postcode = format_postcode(postcode)
     
+    # For partial postcodes (e.g., "SW1" or "E14"), use pattern matching
+    if len(formatted_postcode.replace(" ", "")) <= 4:
+        results = mp_updater.find_mp_by_pattern(formatted_postcode)
+        if results:
+            return {
+                "found": True,
+                "type": "pattern_match",
+                "results": results,
+                "count": len(results),
+                "postcode": formatted_postcode
+            }
+        return {
+            "error": "No MPs found for this postcode pattern",
+            "found": False,
+            "postcode": formatted_postcode
+        }
+
+    # For full postcodes, validate format
     if not validate_postcode(formatted_postcode):
         return {
             "error": "Invalid postcode format. Please use a valid UK postcode format (e.g., 'SW1A 1AA')",
@@ -59,77 +81,45 @@ def get_mp_by_postcode(postcode):
             "postcode": formatted_postcode
         }
 
-    url = f"{BASE_URL}/getMP"
-    params = {
+    # Use automated updater for full postcode lookup
+    result = mp_updater.process_postcode(formatted_postcode)
+    
+    if not result["success"]:
+        return {
+            "error": result["error"],
+            "found": False,
+            "postcode": formatted_postcode
+        }
+    
+    mp_data = result["mp"]
+    
+    # Format response in the expected structure
+    mp_info = {
+        "found": True,
+        "name": mp_data["name"],
+        "party": mp_data["party"],
+        "constituency": mp_data["constituency"],
+        "email": mp_data["email"],
+        "website": mp_data["website"],
+        "phone": mp_data["phone"],
+        "image": mp_data["image"],
         "postcode": formatted_postcode,
-        "key": API_KEY,
-        "output": "json"
+        "member_id": mp_data["member_id"],
+        "social_media": mp_data.get("social_media", {}),
+        "address": mp_data.get("address", ""),
+        "timestamp": datetime.now().isoformat(),
+        "last_updated": mp_data["last_updated"]
     }
-
-    try:
-        response = requests.get(url, params=params, timeout=10)
-        response.raise_for_status()
-        
-        data = response.json()
-
-        if "error" in data:
-            return {
-                "error": data["error"], 
-                "found": False,
-                "postcode": formatted_postcode
-            }
-        
-        # Extract and format MP information with additional validation
-        mp_info = {
-            "found": True,
-            "name": data.get("name", "Unknown"),
-            "party": data.get("party", "Unknown"),
-            "constituency": data.get("constituency", "Unknown"),
-            "email": data.get("email", ""),
-            "website": data.get("url", ""),
-            "office": data.get("office", ""),
-            "phone": data.get("phone", ""),
-            "image": data.get("image", ""),
-            "postcode": formatted_postcode,
-            "person_id": data.get("person_id", ""),
-            "member_id": data.get("member_id", ""),
-            "timestamp": datetime.now().isoformat()
-        }
-        
-        # Validate required fields
-        if not mp_info["name"] or mp_info["name"] == "Unknown":
-            return {
-                "error": "No MP found for this postcode",
-                "found": False,
-                "postcode": formatted_postcode
-            }
-        
-        return mp_info
-        
-    except requests.exceptions.Timeout:
+    
+    # Validate that we have the essential information
+    if not mp_info["name"] or not mp_info["constituency"]:
         return {
-            "error": "Request timed out. Please try again.",
+            "error": "No valid MP information found for this postcode",
             "found": False,
             "postcode": formatted_postcode
         }
-    except requests.exceptions.RequestException as e:
-        return {
-            "error": f"Network error: {str(e)}", 
-            "found": False,
-            "postcode": formatted_postcode
-        }
-    except json.JSONDecodeError:
-        return {
-            "error": "Invalid response from API", 
-            "found": False,
-            "postcode": formatted_postcode
-        }
-    except Exception as e:
-        return {
-            "error": f"Unexpected error: {str(e)}", 
-            "found": False,
-            "postcode": formatted_postcode
-        }
+    
+    return mp_info
 
 def get_mock_mp_data(postcode):
     """Fallback mock data when API is unavailable"""

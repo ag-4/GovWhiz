@@ -73,16 +73,17 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoading();
 
         try {
-            // First API call to get constituency
-            const constituencyResponse = await fetch(`https://members-api.parliament.uk/api/Location/Constituency/Search?searchText=${encodeURIComponent(postcode)}`);
-            if (!constituencyResponse.ok) throw new Error('Failed to fetch constituency data');
-            
-            const constituencyData = await constituencyResponse.json();
-            if (!constituencyData.items?.length) {
-                throw new Error('No constituency found for this postcode');
+            // Use Netlify function to look up MP
+            const response = await fetch(`/.netlify/functions/mp-lookup?postcode=${encodeURIComponent(postcode)}`);
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to look up MP');
             }
-
-            const constituency = constituencyData.items[0].value;
+            
+            const data = await response.json();
+            if (!data.found || !data.mp) {
+                throw new Error('No MP found for this postcode');
+            }
 
             // Second API call to get MP details
             const mpResponse = await fetch(`https://members-api.parliament.uk/api/Location/Constituency/${constituency.id}/Members`);

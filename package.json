@@ -19,9 +19,10 @@
   "description": "",
   "dependencies": {
     "@netlify/functions": "^2.6.0",
-    "serverless-http": "^3.2.0",
     "autoprefixer": "^10.4.21",
+    "node-fetch": "^3.3.2",
     "postcss": "^8.5.4",
+    "serverless-http": "^3.2.0",
     "tailwindcss": "^4.1.8"
   }
 }

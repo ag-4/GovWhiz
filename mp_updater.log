@@ -1,0 +1,363 @@
+2025-06-01 17:00:50,347 - INFO - Starting automated MP database update...
+2025-06-01 17:00:50,607 - ERROR - Error getting MP details for constituency Cities of London and Westminster: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:00:50,607 - ERROR - Error updating Cities of London and Westminster: 'update_status'
+2025-06-01 17:00:50,607 - ERROR - Error during update: 'update_status'
+2025-06-01 17:02:22,713 - INFO - Starting automated MP database update...
+2025-06-01 17:02:22,942 - INFO - Found 26 constituencies to update
+2025-06-01 17:02:22,942 - INFO - Updating Argyll, Bute and South Lochaber...
+2025-06-01 17:02:23,121 - ERROR - Error getting MP details for constituency Argyll, Bute and South Lochaber: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:23,121 - ERROR - No MP information found for Argyll, Bute and South Lochaber
+2025-06-01 17:02:24,122 - INFO - Updating Ayr, Carrick and Cumnock...
+2025-06-01 17:02:24,346 - ERROR - Error getting MP details for constituency Ayr, Carrick and Cumnock: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:24,346 - ERROR - No MP information found for Ayr, Carrick and Cumnock
+2025-06-01 17:02:25,347 - INFO - Updating Bristol East...
+2025-06-01 17:02:25,557 - ERROR - Error getting MP details for constituency Bristol East: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:25,557 - ERROR - No MP information found for Bristol East
+2025-06-01 17:02:26,558 - INFO - Updating Manchester Central...
+2025-06-01 17:02:26,732 - ERROR - Error getting MP details for constituency Manchester Central: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:26,733 - ERROR - No MP information found for Manchester Central
+2025-06-01 17:02:27,733 - INFO - Updating Aylesbury...
+2025-06-01 17:02:27,967 - ERROR - Error getting MP details for constituency Aylesbury: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:27,967 - ERROR - No MP information found for Aylesbury
+2025-06-01 17:02:28,967 - INFO - Updating Airdrie and Shotts...
+2025-06-01 17:02:29,151 - ERROR - Error getting MP details for constituency Airdrie and Shotts: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:29,151 - ERROR - No MP information found for Airdrie and Shotts
+2025-06-01 17:02:30,151 - INFO - Updating Aberdeen North...
+2025-06-01 17:02:30,343 - ERROR - Error getting MP details for constituency Aberdeen North: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:30,343 - ERROR - No MP information found for Aberdeen North
+2025-06-01 17:02:31,344 - INFO - Updating Alloa and Grangemouth...
+2025-06-01 17:02:31,490 - ERROR - Error getting MP details for constituency Alloa and Grangemouth: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:31,490 - ERROR - No MP information found for Alloa and Grangemouth
+2025-06-01 17:02:32,491 - INFO - Updating Angus and Perthshire Glens...
+2025-06-01 17:02:32,680 - ERROR - Error getting MP details for constituency Angus and Perthshire Glens: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:32,681 - ERROR - No MP information found for Angus and Perthshire Glens
+2025-06-01 17:02:33,681 - INFO - Updating Altrincham and Sale West...
+2025-06-01 17:02:33,835 - ERROR - Error getting MP details for constituency Altrincham and Sale West: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:33,836 - ERROR - No MP information found for Altrincham and Sale West
+2025-06-01 17:02:34,836 - INFO - Updating Ashton-under-Lyne...
+2025-06-01 17:02:35,016 - ERROR - Error getting MP details for constituency Ashton-under-Lyne: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:35,016 - ERROR - No MP information found for Ashton-under-Lyne
+2025-06-01 17:02:36,016 - INFO - Updating Alyn and Deeside...
+2025-06-01 17:02:36,204 - ERROR - Error getting MP details for constituency Alyn and Deeside: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:36,204 - ERROR - No MP information found for Alyn and Deeside
+2025-06-01 17:02:37,205 - INFO - Updating Ashford...
+2025-06-01 17:02:37,473 - ERROR - Error getting MP details for constituency Ashford: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:37,474 - ERROR - No MP information found for Ashford
+2025-06-01 17:02:38,474 - INFO - Updating Ashfield...
+2025-06-01 17:02:38,628 - ERROR - Error getting MP details for constituency Ashfield: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:38,629 - ERROR - No MP information found for Ashfield
+2025-06-01 17:02:39,629 - INFO - Updating Arundel and South Downs...
+2025-06-01 17:02:39,793 - ERROR - Error getting MP details for constituency Arundel and South Downs: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:39,793 - ERROR - No MP information found for Arundel and South Downs
+2025-06-01 17:02:40,793 - INFO - Updating Aberafan Maesteg...
+2025-06-01 17:02:40,986 - ERROR - Error getting MP details for constituency Aberafan Maesteg: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:40,986 - ERROR - No MP information found for Aberafan Maesteg
+2025-06-01 17:02:41,987 - INFO - Updating Aberdeen South...
+2025-06-01 17:02:42,200 - ERROR - Error getting MP details for constituency Aberdeen South: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:42,200 - ERROR - No MP information found for Aberdeen South
+2025-06-01 17:02:43,201 - INFO - Updating Cities of London and Westminster...
+2025-06-01 17:02:43,322 - ERROR - Error getting MP details for constituency Cities of London and Westminster: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:43,322 - ERROR - No MP information found for Cities of London and Westminster
+2025-06-01 17:02:44,323 - INFO - Updating Arbroath and Broughty Ferry...
+2025-06-01 17:02:44,477 - ERROR - Error getting MP details for constituency Arbroath and Broughty Ferry: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:44,477 - ERROR - No MP information found for Arbroath and Broughty Ferry
+2025-06-01 17:02:45,477 - INFO - Updating Amber Valley...
+2025-06-01 17:02:45,658 - ERROR - Error getting MP details for constituency Amber Valley: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:45,658 - ERROR - No MP information found for Amber Valley
+2025-06-01 17:02:46,659 - INFO - Updating Aldershot...
+2025-06-01 17:02:46,847 - ERROR - Error getting MP details for constituency Aldershot: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:46,847 - ERROR - No MP information found for Aldershot
+2025-06-01 17:02:47,848 - INFO - Updating Birmingham Ladywood...
+2025-06-01 17:02:48,037 - ERROR - Error getting MP details for constituency Birmingham Ladywood: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:48,037 - ERROR - No MP information found for Birmingham Ladywood
+2025-06-01 17:02:49,038 - INFO - Updating Manchester Withington...
+2025-06-01 17:02:49,218 - ERROR - Error getting MP details for constituency Manchester Withington: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:49,218 - ERROR - No MP information found for Manchester Withington
+2025-06-01 17:02:50,219 - INFO - Updating Aberdeenshire North and Moray East...
+2025-06-01 17:02:50,391 - ERROR - Error getting MP details for constituency Aberdeenshire North and Moray East: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:50,392 - ERROR - No MP information found for Aberdeenshire North and Moray East
+2025-06-01 17:02:51,392 - INFO - Updating Aldridge-Brownhills...
+2025-06-01 17:02:51,598 - ERROR - Error getting MP details for constituency Aldridge-Brownhills: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:51,598 - ERROR - No MP information found for Aldridge-Brownhills
+2025-06-01 17:02:52,599 - INFO - Updating Bristol Central...
+2025-06-01 17:02:52,783 - ERROR - Error getting MP details for constituency Bristol Central: Expecting value: line 1 column 1 (char 0)
+2025-06-01 17:02:52,784 - ERROR - No MP information found for Bristol Central
+2025-06-01 17:02:53,785 - INFO - Database saved successfully to data\mp_database.json
+2025-06-01 17:02:53,785 - INFO - Update completed:
+2025-06-01 17:02:53,792 - WARNING - Some updates failed. Check the database update_status for details.
+2025-06-01 17:05:29,115 - INFO - Starting automated MP database update...
+2025-06-01 17:05:29,217 - INFO - Found 26 constituencies to update
+2025-06-01 17:05:29,217 - INFO - Updating Ashton-under-Lyne...
+2025-06-01 17:05:29,356 - WARNING - Error fetching additional MP data for Ashton-under-Lyne: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/4356/SocialLinks
+2025-06-01 17:05:29,356 - ERROR - Error getting MP details for Ashton-under-Lyne: 'list' object has no attribute 'get'
+2025-06-01 17:05:29,356 - ERROR - No MP information found for Ashton-under-Lyne
+2025-06-01 17:05:30,357 - INFO - Updating Aberdeen South...
+2025-06-01 17:05:30,466 - WARNING - Error fetching additional MP data for Aberdeen South: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/4735/SocialLinks
+2025-06-01 17:05:30,466 - ERROR - Error getting MP details for Aberdeen South: 'list' object has no attribute 'get'
+2025-06-01 17:05:30,466 - ERROR - No MP information found for Aberdeen South
+2025-06-01 17:05:31,467 - INFO - Updating Argyll, Bute and South Lochaber...
+2025-06-01 17:05:31,598 - WARNING - Error fetching additional MP data for Argyll, Bute and South Lochaber: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/4371/SocialLinks
+2025-06-01 17:05:31,598 - ERROR - Error getting MP details for Argyll, Bute and South Lochaber: 'list' object has no attribute 'get'
+2025-06-01 17:05:31,598 - ERROR - No MP information found for Argyll, Bute and South Lochaber
+2025-06-01 17:05:32,599 - INFO - Updating Bristol East...
+2025-06-01 17:05:32,730 - WARNING - Error fetching additional MP data for Bristol East: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/1491/SocialLinks
+2025-06-01 17:05:32,730 - ERROR - Error getting MP details for Bristol East: 'list' object has no attribute 'get'
+2025-06-01 17:05:32,730 - ERROR - No MP information found for Bristol East
+2025-06-01 17:05:33,731 - INFO - Updating Aberdeen North...
+2025-06-01 17:05:33,861 - WARNING - Error fetching additional MP data for Aberdeen North: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/4357/SocialLinks
+2025-06-01 17:05:33,861 - ERROR - Error getting MP details for Aberdeen North: 'list' object has no attribute 'get'
+2025-06-01 17:05:33,862 - ERROR - No MP information found for Aberdeen North
+2025-06-01 17:05:34,862 - INFO - Updating Aberdeenshire North and Moray East...
+2025-06-01 17:05:34,976 - WARNING - Error fetching additional MP data for Aberdeenshire North and Moray East: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/5280/SocialLinks
+2025-06-01 17:05:34,977 - ERROR - Error getting MP details for Aberdeenshire North and Moray East: 'list' object has no attribute 'get'
+2025-06-01 17:05:34,977 - ERROR - No MP information found for Aberdeenshire North and Moray East
+2025-06-01 17:05:35,977 - INFO - Updating Bristol Central...
+2025-06-01 17:05:36,078 - WARNING - Error fetching additional MP data for Bristol Central: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/5102/SocialLinks
+2025-06-01 17:05:36,078 - ERROR - Error getting MP details for Bristol Central: 'list' object has no attribute 'get'
+2025-06-01 17:05:36,078 - ERROR - No MP information found for Bristol Central
+2025-06-01 17:05:37,079 - INFO - Updating Ayr, Carrick and Cumnock...
+2025-06-01 17:05:37,196 - WARNING - Error fetching additional MP data for Ayr, Carrick and Cumnock: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/5206/SocialLinks
+2025-06-01 17:05:37,197 - ERROR - Error getting MP details for Ayr, Carrick and Cumnock: 'list' object has no attribute 'get'
+2025-06-01 17:05:37,197 - ERROR - No MP information found for Ayr, Carrick and Cumnock
+2025-06-01 17:05:38,198 - INFO - Updating Aldershot...
+2025-06-01 17:05:38,321 - WARNING - Error fetching additional MP data for Aldershot: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/5173/SocialLinks
+2025-06-01 17:05:38,321 - ERROR - Error getting MP details for Aldershot: 'list' object has no attribute 'get'
+2025-06-01 17:05:38,321 - ERROR - No MP information found for Aldershot
+2025-06-01 17:05:39,322 - INFO - Updating Ashford...
+2025-06-01 17:05:39,443 - WARNING - Error fetching additional MP data for Ashford: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/5247/SocialLinks
+2025-06-01 17:05:39,443 - ERROR - Error getting MP details for Ashford: 'list' object has no attribute 'get'
+2025-06-01 17:05:39,443 - ERROR - No MP information found for Ashford
+2025-06-01 17:05:40,444 - INFO - Updating Aberafan Maesteg...
+2025-06-01 17:05:40,559 - WARNING - Error fetching additional MP data for Aberafan Maesteg: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/4359/SocialLinks
+2025-06-01 17:05:40,559 - ERROR - Error getting MP details for Aberafan Maesteg: 'list' object has no attribute 'get'
+2025-06-01 17:05:40,559 - ERROR - No MP information found for Aberafan Maesteg
+2025-06-01 17:05:41,560 - INFO - Updating Aylesbury...
+2025-06-01 17:05:41,715 - WARNING - Error fetching additional MP data for Aylesbury: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/5341/SocialLinks
+2025-06-01 17:05:41,716 - ERROR - Error getting MP details for Aylesbury: 'list' object has no attribute 'get'
+2025-06-01 17:05:41,716 - ERROR - No MP information found for Aylesbury
+2025-06-01 17:05:42,716 - INFO - Updating Airdrie and Shotts...
+2025-06-01 17:05:42,841 - WARNING - Error fetching additional MP data for Airdrie and Shotts: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/5200/SocialLinks
+2025-06-01 17:05:42,842 - ERROR - Error getting MP details for Airdrie and Shotts: 'list' object has no attribute 'get'
+2025-06-01 17:05:42,842 - ERROR - No MP information found for Airdrie and Shotts
+2025-06-01 17:05:43,843 - INFO - Updating Ashfield...
+2025-06-01 17:05:43,972 - WARNING - Error fetching additional MP data for Ashfield: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/4743/SocialLinks
+2025-06-01 17:05:43,972 - ERROR - Error getting MP details for Ashfield: 'list' object has no attribute 'get'
+2025-06-01 17:05:43,972 - ERROR - No MP information found for Ashfield
+2025-06-01 17:05:44,973 - INFO - Updating Amber Valley...
+2025-06-01 17:05:45,097 - WARNING - Error fetching additional MP data for Amber Valley: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/5107/SocialLinks
+2025-06-01 17:05:45,098 - ERROR - Error getting MP details for Amber Valley: 'list' object has no attribute 'get'
+2025-06-01 17:05:45,098 - ERROR - No MP information found for Amber Valley
+2025-06-01 17:05:46,099 - INFO - Updating Alloa and Grangemouth...
+2025-06-01 17:05:46,231 - WARNING - Error fetching additional MP data for Alloa and Grangemouth: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/5196/SocialLinks
+2025-06-01 17:05:46,231 - ERROR - Error getting MP details for Alloa and Grangemouth: 'list' object has no attribute 'get'
+2025-06-01 17:05:46,231 - ERROR - No MP information found for Alloa and Grangemouth
+2025-06-01 17:05:47,232 - INFO - Updating Manchester Central...
+2025-06-01 17:05:47,335 - WARNING - Error fetching additional MP data for Manchester Central: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/4263/SocialLinks
+2025-06-01 17:05:47,336 - ERROR - Error getting MP details for Manchester Central: 'list' object has no attribute 'get'
+2025-06-01 17:05:47,336 - ERROR - No MP information found for Manchester Central
+2025-06-01 17:05:48,336 - INFO - Updating Aldridge-Brownhills...
+2025-06-01 17:05:48,453 - WARNING - Error fetching additional MP data for Aldridge-Brownhills: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/4358/SocialLinks
+2025-06-01 17:05:48,454 - ERROR - Error getting MP details for Aldridge-Brownhills: 'list' object has no attribute 'get'
+2025-06-01 17:05:48,454 - ERROR - No MP information found for Aldridge-Brownhills
+2025-06-01 17:05:49,455 - INFO - Updating Alyn and Deeside...
+2025-06-01 17:05:49,585 - WARNING - Error fetching additional MP data for Alyn and Deeside: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/1383/SocialLinks
+2025-06-01 17:05:49,585 - ERROR - Error getting MP details for Alyn and Deeside: 'list' object has no attribute 'get'
+2025-06-01 17:05:49,585 - ERROR - No MP information found for Alyn and Deeside
+2025-06-01 17:05:50,586 - INFO - Updating Arundel and South Downs...
+2025-06-01 17:05:50,717 - WARNING - Error fetching additional MP data for Arundel and South Downs: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/4874/SocialLinks
+2025-06-01 17:05:50,718 - ERROR - Error getting MP details for Arundel and South Downs: 'list' object has no attribute 'get'
+2025-06-01 17:05:50,718 - ERROR - No MP information found for Arundel and South Downs
+2025-06-01 17:05:51,718 - INFO - Updating Manchester Withington...
+2025-06-01 17:05:51,850 - WARNING - Error fetching additional MP data for Manchester Withington: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/4456/SocialLinks
+2025-06-01 17:05:51,851 - ERROR - Error getting MP details for Manchester Withington: 'list' object has no attribute 'get'
+2025-06-01 17:05:51,851 - ERROR - No MP information found for Manchester Withington
+2025-06-01 17:05:52,851 - INFO - Updating Angus and Perthshire Glens...
+2025-06-01 17:05:53,003 - WARNING - Error fetching additional MP data for Angus and Perthshire Glens: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/4736/SocialLinks
+2025-06-01 17:05:53,003 - ERROR - Error getting MP details for Angus and Perthshire Glens: 'list' object has no attribute 'get'
+2025-06-01 17:05:53,004 - ERROR - No MP information found for Angus and Perthshire Glens
+2025-06-01 17:05:54,004 - INFO - Updating Altrincham and Sale West...
+2025-06-01 17:05:54,112 - WARNING - Error fetching additional MP data for Altrincham and Sale West: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/5159/SocialLinks
+2025-06-01 17:05:54,112 - ERROR - Error getting MP details for Altrincham and Sale West: 'list' object has no attribute 'get'
+2025-06-01 17:05:54,112 - ERROR - No MP information found for Altrincham and Sale West
+2025-06-01 17:05:55,113 - INFO - Updating Cities of London and Westminster...
+2025-06-01 17:05:55,313 - WARNING - Error fetching additional MP data for Cities of London and Westminster: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/5257/SocialLinks
+2025-06-01 17:05:55,314 - ERROR - Error getting MP details for Cities of London and Westminster: 'list' object has no attribute 'get'
+2025-06-01 17:05:55,314 - ERROR - No MP information found for Cities of London and Westminster
+2025-06-01 17:05:56,315 - INFO - Updating Arbroath and Broughty Ferry...
+2025-06-01 17:05:56,438 - WARNING - Error fetching additional MP data for Arbroath and Broughty Ferry: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/4434/SocialLinks
+2025-06-01 17:05:56,439 - ERROR - Error getting MP details for Arbroath and Broughty Ferry: 'list' object has no attribute 'get'
+2025-06-01 17:05:56,439 - ERROR - No MP information found for Arbroath and Broughty Ferry
+2025-06-01 17:05:57,439 - INFO - Updating Birmingham Ladywood...
+2025-06-01 17:05:57,531 - WARNING - Error fetching additional MP data for Birmingham Ladywood: 404 Client Error: Not Found for url: https://members-api.parliament.uk/api/Members/3914/SocialLinks
+2025-06-01 17:05:57,532 - ERROR - Error getting MP details for Birmingham Ladywood: 'list' object has no attribute 'get'
+2025-06-01 17:05:57,532 - ERROR - No MP information found for Birmingham Ladywood
+2025-06-01 17:05:58,533 - INFO - Database saved successfully to data\mp_database.json
+2025-06-01 17:05:58,533 - INFO - Update completed:
+2025-06-01 17:05:58,534 - INFO - Updated: 0 MPs
+2025-06-01 17:05:58,534 - INFO - Failed: 26 MPs
+2025-06-01 17:05:58,534 - INFO - Duration: 0:00:29.401053
+2025-06-01 17:05:58,534 - WARNING - Some updates failed. Check the database update_status for details.
+2025-06-01 17:05:58,534 - ERROR - No MP information found for Ashton-under-Lyne
+2025-06-01 17:05:58,534 - ERROR - No MP information found for Aberdeen South
+2025-06-01 17:05:58,534 - ERROR - No MP information found for Argyll, Bute and South Lochaber
+2025-06-01 17:05:58,534 - ERROR - No MP information found for Bristol East
+2025-06-01 17:05:58,534 - ERROR - No MP information found for Aberdeen North
+2025-06-01 17:05:58,534 - ERROR - No MP information found for Aberdeenshire North and Moray East
+2025-06-01 17:05:58,534 - ERROR - No MP information found for Bristol Central
+2025-06-01 17:05:58,534 - ERROR - No MP information found for Ayr, Carrick and Cumnock
+2025-06-01 17:05:58,534 - ERROR - No MP information found for Aldershot
+2025-06-01 17:05:58,534 - ERROR - No MP information found for Ashford
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Aberafan Maesteg
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Aylesbury
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Airdrie and Shotts
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Ashfield
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Amber Valley
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Alloa and Grangemouth
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Manchester Central
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Aldridge-Brownhills
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Alyn and Deeside
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Arundel and South Downs
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Manchester Withington
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Angus and Perthshire Glens
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Altrincham and Sale West
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Cities of London and Westminster
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Arbroath and Broughty Ferry
+2025-06-01 17:05:58,535 - ERROR - No MP information found for Birmingham Ladywood
+2025-06-01 17:27:33,852 - INFO - Starting automated MP database update...
+2025-06-01 17:27:34,537 - INFO - Found 26 constituencies to update
+2025-06-01 17:27:34,538 - INFO - Updating Ashfield...
+2025-06-01 17:27:34,771 - WARNING - Could not fetch social media data for Ashfield: 404
+2025-06-01 17:27:34,771 - ERROR - Error getting MP details for Ashfield: 'list' object has no attribute 'get'
+2025-06-01 17:27:34,772 - ERROR - No MP information found for Ashfield
+2025-06-01 17:27:35,772 - INFO - Updating Arundel and South Downs...
+2025-06-01 17:27:36,016 - WARNING - Could not fetch social media data for Arundel and South Downs: 404
+2025-06-01 17:27:36,017 - ERROR - Error getting MP details for Arundel and South Downs: 'list' object has no attribute 'get'
+2025-06-01 17:27:36,017 - ERROR - No MP information found for Arundel and South Downs
+2025-06-01 17:27:37,017 - INFO - Updating Ayr, Carrick and Cumnock...
+2025-06-01 17:27:37,287 - WARNING - Could not fetch social media data for Ayr, Carrick and Cumnock: 404
+2025-06-01 17:27:37,287 - ERROR - Error getting MP details for Ayr, Carrick and Cumnock: 'list' object has no attribute 'get'
+2025-06-01 17:27:37,288 - ERROR - No MP information found for Ayr, Carrick and Cumnock
+2025-06-01 17:27:38,288 - INFO - Updating Aldershot...
+2025-06-01 17:27:38,516 - WARNING - Could not fetch social media data for Aldershot: 404
+2025-06-01 17:27:38,516 - ERROR - Error getting MP details for Aldershot: 'list' object has no attribute 'get'
+2025-06-01 17:27:38,516 - ERROR - No MP information found for Aldershot
+2025-06-01 17:27:39,517 - INFO - Updating Ashton-under-Lyne...
+2025-06-01 17:27:39,709 - WARNING - Could not fetch social media data for Ashton-under-Lyne: 404
+2025-06-01 17:27:39,709 - ERROR - Error getting MP details for Ashton-under-Lyne: 'list' object has no attribute 'get'
+2025-06-01 17:27:39,710 - ERROR - No MP information found for Ashton-under-Lyne
+2025-06-01 17:27:40,710 - INFO - Updating Alloa and Grangemouth...
+2025-06-01 17:27:40,936 - WARNING - Could not fetch social media data for Alloa and Grangemouth: 404
+2025-06-01 17:27:40,936 - ERROR - Error getting MP details for Alloa and Grangemouth: 'list' object has no attribute 'get'
+2025-06-01 17:27:40,936 - ERROR - No MP information found for Alloa and Grangemouth
+2025-06-01 17:27:41,937 - INFO - Updating Manchester Withington...
+2025-06-01 17:27:42,220 - WARNING - Could not fetch social media data for Manchester Withington: 404
+2025-06-01 17:27:42,221 - ERROR - Error getting MP details for Manchester Withington: 'list' object has no attribute 'get'
+2025-06-01 17:27:42,221 - ERROR - No MP information found for Manchester Withington
+2025-06-01 17:27:43,221 - INFO - Updating Cities of London and Westminster...
+2025-06-01 17:27:43,452 - WARNING - Could not fetch social media data for Cities of London and Westminster: 404
+2025-06-01 17:27:43,452 - ERROR - Error getting MP details for Cities of London and Westminster: 'list' object has no attribute 'get'
+2025-06-01 17:27:43,452 - ERROR - No MP information found for Cities of London and Westminster
+2025-06-01 17:27:44,452 - INFO - Updating Aldridge-Brownhills...
+2025-06-01 17:27:44,689 - WARNING - Could not fetch social media data for Aldridge-Brownhills: 404
+2025-06-01 17:27:44,690 - ERROR - Error getting MP details for Aldridge-Brownhills: 'list' object has no attribute 'get'
+2025-06-01 17:27:44,690 - ERROR - No MP information found for Aldridge-Brownhills
+2025-06-01 17:27:45,691 - INFO - Updating Airdrie and Shotts...
+2025-06-01 17:27:45,894 - WARNING - Could not fetch social media data for Airdrie and Shotts: 404
+2025-06-01 17:27:45,895 - ERROR - Error getting MP details for Airdrie and Shotts: 'list' object has no attribute 'get'
+2025-06-01 17:27:45,895 - ERROR - No MP information found for Airdrie and Shotts
+2025-06-01 17:27:46,895 - INFO - Updating Alyn and Deeside...
+2025-06-01 17:27:47,139 - WARNING - Could not fetch social media data for Alyn and Deeside: 404
+2025-06-01 17:27:47,140 - ERROR - Error getting MP details for Alyn and Deeside: 'list' object has no attribute 'get'
+2025-06-01 17:27:47,140 - ERROR - No MP information found for Alyn and Deeside
+2025-06-01 17:27:48,141 - INFO - Updating Aberdeen South...
+2025-06-01 17:27:48,338 - WARNING - Could not fetch social media data for Aberdeen South: 404
+2025-06-01 17:27:48,338 - ERROR - Error getting MP details for Aberdeen South: 'list' object has no attribute 'get'
+2025-06-01 17:27:48,338 - ERROR - No MP information found for Aberdeen South
+2025-06-01 17:27:49,339 - INFO - Updating Bristol East...
+2025-06-01 17:27:49,565 - WARNING - Could not fetch social media data for Bristol East: 404
+2025-06-01 17:27:49,565 - ERROR - Error getting MP details for Bristol East: 'list' object has no attribute 'get'
+2025-06-01 17:27:49,565 - ERROR - No MP information found for Bristol East
+2025-06-01 17:27:50,566 - INFO - Updating Altrincham and Sale West...
+2025-06-01 17:27:50,770 - WARNING - Could not fetch social media data for Altrincham and Sale West: 404
+2025-06-01 17:27:50,770 - ERROR - Error getting MP details for Altrincham and Sale West: 'list' object has no attribute 'get'
+2025-06-01 17:27:50,770 - ERROR - No MP information found for Altrincham and Sale West
+2025-06-01 17:27:51,771 - INFO - Updating Angus and Perthshire Glens...
+2025-06-01 17:27:52,010 - WARNING - Could not fetch social media data for Angus and Perthshire Glens: 404
+2025-06-01 17:27:52,011 - ERROR - Error getting MP details for Angus and Perthshire Glens: 'list' object has no attribute 'get'
+2025-06-01 17:27:52,011 - ERROR - No MP information found for Angus and Perthshire Glens
+2025-06-01 17:27:53,011 - INFO - Updating Aberdeen North...
+2025-06-01 17:27:53,187 - WARNING - Could not fetch social media data for Aberdeen North: 404
+2025-06-01 17:27:53,188 - ERROR - Error getting MP details for Aberdeen North: 'list' object has no attribute 'get'
+2025-06-01 17:27:53,188 - ERROR - No MP information found for Aberdeen North
+2025-06-01 17:27:54,189 - INFO - Updating Ashford...
+2025-06-01 17:27:54,426 - WARNING - Could not fetch social media data for Ashford: 404
+2025-06-01 17:27:54,426 - ERROR - Error getting MP details for Ashford: 'list' object has no attribute 'get'
+2025-06-01 17:27:54,426 - ERROR - No MP information found for Ashford
+2025-06-01 17:27:55,427 - INFO - Updating Birmingham Ladywood...
+2025-06-01 17:27:55,653 - WARNING - Could not fetch social media data for Birmingham Ladywood: 404
+2025-06-01 17:27:55,653 - ERROR - Error getting MP details for Birmingham Ladywood: 'list' object has no attribute 'get'
+2025-06-01 17:27:55,653 - ERROR - No MP information found for Birmingham Ladywood
+2025-06-01 17:27:56,654 - INFO - Updating Manchester Central...
+2025-06-01 17:27:56,890 - WARNING - Could not fetch social media data for Manchester Central: 404
+2025-06-01 17:27:56,890 - ERROR - Error getting MP details for Manchester Central: 'list' object has no attribute 'get'
+2025-06-01 17:27:56,890 - ERROR - No MP information found for Manchester Central
+2025-06-01 17:27:57,890 - INFO - Updating Argyll, Bute and South Lochaber...
+2025-06-01 17:27:58,141 - WARNING - Could not fetch social media data for Argyll, Bute and South Lochaber: 404
+2025-06-01 17:27:58,142 - ERROR - Error getting MP details for Argyll, Bute and South Lochaber: 'list' object has no attribute 'get'
+2025-06-01 17:27:58,142 - ERROR - No MP information found for Argyll, Bute and South Lochaber
+2025-06-01 17:27:59,143 - INFO - Updating Aberafan Maesteg...
+2025-06-01 17:27:59,391 - WARNING - Could not fetch social media data for Aberafan Maesteg: 404
+2025-06-01 17:27:59,391 - ERROR - Error getting MP details for Aberafan Maesteg: 'list' object has no attribute 'get'
+2025-06-01 17:27:59,391 - ERROR - No MP information found for Aberafan Maesteg
+2025-06-01 17:28:00,391 - INFO - Updating Arbroath and Broughty Ferry...
+2025-06-01 17:28:00,616 - WARNING - Could not fetch social media data for Arbroath and Broughty Ferry: 404
+2025-06-01 17:28:00,616 - ERROR - Error getting MP details for Arbroath and Broughty Ferry: 'list' object has no attribute 'get'
+2025-06-01 17:28:00,617 - ERROR - No MP information found for Arbroath and Broughty Ferry
+2025-06-01 17:28:01,617 - INFO - Updating Bristol Central...
+2025-06-01 17:28:01,857 - WARNING - Could not fetch social media data for Bristol Central: 404
+2025-06-01 17:28:01,857 - ERROR - Error getting MP details for Bristol Central: 'list' object has no attribute 'get'
+2025-06-01 17:28:01,858 - ERROR - No MP information found for Bristol Central
+2025-06-01 17:28:02,858 - INFO - Updating Amber Valley...
+2025-06-01 17:28:03,041 - WARNING - Could not fetch social media data for Amber Valley: 404
+2025-06-01 17:28:03,041 - ERROR - Error getting MP details for Amber Valley: 'list' object has no attribute 'get'
+2025-06-01 17:28:03,041 - ERROR - No MP information found for Amber Valley
+2025-06-01 17:28:04,042 - INFO - Updating Aylesbury...
+2025-06-01 17:28:04,240 - WARNING - Could not fetch social media data for Aylesbury: 404
+2025-06-01 17:28:04,240 - ERROR - Error getting MP details for Aylesbury: 'list' object has no attribute 'get'
+2025-06-01 17:28:04,240 - ERROR - No MP information found for Aylesbury
+2025-06-01 17:28:05,241 - INFO - Updating Aberdeenshire North and Moray East...
+2025-06-01 17:28:05,470 - WARNING - Could not fetch social media data for Aberdeenshire North and Moray East: 404
+2025-06-01 17:28:05,470 - ERROR - Error getting MP details for Aberdeenshire North and Moray East: 'list' object has no attribute 'get'
+2025-06-01 17:28:05,470 - ERROR - No MP information found for Aberdeenshire North and Moray East
+2025-06-01 17:28:06,472 - INFO - Database saved successfully to data\mp_database.json
+2025-06-01 17:28:06,472 - INFO - Update completed:
+2025-06-01 17:28:06,472 - INFO - Updated: 0 MPs
+2025-06-01 17:28:06,472 - INFO - Failed: 26 MPs
+2025-06-01 17:28:06,472 - INFO - Duration: 0:00:32.600526
+2025-06-01 17:28:06,473 - WARNING - Some updates failed. Check the database update_status for details.
+2025-06-01 17:28:06,473 - ERROR - No MP information found for Ashfield
+2025-06-01 17:28:06,473 - ERROR - No MP information found for Arundel and South Downs
+2025-06-01 17:28:06,473 - ERROR - No MP information found for Ayr, Carrick and Cumnock
+2025-06-01 17:28:06,473 - ERROR - No MP information found for Aldershot
+2025-06-01 17:28:06,473 - ERROR - No MP information found for Ashton-under-Lyne
+2025-06-01 17:28:06,473 - ERROR - No MP information found for Alloa and Grangemouth
+2025-06-01 17:28:06,473 - ERROR - No MP information found for Manchester Withington
+2025-06-01 17:28:06,473 - ERROR - No MP information found for Cities of London and Westminster
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Aldridge-Brownhills
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Airdrie and Shotts
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Alyn and Deeside
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Aberdeen South
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Bristol East
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Altrincham and Sale West
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Angus and Perthshire Glens
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Aberdeen North
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Ashford
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Birmingham Ladywood
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Manchester Central
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Argyll, Bute and South Lochaber
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Aberafan Maesteg
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Arbroath and Broughty Ferry
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Bristol Central
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Amber Valley
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Aylesbury
+2025-06-01 17:28:06,474 - ERROR - No MP information found for Aberdeenshire North and Moray East
