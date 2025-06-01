@@ -34,6 +34,7 @@
     
     <!-- Critical CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/styles/modern-effects.css">
     <style>
         html {
             scroll-behavior: smooth;
@@ -41,7 +42,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -49,8 +50,8 @@
         
         .glass-effect {
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         /* Modern Scrollbar */
@@ -122,8 +123,17 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white">
-    <div class="min-h-screen">
+<body>
+    <!-- Animated Background -->
+    <div class="gradient-background__wrapper">
+        <div class="gradient-background">
+            <div class="gradient-background__shape gradient-background__shape--1"></div>
+            <div class="gradient-background__shape gradient-background__shape--2"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container max-w-7xl mx-auto px-4 pt-5 pb-12">
         <!-- Navigation -->
         <nav class="fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur-lg border-b border-gray-800">
             <div class="container mx-auto px-6 py-4">
@@ -692,5 +702,7 @@
         window.addEventListener('offline', updateOnlineStatus);
         updateOnlineStatus(); // Initial check
     </script>
+    <script src="/static/sw.js"></script>
+    <script src="/js/modern-effects.js"></script>
 </body>
 </html>

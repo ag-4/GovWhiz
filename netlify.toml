@@ -1,16 +1,12 @@
 [build]
-command = """
-pip install -r requirements.txt
-python -m pip install --upgrade pip
-python -m pip install gunicorn
-"""
+command = "npm install"
 publish = "."
 functions = "netlify/functions"
 
 [functions]
 directory = "netlify/functions"
 node_bundler = "esbuild"
-external_node_modules = ["express"]
+external_node_modules = ["express", "cheerio"]
 
 [build.environment]
 NODE_VERSION = "18"
