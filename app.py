@@ -255,6 +255,61 @@ def contact_mp():
     """Handle MP contact form submissions"""
     return handle_contact_form()
 
+@app.route('/api/mp', methods=['GET'])
+def mp_lookup_live():
+    """Lookup MP by postcode using open data sources (no API key required)"""
+    postcode = request.args.get('postcode', '').strip().replace(' ', '').upper()
+    if not postcode:
+        return jsonify({'error': 'Missing postcode parameter'}), 400
+
+    # Step 1: Get constituency from postcodes.io
+    try:
+        pc_resp = requests.get(f'https://api.postcodes.io/postcodes/{postcode}')
+        pc_data = pc_resp.json()
+        if pc_resp.status_code != 200 or 'result' not in pc_data or not pc_data['result']:
+            return jsonify({'error': 'Invalid postcode or not found'}), 404
+        constituency = pc_data['result'].get('parliamentary_constituency')
+        if not constituency:
+            return jsonify({'error': 'Constituency not found for this postcode'}), 404
+    except Exception as e:
+        return jsonify({'error': f'Postcode lookup failed: {str(e)}'}), 500
+
+    # Step 2: Get MP from Parliament Members API
+    try:
+        # Search for current MPs in this constituency
+        url = f'https://members-api.parliament.uk/api/Location/Constituency/Search?searchText={constituency}'
+        resp = requests.get(url)
+        data = resp.json()
+        if not data.get('items'):
+            return jsonify({'error': 'No MP found for this constituency'}), 404
+        # Get the first matching constituency
+        constituency_id = data['items'][0]['value']['id']
+        # Get MP for this constituency
+        mp_url = f'https://members-api.parliament.uk/api/Location/Constituency/{constituency_id}/Representatives'
+        mp_resp = requests.get(mp_url)
+        mp_data = mp_resp.json()
+        if not mp_data.get('value') or not mp_data['value']:
+            return jsonify({'error': 'No MP found for this constituency'}), 404
+        mp = mp_data['value'][0]
+        # Build comprehensive MP info
+        mp_info = {
+            'name': mp['nameFull'],
+            'party': mp['latestParty']['name'],
+            'constituency': constituency,
+            'email': mp.get('email'),
+            'website': mp.get('url'),
+            'image': mp['thumbnailUrl'],
+            'member_id': mp['id'],
+            'biography': mp.get('biography'),
+            'twitter': mp.get('twitter'),
+            'facebook': mp.get('facebook'),
+            'phone': mp.get('phoneNumber'),
+            'current': mp.get('current', True)
+        }
+        return jsonify({'found': True, 'mp': mp_info})
+    except Exception as e:
+        return jsonify({'error': f'MP lookup failed: {str(e)}'}), 500
+
 if __name__ == "__main__":
     print("🏛️ Starting GovWhiz MP Lookup API Server")
     print("=" * 50)

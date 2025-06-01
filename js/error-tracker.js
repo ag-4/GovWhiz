@@ -59,10 +59,8 @@ class ErrorTracker {
             this.errors.pop();
         }
         
-        // Log to console in development
-        if (process.env.NODE_ENV === 'development') {
-            console.error('[Error Tracker]', error);
-        }
+        // Log to console
+        console.error('[Error Tracker]', error);
 
         // Send to server if needed
         this.reportError(error);
