@@ -1,3 +1,7 @@
+import re
+import json
+import requests
+from datetime import datetime
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from mp_service import mp_service
@@ -6,27 +10,53 @@ from contact_handler import handle_contact_form
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
+# Configuration
+BASE_URL = "https://www.theyworkforyou.com/api"
+API_KEY = "your_api_key_here"  # Replace with your actual API key
+
 def validate_postcode(postcode):
-    """Validate UK postcode format"""
-    pattern = r'^[A-Z]{1,2}[0-9R][0-9A-Z]? [0-9][A-Z]{2}$'
-    return bool(re.match(pattern, postcode.strip().upper()))
+    """Validate UK postcode format with improved validation"""
+    if not postcode:
+        return False
+        
+    # Remove all spaces and convert to uppercase
+    postcode = postcode.replace(" ", "").upper()
+    
+    # Basic format validation
+    pattern = r'^[A-Z]{1,2}[0-9R][0-9A-Z]?[0-9][A-Z]{2}$'
+    if not re.match(pattern, postcode):
+        return False
+        
+    # Additional validation for specific formats
+    if len(postcode) < 5 or len(postcode) > 7:
+        return False
+        
+    return True
 
 def format_postcode(postcode):
-    """Format postcode to standard format"""
-    cleaned = postcode.replace(' ', '').upper()
+    """Format postcode to standard format with improved handling"""
+    if not postcode:
+        return ""
+        
+    # Remove all spaces and convert to uppercase
+    cleaned = postcode.replace(" ", "").upper()
+    
     # Insert space before last 3 characters
-    return cleaned[:-3] + ' ' + cleaned[-3:]
+    if len(cleaned) >= 3:
+        return cleaned[:-3] + " " + cleaned[-3:]
+    return cleaned
 
 def get_mp_by_postcode(postcode):
     """
-    Get MP information by postcode using TheyWorkForYou API
+    Get MP information by postcode using TheyWorkForYou API with improved error handling
     """
     formatted_postcode = format_postcode(postcode)
     
     if not validate_postcode(formatted_postcode):
         return {
-            "error": "Invalid postcode format. Please use format like 'SW1A 1AA'",
-            "found": False
+            "error": "Invalid postcode format. Please use a valid UK postcode format (e.g., 'SW1A 1AA')",
+            "found": False,
+            "postcode": formatted_postcode
         }
 
     url = f"{BASE_URL}/getMP"
@@ -49,7 +79,7 @@ def get_mp_by_postcode(postcode):
                 "postcode": formatted_postcode
             }
         
-        # Extract and format MP information
+        # Extract and format MP information with additional validation
         mp_info = {
             "found": True,
             "name": data.get("name", "Unknown"),
@@ -66,8 +96,22 @@ def get_mp_by_postcode(postcode):
             "timestamp": datetime.now().isoformat()
         }
         
+        # Validate required fields
+        if not mp_info["name"] or mp_info["name"] == "Unknown":
+            return {
+                "error": "No MP found for this postcode",
+                "found": False,
+                "postcode": formatted_postcode
+            }
+        
         return mp_info
         
+    except requests.exceptions.Timeout:
+        return {
+            "error": "Request timed out. Please try again.",
+            "found": False,
+            "postcode": formatted_postcode
+        }
     except requests.exceptions.RequestException as e:
         return {
             "error": f"Network error: {str(e)}", 
