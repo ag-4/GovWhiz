@@ -3,79 +3,79 @@
  * Consolidated functionality with proper error handling and modern JavaScript
  */
 
-// Application State
 const GovWhiz = {
-    initialized: false,
-    currentUser: null,
-    cache: new Map(),
-
-    // Initialize the application
-    init() {
-        if (this.initialized) return;
-
-        console.log('🏛️ GovWhiz Loading...');
-        this.setupEventListeners();
-        this.loadPoliticalNews();
-        this.setupMobileMenu();
-        this.setupSmoothScrolling();
-        this.initialized = true;
-        console.log('✅ GovWhiz Loaded Successfully');
+    // State management
+    state: {
+        initialized: false,
+        currentMP: null,
+        tracking: new Set(),
+        news: {
+            filters: new Set(),
+            bookmarks: new Set()
+        }
     },
 
-    // Setup all event listeners
+    // Initialize the application
+    initialize() {
+        if (this.state.initialized) return;
+        this.setupEventListeners();
+        this.state.initialized = true;
+        console.log('🏛️ GovWhiz initialized');
+    },
+
+    // Event listener setup
     setupEventListeners() {
-        // Search functionality
-        const searchButton = document.getElementById('search-button');
-        const searchInput = document.getElementById('search-input');
-
-        if (searchButton) {
-            searchButton.addEventListener('click', () => this.performSearch());
-        }
-
-        if (searchInput) {
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') this.performSearch();
-            });
-        }
-
-        // MP Lookup functionality
-        const findMpBtn = document.getElementById('find-mp-btn');
-        const postcodeInput = document.getElementById('postcode-input');
+        // MP lookup event listeners
+        const findMpBtn = document.querySelector('#find-mp-btn');
+        const postcodeInput = document.querySelector('#postcode-input');
 
         if (findMpBtn) {
-            findMpBtn.addEventListener('click', () => this.findMP());
+            findMpBtn.onclick = () => this.findMP();
         }
 
         if (postcodeInput) {
-            postcodeInput.addEventListener('keypress', (e) => {
+            postcodeInput.onkeypress = (e) => {
                 if (e.key === 'Enter') this.findMP();
-            });
+            };
+            postcodeInput.oninput = (e) => this.validatePostcode(e.target.value);
         }
 
-        // Contact form
-        const contactForm = document.getElementById('contact-form');
-        if (contactForm) {
-            contactForm.addEventListener('submit', (e) => this.handleContactForm(e));
-        }
+        // News section event listeners
+        const newsFilters = document.querySelectorAll('.news-filter');
+        const newsSearch = document.querySelector('#news-search');
+
+        newsFilters?.forEach(filter => {
+            filter.onclick = () => this.toggleNewsFilter(filter.dataset.topic);
+        });
+
+        newsSearch?.onkeyup = (e) => {
+            if (e.key === 'Enter') this.searchNews(e.target.value);
+        };
+
+        // Setup bookmarking
+        document.body.onclick = (e) => {
+            if (e.target.matches('.bookmark-btn')) {
+                const newsId = e.target.dataset.newsId;
+                this.toggleBookmark(newsId);
+            }
+        };
     },
 
-    // Mobile menu functionality
-    setupMobileMenu() {
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
+    // News section functionality
+    toggleNewsFilter(topic) {
+        if (!topic) return;
+        
+        const filterBtn = document.querySelector(`[data-topic="${topic}"]`);
+        if (!filterBtn) return;
 
-        if (mobileMenuButton && mobileMenu) {
-            mobileMenuButton.addEventListener('click', () => {
-                const isOpen = mobileMenu.style.maxHeight && mobileMenu.style.maxHeight !== '0px';
-
-                if (isOpen) {
-                    mobileMenu.style.maxHeight = '0px';
-                    mobileMenu.style.opacity = '0';
-                } else {
-                    mobileMenu.style.maxHeight = '300px';
-                    mobileMenu.style.opacity = '1';
-                }
-            });
+        if (this.state.news.filters.has(topic)) {
+            this.state.news.filters.delete(topic);
+            filterBtn.classList.remove('bg-blue-600', 'text-white');
+            filterBtn.classList.add('bg-gray-200', 'text-gray-700');
+        } else {
+            this.state.news.filters.add(topic);
+            filterBtn.classList.remove('bg-gray-200', 'text-gray-700');
+            filterBtn.classList.add('bg-blue-600', 'text-white');
         }
     },
 
@@ -183,7 +183,6 @@ const GovWhiz = {
     performSearch() {
         const searchInput = document.getElementById('search-input');
         const resultsSection = document.getElementById('results');
-        const searchButton = document.getElementById('search-button');
 
         if (!searchInput || !resultsSection) return;
 
@@ -193,233 +192,92 @@ const GovWhiz = {
             return;
         }
 
-        // Disable search button and show loading state
-        if (searchButton) {
-            searchButton.disabled = true;
-            searchButton.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <div class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                    <span>Searching...</span>
-                </div>
-            `;
-        }
+        console.log('🔍 Searching for:', query);
 
-        // Show loading state in results section
+        // Show loading state
         resultsSection.innerHTML = `
             <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
-                <div class="text-cyan-400 mb-2">🔍 Searching...</div>
-                <div class="text-gray-400 text-sm">Finding relevant information for "${query}"</div>
+                <div class="text-cyan-400 mb-2">🔍 Searching legislation database...</div>
+                <div class="text-gray-400 text-sm">Finding relevant bills and acts for "${query}"</div>
             </div>
         `;
 
-        // Perform search with debounce
-        this.debouncedSearch(query, resultsSection, searchButton);
+        // Simulate search delay for better UX
+        setTimeout(() => {
+            const results = this.searchLegislation(query);
+            this.displaySearchResults(results, query, resultsSection);
+        }, 1000);
     },
 
-    // Debounced search function
-    debouncedSearch: (function() {
-        let timeout;
-        return function(query, resultsSection, searchButton) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                this.executeSearch(query, resultsSection, searchButton);
-            }, 300);
-        };
-    })(),
-
-    // Execute search
-    async executeSearch(query, resultsSection, searchButton) {
-        try {
-            // Search in legislation database
-            const legislationResults = this.searchLegislation(query);
-            
-            // Search in MP database
-            const mpResults = await this.searchMPs(query);
-            
-            // Search in news articles
-            const newsResults = await this.searchNews(query);
-
-            // Combine and sort results
-            const allResults = [
-                ...legislationResults.map(item => ({ ...item, type: 'legislation' })),
-                ...mpResults.map(item => ({ ...item, type: 'mp' })),
-                ...newsResults.map(item => ({ ...item, type: 'news' }))
-            ].sort((a, b) => b.relevance - a.relevance);
-
-            // Display results
-            this.displaySearchResults(allResults, query, resultsSection);
-
-        } catch (error) {
-            console.error('Search error:', error);
-            resultsSection.innerHTML = `
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
-                    <div class="text-red-400 mb-2">Search failed</div>
-                    <div class="text-gray-400 text-sm">Please try again later</div>
-                    <button onclick="GovWhiz.performSearch()" 
-                            class="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
-                        Retry Search
-                    </button>
-                </div>
-            `;
-        } finally {
-            // Re-enable search button
-            if (searchButton) {
-                searchButton.disabled = false;
-                searchButton.innerHTML = 'Search';
-            }
-        }
-    },
-
-    // Search legislation
+    // Search through legislation database
     searchLegislation(query) {
         const searchTerms = query.toLowerCase().split(' ');
-        return this.legislationDatabase
-            .map(item => {
-                const searchableText = `${item.title} ${item.description} ${item.category} ${item.keywords.join(' ')} ${item.summary}`.toLowerCase();
-                const matches = searchTerms.filter(term => searchableText.includes(term));
-                return {
-                    ...item,
-                    relevance: matches.length / searchTerms.length
-                };
-            })
-            .filter(item => item.relevance > 0)
-            .sort((a, b) => b.relevance - a.relevance);
-    },
-
-    // Search MPs
-    async searchMPs(query) {
-        try {
-            const response = await fetch(`/api/mp/search?q=${encodeURIComponent(query)}`);
-            if (!response.ok) throw new Error('MP search failed');
-            return await response.json();
-        } catch (error) {
-            console.error('MP search error:', error);
-            return [];
-        }
-    },
-
-    // Search news
-    async searchNews(query) {
-        try {
-            const response = await fetch(`/api/news/search?q=${encodeURIComponent(query)}`);
-            if (!response.ok) throw new Error('News search failed');
-            return await response.json();
-        } catch (error) {
-            console.error('News search error:', error);
-            return [];
-        }
+        return this.legislationDatabase.filter(item => {
+            const searchableText = `${item.title} ${item.description} ${item.category} ${item.keywords.join(' ')} ${item.summary}`.toLowerCase();
+            return searchTerms.some(term => searchableText.includes(term));
+        });
     },
 
     // Display search results
     displaySearchResults(results, query, container) {
-        if (results.length === 0) {
+        if (results.length > 0) {
+            const resultsHtml = results.map(item => `
+                <div class="bg-purple-900/30 border border-purple-500/30 rounded-lg p-4 hover:border-purple-400/50 transition-colors">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="text-lg font-semibold text-white">${item.title}</h4>
+                        <div class="text-right">
+                            <span class="text-xs text-purple-400 bg-purple-900/30 px-2 py-1 rounded">${item.category}</span>
+                            <div class="text-xs text-gray-500 mt-1">${item.date}</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 mb-3">${item.description}</p>
+                    <div class="text-sm text-gray-400 mb-3">${item.summary}</div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs px-2 py-1 rounded ${this.getStatusColor(item.status)}">${item.status}</span>
+                            <span class="text-xs text-gray-500">${item.stage}</span>
+                        </div>
+                        <button onclick="GovWhiz.showLegislationDetails('${item.title}')" class="text-cyan-400 hover:text-cyan-300 text-sm transition-colors">
+                            View Details →
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
             container.innerHTML = `
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
-                    <div class="text-yellow-400 mb-2">No results found</div>
-                    <div class="text-gray-400 text-sm">Try different search terms</div>
+                <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">🔍 Search Results for "${query}" (${results.length} found)</h3>
+                    <div class="space-y-4">
+                        ${resultsHtml}
+                    </div>
+                    <div class="mt-6 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+                        <h4 class="text-blue-400 font-semibold mb-2">💡 Search Tips</h4>
+                        <ul class="text-gray-400 text-sm space-y-1">
+                            <li>• Try keywords like "healthcare", "technology", "environment", "education"</li>
+                            <li>• Search by category: "privacy", "transport", "housing", "finance"</li>
+                            <li>• Look for specific acts: "Digital Services", "Climate Action", "Data Protection"</li>
+                        </ul>
+                    </div>
                 </div>
             `;
-            return;
+        } else {
+            container.innerHTML = `
+                <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">🔍 Search Results for "${query}"</h3>
+                    <div class="bg-yellow-900/30 border border-yellow-500/30 rounded-lg p-6 text-center">
+                        <h4 class="text-yellow-400 font-semibold mb-2">📋 No Results Found</h4>
+                        <p class="text-gray-400 mb-4">No legislation found matching "${query}". Try these popular searches:</p>
+                        <div class="flex flex-wrap gap-2 justify-center">
+                            <button onclick="GovWhiz.trySearch('digital services')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">Digital Services</button>
+                            <button onclick="GovWhiz.trySearch('healthcare')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">Healthcare</button>
+                            <button onclick="GovWhiz.trySearch('climate')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">Climate</button>
+                            <button onclick="GovWhiz.trySearch('education')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">Education</button>
+                            <button onclick="GovWhiz.trySearch('transport')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">Transport</button>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
-
-        const resultsHtml = results.map(result => {
-            switch (result.type) {
-                case 'legislation':
-                    return this.renderLegislationResult(result);
-                case 'mp':
-                    return this.renderMPResult(result);
-                case 'news':
-                    return this.renderNewsResult(result);
-                default:
-                    return '';
-            }
-        }).join('');
-
-        container.innerHTML = `
-            <div class="space-y-4">
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                    <h3 class="text-xl font-semibold text-white mb-2">Search Results for "${query}"</h3>
-                    <p class="text-gray-400">Found ${results.length} results</p>
-                </div>
-                ${resultsHtml}
-            </div>
-        `;
-    },
-
-    // Render legislation result
-    renderLegislationResult(item) {
-        return `
-            <div class="bg-purple-900/30 border border-purple-500/30 rounded-lg p-4 hover:border-purple-400/50 transition-colors">
-                <div class="flex justify-between items-start mb-3">
-                    <h4 class="text-lg font-semibold text-white">${item.title}</h4>
-                    <div class="text-right">
-                        <span class="text-xs text-purple-400 bg-purple-900/30 px-2 py-1 rounded">Legislation</span>
-                        <div class="text-xs text-gray-500 mt-1">${item.date}</div>
-                    </div>
-                </div>
-                <p class="text-gray-300 mb-3">${item.description}</p>
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs px-2 py-1 rounded ${this.getStatusColor(item.status)}">${item.status}</span>
-                        <span class="text-xs text-gray-500">${item.stage}</span>
-                    </div>
-                    <button onclick="GovWhiz.showLegislationDetails('${item.title}')" 
-                            class="text-cyan-400 hover:text-cyan-300 text-sm transition-colors">
-                        View Details →
-                    </button>
-                </div>
-            </div>
-        `;
-    },
-
-    // Render MP result
-    renderMPResult(item) {
-        return `
-            <div class="bg-blue-900/30 border border-blue-500/30 rounded-lg p-4 hover:border-blue-400/50 transition-colors">
-                <div class="flex justify-between items-start mb-3">
-                    <h4 class="text-lg font-semibold text-white">${item.name}</h4>
-                    <div class="text-right">
-                        <span class="text-xs text-blue-400 bg-blue-900/30 px-2 py-1 rounded">MP</span>
-                        <div class="text-xs text-gray-500 mt-1">${item.constituency}</div>
-                    </div>
-                </div>
-                <p class="text-gray-300 mb-3">${item.party}</p>
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs px-2 py-1 rounded bg-blue-900/30 text-blue-400">${item.constituency}</span>
-                    </div>
-                    <button onclick="GovWhiz.showMPDetails('${item.person_id}')" 
-                            class="text-cyan-400 hover:text-cyan-300 text-sm transition-colors">
-                        View Profile →
-                    </button>
-                </div>
-            </div>
-        `;
-    },
-
-    // Render news result
-    renderNewsResult(item) {
-        return `
-            <div class="bg-green-900/30 border border-green-500/30 rounded-lg p-4 hover:border-green-400/50 transition-colors">
-                <div class="flex justify-between items-start mb-3">
-                    <h4 class="text-lg font-semibold text-white">${item.title}</h4>
-                    <div class="text-right">
-                        <span class="text-xs text-green-400 bg-green-900/30 px-2 py-1 rounded">News</span>
-                        <div class="text-xs text-gray-500 mt-1">${this.formatDate(item.publishedAt)}</div>
-                    </div>
-                </div>
-                <p class="text-gray-300 mb-3">${item.description || 'No description available'}</p>
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs px-2 py-1 rounded bg-green-900/30 text-green-400">${item.source}</span>
-                    </div>
-                    <a href="${item.url}" target="_blank" rel="noopener noreferrer" 
-                       class="text-cyan-400 hover:text-cyan-300 text-sm transition-colors">
-                        Read More →
-                    </a>
-                </div>
-            </div>
-        `;
     },
 
     // Helper function for status colors
@@ -506,214 +364,304 @@ const GovWhiz = {
         'SO14': { name: 'Royston Smith MP', party: 'Conservative', constituency: 'Southampton Itchen', email: 'royston.smith.mp@parliament.uk', phone: '020 7219 4000', website: 'https://www.parliament.uk/biographies/commons/royston-smith/4520' }
     },
 
-    // MP Lookup functionality (live, accurate, internet-based)
-    async findMP() {
+    // MP Lookup functionality
+    findMP() {
         const postcodeInput = document.getElementById('postcode-input');
         const mpResults = document.getElementById('mp-results');
+
         if (!postcodeInput || !mpResults) return;
         const postcode = postcodeInput.value.trim();
         if (!postcode) {
             this.showMessage(mpResults, 'Please enter a postcode', 'warning');
             return;
         }
+
+        console.log('🔍 Finding MP for postcode:', postcode);
+
         mpResults.innerHTML = '<div class="text-cyan-400 text-center">🔍 Looking up your MP...</div>';
-        try {
-            const resp = await fetch(`/api/mp?postcode=${encodeURIComponent(postcode)}`);
-            const data = await resp.json();
-            if (!data.found || !data.mp) {
-                throw new Error(data.error || 'No MP found for this postcode');
+
+        setTimeout(() => {
+            const result = this.lookupMP(postcode);
+            this.displayMPResult(result, mpResults);
+        }, 1000);
+    },
+
+    // Lookup MP by postcode
+    lookupMP(postcode) {
+        // Clean and normalize postcode
+        const cleanPostcode = postcode.toUpperCase().replace(/\s+/g, '').trim();
+
+        // Try different prefix lengths for matching
+        const prefixes = [];
+        if (cleanPostcode.length >= 4) prefixes.push(cleanPostcode.substring(0, 4));
+        if (cleanPostcode.length >= 3) prefixes.push(cleanPostcode.substring(0, 3));
+        if (cleanPostcode.length >= 2) prefixes.push(cleanPostcode.substring(0, 2));
+
+        for (const prefix of prefixes) {
+            if (this.mpDatabase[prefix]) {
+                return {
+                    found: true,
+                    postcode: postcode,
+                    mp: this.mpDatabase[prefix],
+                    matchType: `${prefix.length}-character match`
+                };
             }
-            const mp = data.mp;
-            mpResults.innerHTML = `
+        }
+
+        return {
+            found: false,
+            postcode: postcode,
+            message: `No MP found for postcode "${postcode}". Please check the postcode or try another one.`
+        };
+    },
+
+    // Display MP lookup result
+    displayMPResult(result, container) {
+        if (result.found) {
+            const mp = result.mp;
+            const roleDisplay = mp.role ? `<div class="text-sm text-yellow-400 font-medium">🏛️ ${mp.role}</div>` : '';
+
+            container.innerHTML = `
                 <div class="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border border-purple-500/30 rounded-lg p-6">
-                    <div class="flex items-start gap-6 mb-4 flex-col md:flex-row">
-                        <img src="${mp.image}" alt="${mp.name}" class="w-24 h-24 rounded-lg object-cover border border-gray-700 mb-4 md:mb-0" onerror="this.src='https://www.parliament.uk/static/images/default-profile.png'">
+                    <div class="flex items-start justify-between mb-4">
                         <div>
-                            <h4 class="text-xl font-semibold text-white mb-1">${mp.name}</h4>
-                            <div class="text-sm text-purple-400 mb-1">${mp.party}</div>
-                            <div class="text-sm text-gray-400 mb-2">${mp.constituency}</div>
-                            ${mp.biography ? `<div class='text-gray-300 text-sm mb-2'>${mp.biography}</div>` : ''}
-                            <div class="flex flex-wrap gap-2 mb-2">
-                                ${mp.email ? `<a href="mailto:${mp.email}" class="text-cyan-400 hover:text-cyan-300 text-sm underline">Email</a>` : ''}
-                                ${mp.phone ? `<a href="tel:${mp.phone}" class="text-cyan-400 hover:text-cyan-300 text-sm underline">Phone</a>` : ''}
-                                ${mp.website ? `<a href="${mp.website}" target="_blank" class="text-cyan-400 hover:text-cyan-300 text-sm underline">Website</a>` : ''}
-                                ${mp.twitter ? `<a href="https://twitter.com/${mp.twitter}" target="_blank" class="text-cyan-400 hover:text-cyan-300 text-sm underline">Twitter</a>` : ''}
-                                ${mp.facebook ? `<a href="https://facebook.com/${mp.facebook}" target="_blank" class="text-cyan-400 hover:text-cyan-300 text-sm underline">Facebook</a>` : ''}
-                            </div>
+                            <h4 class="text-xl font-semibold text-white">${mp.name}</h4>
+                            <div class="text-sm text-purple-400">${mp.party}</div>
+                            ${roleDisplay}
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-400">Constituency</div>
+                            <div class="text-white font-medium">${mp.constituency}</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <a href="mailto:${mp.email}" class="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            Email
+                        </a>
+                        <a href="tel:${mp.phone}" class="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                            </svg>
+                            Phone
+                        </a>
+                        <a href="${mp.website}" target="_blank" class="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                            Parliament
+                        </a>
+                        <button onclick="GovWhiz.showEmailTemplate()" class="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Contact
+                        </button>
+                    </div>
+                    <div class="text-sm text-gray-400 bg-gray-800/30 rounded p-3">
+                        ✅ Found MP for ${result.postcode} (${result.matchType}). Contact details current as of January 2025.
+                    </div>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="bg-red-900/30 border border-red-500/30 rounded-lg p-6 text-center">
+                    <h4 class="text-red-400 font-semibold mb-2">❌ MP Not Found</h4>
+                    <p class="text-gray-400 mb-4">${result.message}</p>
+                    <div class="space-y-2">
+                        <p class="text-gray-300 font-medium">Try these example postcodes:</p>
+                        <div class="flex flex-wrap gap-2 justify-center">
+                            <button onclick="GovWhiz.tryPostcode('SW1A 1AA')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">SW1A 1AA</button>
+                            <button onclick="GovWhiz.tryPostcode('M1 1AA')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">M1 1AA</button>
+                            <button onclick="GovWhiz.tryPostcode('B1 1AA')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">B1 1AA</button>
+                            <button onclick="GovWhiz.tryPostcode('BS1 1AA')" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 rounded text-sm transition-colors">BS1 1AA</button>
                         </div>
                     </div>
                 </div>
             `;
-        } catch (error) {
-            mpResults.innerHTML = `<div class="bg-red-900/30 border border-red-500/30 rounded-lg p-6 text-center"><h4 class="text-red-400 font-semibold mb-2">❌ MP Not Found</h4><p class="text-gray-400">${error.message || 'An error occurred.'}</p></div>`;
         }
     },
 
-    // Enhanced news loading functionality
-    async loadPoliticalNews(page = 1) {
+    // Try postcode example
+    tryPostcode(postcode) {
+        const postcodeInput = document.getElementById('postcode-input');
+        if (postcodeInput) {
+            postcodeInput.value = postcode;
+            this.findMP();
+        }
+    },
+
+    // Political News functionality
+    loadPoliticalNews() {
         const newsContainer = document.getElementById('news-container');
+        const loadMoreBtn = document.getElementById('load-more-news');
+        
         if (!newsContainer) return;
 
-        // Show loading state
-        newsContainer.innerHTML = `
-            <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
-                <div class="text-cyan-400 mb-2">📰 Loading latest political news...</div>
-                <div class="text-gray-400 text-sm">Fetching updates from reliable sources</div>
-            </div>
-        `;
-
         try {
-            const response = await fetch(`/api/news?page=${page}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (page === 1) {
+                newsContainer.innerHTML = `
+                    <div class="loading-placeholder text-center py-8">
+                        <div class="animate-spin inline-block w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full"></div>
+                        <p class="text-gray-400 mt-4">Loading latest news...</p>
+                    </div>`;
             }
+
+            const response = await fetch(`/api/political-news?page=${page}&limit=${newsPerPage}`);
             
+            if (!response.ok) {
+                throw new Error('Failed to fetch news');
+            }
+
             const data = await response.json();
             
-            if (!data.articles || data.articles.length === 0) {
-                newsContainer.innerHTML = `
-                    <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
-                        <div class="text-yellow-400 mb-2">No news available</div>
-                        <div class="text-gray-400 text-sm">Please check back later for updates</div>
-                    </div>
-                `;
-                return;
+            if (page === 1) {
+                newsContainer.innerHTML = '';
             }
 
-            // Display news articles with improved layout
-            const newsHtml = data.articles.map(article => `
-                <div class="bg-purple-900/30 border border-purple-500/30 rounded-lg p-4 hover:border-purple-400/50 transition-colors">
-                    <div class="flex justify-between items-start mb-3">
-                        <h4 class="text-lg font-semibold text-white">${article.title}</h4>
-                        <div class="text-right">
-                            <span class="text-xs text-purple-400 bg-purple-900/30 px-2 py-1 rounded">${article.source}</span>
-                            <div class="text-xs text-gray-500 mt-1">${this.formatDate(article.publishedAt)}</div>
+            data.articles.forEach(article => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item bg-gray-800/30 rounded-lg overflow-hidden transition-all duration-300 hover:bg-gray-800/50';
+                newsItem.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex items-center gap-2 text-sm text-cyan-400 mb-2">
+                            <i class="fas fa-clock"></i>
+                            <span>${formatDate(new Date(article.publishedAt))}</span>
+                            ${article.source ? `<span class="text-gray-500">•</span>
+                            <span>${article.source}</span>` : ''}
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3 hover:text-cyan-400 transition-colors">
+                            <a href="${article.url}" target="_blank" rel="noopener noreferrer">
+                                ${article.title}
+                            </a>
+                        </h3>
+                        <p class="text-gray-400 mb-4">${article.description}</p>
+                        <div class="flex items-center gap-4">
+                            <a href="${article.url}" target="_blank" rel="noopener noreferrer" 
+                               class="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors">
+                                Read More
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
                     </div>
-                    <p class="text-gray-300 mb-3">${article.description || 'No description available'}</p>
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs px-2 py-1 rounded bg-blue-900/30 text-blue-400">${article.category || 'General'}</span>
-                        </div>
-                        <a href="${article.url}" target="_blank" rel="noopener noreferrer" 
-                           class="text-cyan-400 hover:text-cyan-300 text-sm transition-colors">
-                            Read More →
-                        </a>
-                    </div>
-                </div>
-            `).join('');
+                `;
+                newsContainer.appendChild(newsItem);
+            });
 
-            newsContainer.innerHTML = `
-                <div class="space-y-4">
-                    ${newsHtml}
-                </div>
-                ${this.createPagination(data.totalPages, page)}
-            `;
-
+            if (data.hasMore) {
+                loadMoreBtn.classList.remove('hidden');
+                currentPage = page;
+            } else {
+                loadMoreBtn.classList.add('hidden');
+            }
         } catch (error) {
             console.error('Error loading news:', error);
             newsContainer.innerHTML = `
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
-                    <div class="text-red-400 mb-2">Error loading news</div>
-                    <div class="text-gray-400 text-sm">Please try again later</div>
-                    <button onclick="GovWhiz.loadPoliticalNews(1)" 
-                            class="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                <div class="text-center py-8">
+                    <p class="text-red-400">Failed to load news. Please try again later.</p>
+                    <button onclick="loadPoliticalNews(1)" class="mt-4 px-4 py-2 bg-cyan-900/50 hover:bg-cyan-800/50 rounded-lg text-cyan-400 transition-all duration-300">
                         Retry
                     </button>
-                </div>
-            `;
+                </div>`;
         }
     },
 
-    // Create pagination controls
-    createPagination(totalPages, currentPage) {
-        if (totalPages <= 1) return '';
+    // News Loading Functions
+    currentPage: 1,
+    newsPerPage: 5,
 
-        let paginationHtml = '<div class="flex justify-center gap-2 mt-6">';
+    async loadPoliticalNews(page = 1) {
+        const newsContainer = document.getElementById('news-container');
+        const loadMoreBtn = document.getElementById('load-more-news');
         
-        // Previous button
-        if (currentPage > 1) {
-            paginationHtml += `
-                <button onclick="GovWhiz.loadPoliticalNews(${currentPage - 1})"
-                        class="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
-                    Previous
-                </button>
-            `;
-        }
+        if (!newsContainer) return;
 
-        // Page numbers
-        for (let i = 1; i <= totalPages; i++) {
-            if (i === currentPage) {
-                paginationHtml += `
-                    <button class="px-3 py-1 bg-purple-800 text-white rounded cursor-default">
-                        ${i}
-                    </button>
-                `;
-            } else {
-                paginationHtml += `
-                    <button onclick="GovWhiz.loadPoliticalNews(${i})"
-                            class="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
-                        ${i}
-                    </button>
-                `;
-            }
-        }
-
-        // Next button
-        if (currentPage < totalPages) {
-            paginationHtml += `
-                <button onclick="GovWhiz.loadPoliticalNews(${currentPage + 1})"
-                        class="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
-                    Next
-                </button>
-            `;
-        }
-
-        paginationHtml += '</div>';
-        return paginationHtml;
-    },
-
-    // Improved date formatting
-    formatDate(dateString) {
-        if (!dateString) return 'Date unknown';
-        
         try {
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) {
-                return 'Invalid date';
+            if (page === 1) {
+                newsContainer.innerHTML = `
+                    <div class="loading-placeholder text-center py-8">
+                        <div class="animate-spin inline-block w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full"></div>
+                        <p class="text-gray-400 mt-4">Loading latest news...</p>
+                    </div>`;
             }
+
+            const response = await fetch(`/api/political-news?page=${page}&limit=${newsPerPage}`);
             
-            const now = new Date();
-            const diffTime = Math.abs(now - date);
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (diffDays === 0) {
-                const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
-                if (diffHours === 0) {
-                    const diffMinutes = Math.floor(diffTime / (1000 * 60));
-                    return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
-                }
-                return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+            if (!response.ok) {
+                throw new Error('Failed to fetch news');
             }
+
+            const data = await response.json();
             
-            if (diffDays === 1) {
-                return 'Yesterday';
+            if (page === 1) {
+                newsContainer.innerHTML = '';
             }
-            
-            if (diffDays < 7) {
-                return `${diffDays} days ago`;
-            }
-            
-            return date.toLocaleDateString('en-GB', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
+
+            data.articles.forEach(article => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item bg-gray-800/30 rounded-lg overflow-hidden transition-all duration-300 hover:bg-gray-800/50';
+                newsItem.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex items-center gap-2 text-sm text-cyan-400 mb-2">
+                            <i class="fas fa-clock"></i>
+                            <span>${formatDate(new Date(article.publishedAt))}</span>
+                            ${article.source ? `<span class="text-gray-500">•</span>
+                            <span>${article.source}</span>` : ''}
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3 hover:text-cyan-400 transition-colors">
+                            <a href="${article.url}" target="_blank" rel="noopener noreferrer">
+                                ${article.title}
+                            </a>
+                        </h3>
+                        <p class="text-gray-400 mb-4">${article.description}</p>
+                        <div class="flex items-center gap-4">
+                            <a href="${article.url}" target="_blank" rel="noopener noreferrer" 
+                               class="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors">
+                                Read More
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                newsContainer.appendChild(newsItem);
             });
+
+            if (data.hasMore) {
+                loadMoreBtn.classList.remove('hidden');
+                currentPage = page;
+            } else {
+                loadMoreBtn.classList.add('hidden');
+            }
         } catch (error) {
-            console.error('Error formatting date:', error);
-            return 'Date unknown';
+            console.error('Error loading news:', error);
+            newsContainer.innerHTML = `
+                <div class="text-center py-8">
+                    <p class="text-red-400">Failed to load news. Please try again later.</p>
+                    <button onclick="loadPoliticalNews(1)" class="mt-4 px-4 py-2 bg-cyan-900/50 hover:bg-cyan-800/50 rounded-lg text-cyan-400 transition-all duration-300">
+                        Retry
+                    </button>
+                </div>`;
         }
     },
+
+    formatDate(date) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-GB', options);
+    },
+
+    // Setup news loading event listener
+    document.addEventListener('DOMContentLoaded', () => {
+        const loadMoreBtn = document.getElementById('load-more-news');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => {
+                loadPoliticalNews(currentPage + 1);
+            });
+        }
+        // Initial news load
+        loadPoliticalNews(1);
+    }),
 
     // Contact form handling
     handleContactForm(event) {
@@ -802,15 +750,14 @@ const GovWhiz = {
 
     // Utility function to show messages
     showMessage(container, message, type = 'info') {
-        const colors = {
-            info: 'bg-blue-900/30 border-blue-500/30 text-blue-400',
-            warning: 'bg-yellow-900/30 border-yellow-500/30 text-yellow-400',
-            error: 'bg-red-900/30 border-red-500/30 text-red-400',
-            success: 'bg-green-900/30 border-green-500/30 text-green-400'
+        const classes = {
+            info: 'text-blue-400 bg-blue-900/30 border-blue-500/30',
+            warning: 'text-yellow-400 bg-yellow-900/30 border-yellow-500/30',
+            error: 'text-red-400 bg-red-900/30 border-red-500/30'
         };
 
         container.innerHTML = `
-            <div class="${colors[type]} border rounded-lg p-4 text-center">
+            <div class="border rounded-lg p-4 ${classes[type] || classes.info}">
                 ${message}
             </div>
         `;
@@ -861,420 +808,7 @@ const GovWhiz = {
         `;
 
         document.body.appendChild(modal);
-    },
-
-    // Enhanced Constitution Explorer
-    exploreConstitution(section) {
-        const container = document.getElementById('constitution-content');
-        if (!container) return;
-
-        // Show loading state
-        container.innerHTML = `
-            <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
-                <div class="text-cyan-400 mb-2">📜 Loading Constitution Section...</div>
-                <div class="text-gray-400 text-sm">Retrieving ${section} information</div>
-            </div>
-        `;
-
-        // Fetch constitution data
-        this.fetchConstitutionData(section)
-            .then(data => this.displayConstitutionSection(data, section, container))
-            .catch(error => {
-                console.error('Error loading constitution:', error);
-                container.innerHTML = `
-                    <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
-                        <div class="text-red-400 mb-2">Error loading section</div>
-                        <div class="text-gray-400 text-sm">Please try again later</div>
-                        <button onclick="GovWhiz.exploreConstitution('${section}')" 
-                                class="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
-                            Retry
-                        </button>
-                    </div>
-                `;
-            });
-    },
-
-    // Fetch constitution data
-    async fetchConstitutionData(section) {
-        try {
-            const response = await fetch(`/api/constitution/${section}`);
-            if (!response.ok) throw new Error('Failed to fetch constitution data');
-            return await response.json();
-        } catch (error) {
-            console.error('Constitution fetch error:', error);
-            throw error;
-        }
-    },
-
-    // Display constitution section
-    displayConstitutionSection(data, section, container) {
-        const sectionTitles = {
-            'fundamental-rights': 'Fundamental Rights',
-            'government-structure': 'Government Structure',
-            'parliamentary-system': 'Parliamentary System',
-            'judicial-system': 'Judicial System',
-            'devolution': 'Devolution',
-            'elections': 'Elections',
-            'citizenship': 'Citizenship',
-            'amendment-process': 'Amendment Process'
-        };
-
-        const title = sectionTitles[section] || section.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
-        const content = `
-            <div class="space-y-6">
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
-                    <h2 class="text-2xl font-bold text-white mb-4">${title}</h2>
-                    <div class="prose prose-invert max-w-none">
-                        ${this.formatConstitutionContent(data.content)}
-                    </div>
-                </div>
-
-                ${this.renderRelatedSections(data.relatedSections)}
-
-                ${this.renderHistoricalContext(data.historicalContext)}
-
-                ${this.renderKeyCases(data.keyCases)}
-
-                ${this.renderAmendments(data.amendments)}
-            </div>
-        `;
-
-        container.innerHTML = content;
-        this.setupConstitutionNavigation(section);
-    },
-
-    // Format constitution content
-    formatConstitutionContent(content) {
-        if (!content) return '<p class="text-gray-400">No content available for this section.</p>';
-
-        return content
-            .split('\n\n')
-            .map(paragraph => `<p class="text-gray-300 mb-4">${paragraph}</p>`)
-            .join('');
-    },
-
-    // Render related sections
-    renderRelatedSections(sections) {
-        if (!sections || sections.length === 0) return '';
-
-        return `
-            <div class="bg-purple-900/30 border border-purple-500/30 rounded-lg p-6">
-                <h3 class="text-xl font-semibold text-white mb-4">Related Sections</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    ${sections.map(section => `
-                        <button onclick="GovWhiz.exploreConstitution('${section.id}')"
-                                class="text-left p-4 bg-purple-800/30 hover:bg-purple-800/50 rounded-lg transition-colors">
-                            <h4 class="text-lg font-medium text-white mb-2">${section.title}</h4>
-                            <p class="text-gray-400 text-sm">${section.description}</p>
-                        </button>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-    },
-
-    // Render historical context
-    renderHistoricalContext(context) {
-        if (!context) return '';
-
-        return `
-            <div class="bg-blue-900/30 border border-blue-500/30 rounded-lg p-6">
-                <h3 class="text-xl font-semibold text-white mb-4">Historical Context</h3>
-                <div class="prose prose-invert max-w-none">
-                    ${this.formatConstitutionContent(context)}
-                </div>
-            </div>
-        `;
-    },
-
-    // Render key cases
-    renderKeyCases(cases) {
-        if (!cases || cases.length === 0) return '';
-
-        return `
-            <div class="bg-green-900/30 border border-green-500/30 rounded-lg p-6">
-                <h3 class="text-xl font-semibold text-white mb-4">Key Cases</h3>
-                <div class="space-y-4">
-                    ${cases.map(case_ => `
-                        <div class="bg-green-800/30 rounded-lg p-4">
-                            <h4 class="text-lg font-medium text-white mb-2">${case_.title}</h4>
-                            <p class="text-gray-300 mb-2">${case_.summary}</p>
-                            <div class="flex items-center gap-2 text-sm text-gray-400">
-                                <span>${case_.year}</span>
-                                <span>•</span>
-                                <span>${case_.court}</span>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-    },
-
-    // Render amendments
-    renderAmendments(amendments) {
-        if (!amendments || amendments.length === 0) return '';
-
-        return `
-            <div class="bg-yellow-900/30 border border-yellow-500/30 rounded-lg p-6">
-                <h3 class="text-xl font-semibold text-white mb-4">Recent Amendments</h3>
-                <div class="space-y-4">
-                    ${amendments.map(amendment => `
-                        <div class="bg-yellow-800/30 rounded-lg p-4">
-                            <div class="flex justify-between items-start mb-2">
-                                <h4 class="text-lg font-medium text-white">${amendment.title}</h4>
-                                <span class="text-xs text-yellow-400 bg-yellow-900/30 px-2 py-1 rounded">
-                                    ${amendment.date}
-                                </span>
-                            </div>
-                            <p class="text-gray-300">${amendment.description}</p>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-    },
-
-    // Setup constitution navigation
-    setupConstitutionNavigation(currentSection) {
-        const navItems = document.querySelectorAll('.constitution-nav-item');
-        navItems.forEach(item => {
-            const section = item.getAttribute('data-section');
-            if (section === currentSection) {
-                item.classList.add('bg-purple-600', 'text-white');
-                item.classList.remove('text-gray-400', 'hover:bg-purple-900/30');
-            } else {
-                item.classList.remove('bg-purple-600', 'text-white');
-                item.classList.add('text-gray-400', 'hover:bg-purple-900/30');
-            }
-        });
-    },
-
-    // Enhanced AI Summarization
-    async summarizeContent(content, type) {
-        const container = document.getElementById('summary-container');
-        if (!container) return;
-
-        // Show loading state
-        container.innerHTML = `
-            <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
-                <div class="text-cyan-400 mb-2">🤖 AI Analysis in Progress...</div>
-                <div class="text-gray-400 text-sm">Processing ${type} content</div>
-            </div>
-        `;
-
-        try {
-            const response = await fetch('/api/summarize', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    content,
-                    type
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to generate summary');
-            }
-
-            const data = await response.json();
-            this.displaySummary(data, container);
-
-        } catch (error) {
-            console.error('Summarization error:', error);
-            container.innerHTML = `
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
-                    <div class="text-red-400 mb-2">Summarization Failed</div>
-                    <div class="text-gray-400 text-sm">Please try again later</div>
-                    <button onclick="GovWhiz.summarizeContent('${content}', '${type}')" 
-                            class="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
-                        Retry
-                    </button>
-                </div>
-            `;
-        }
-    },
-
-    // Display summary
-    displaySummary(data, container) {
-        const { summary, keyPoints, sentiment, topics, readability } = data;
-
-        const content = `
-            <div class="space-y-6">
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
-                    <h3 class="text-xl font-semibold text-white mb-4">AI Summary</h3>
-                    <div class="prose prose-invert max-w-none">
-                        ${this.formatSummaryContent(summary)}
-                    </div>
-                </div>
-
-                ${this.renderKeyPoints(keyPoints)}
-
-                ${this.renderSentimentAnalysis(sentiment)}
-
-                ${this.renderTopics(topics)}
-
-                ${this.renderReadabilityMetrics(readability)}
-            </div>
-        `;
-
-        container.innerHTML = content;
-    },
-
-    // Format summary content
-    formatSummaryContent(content) {
-        if (!content) return '<p class="text-gray-400">No summary available.</p>';
-
-        return content
-            .split('\n\n')
-            .map(paragraph => `<p class="text-gray-300 mb-4">${paragraph}</p>`)
-            .join('');
-    },
-
-    // Render key points
-    renderKeyPoints(points) {
-        if (!points || points.length === 0) return '';
-
-        return `
-            <div class="bg-purple-900/30 border border-purple-500/30 rounded-lg p-6">
-                <h3 class="text-xl font-semibold text-white mb-4">Key Points</h3>
-                <ul class="space-y-3">
-                    ${points.map(point => `
-                        <li class="flex items-start gap-3">
-                            <span class="text-purple-400 mt-1">•</span>
-                            <span class="text-gray-300">${point}</span>
-                        </li>
-                    `).join('')}
-                </ul>
-            </div>
-        `;
-    },
-
-    // Render sentiment analysis
-    renderSentimentAnalysis(sentiment) {
-        if (!sentiment) return '';
-
-        const getSentimentColor = (score) => {
-            if (score > 0.6) return 'text-green-400';
-            if (score < 0.4) return 'text-red-400';
-            return 'text-yellow-400';
-        };
-
-        const getSentimentLabel = (score) => {
-            if (score > 0.6) return 'Positive';
-            if (score < 0.4) return 'Negative';
-            return 'Neutral';
-        };
-
-        return `
-            <div class="bg-blue-900/30 border border-blue-500/30 rounded-lg p-6">
-                <h3 class="text-xl font-semibold text-white mb-4">Sentiment Analysis</h3>
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-300">Overall Sentiment</span>
-                        <span class="${getSentimentColor(sentiment.score)} font-medium">
-                            ${getSentimentLabel(sentiment.score)}
-                        </span>
-                    </div>
-                    <div class="w-full bg-gray-700 rounded-full h-2">
-                        <div class="bg-blue-500 h-2 rounded-full" 
-                             style="width: ${sentiment.score * 100}%"></div>
-                    </div>
-                    ${sentiment.aspects ? `
-                        <div class="mt-4 space-y-2">
-                            ${Object.entries(sentiment.aspects).map(([aspect, score]) => `
-                                <div class="flex items-center justify-between">
-                                    <span class="text-gray-400 text-sm">${aspect}</span>
-                                    <span class="${getSentimentColor(score)} text-sm">
-                                        ${getSentimentLabel(score)}
-                                    </span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    },
-
-    // Render topics
-    renderTopics(topics) {
-        if (!topics || topics.length === 0) return '';
-
-        return `
-            <div class="bg-green-900/30 border border-green-500/30 rounded-lg p-6">
-                <h3 class="text-xl font-semibold text-white mb-4">Key Topics</h3>
-                <div class="flex flex-wrap gap-2">
-                    ${topics.map(topic => `
-                        <span class="px-3 py-1 bg-green-800/30 text-green-400 rounded-full text-sm">
-                            ${topic}
-                        </span>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-    },
-
-    // Render readability metrics
-    renderReadabilityMetrics(metrics) {
-        if (!metrics) return '';
-
-        const getReadabilityColor = (score) => {
-            if (score >= 80) return 'text-green-400';
-            if (score >= 60) return 'text-yellow-400';
-            return 'text-red-400';
-        };
-
-        const getReadabilityLabel = (score) => {
-            if (score >= 80) return 'Very Readable';
-            if (score >= 60) return 'Moderately Readable';
-            return 'Complex';
-        };
-
-        return `
-            <div class="bg-yellow-900/30 border border-yellow-500/30 rounded-lg p-6">
-                <h3 class="text-xl font-semibold text-white mb-4">Readability Analysis</h3>
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-yellow-800/30 rounded-lg p-4">
-                            <div class="text-gray-400 text-sm mb-1">Readability Score</div>
-                            <div class="flex items-center justify-between">
-                                <span class="${getReadabilityColor(metrics.score)} text-2xl font-bold">
-                                    ${metrics.score}
-                                </span>
-                                <span class="${getReadabilityColor(metrics.score)} text-sm">
-                                    ${getReadabilityLabel(metrics.score)}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="bg-yellow-800/30 rounded-lg p-4">
-                            <div class="text-gray-400 text-sm mb-1">Reading Level</div>
-                            <div class="text-white text-2xl font-bold">
-                                ${metrics.readingLevel}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-yellow-800/30 rounded-lg p-4">
-                            <div class="text-gray-400 text-sm mb-1">Words</div>
-                            <div class="text-white text-xl font-bold">${metrics.wordCount}</div>
-                        </div>
-                        <div class="bg-yellow-800/30 rounded-lg p-4">
-                            <div class="text-gray-400 text-sm mb-1">Sentences</div>
-                            <div class="text-white text-xl font-bold">${metrics.sentenceCount}</div>
-                        </div>
-                        <div class="bg-yellow-800/30 rounded-lg p-4">
-                            <div class="text-gray-400 text-sm mb-1">Avg. Word Length</div>
-                            <div class="text-white text-xl font-bold">${metrics.avgWordLength}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    },
+    }
 };
 
 // MP Lookup Core Functions
