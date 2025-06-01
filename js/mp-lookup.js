@@ -8,6 +8,8 @@ class MPLookupSystem {
         this.postcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i;
         this.apiEndpoint = '/api/mp-lookup';
         this.postcodeApiEndpoint = 'https://api.postcodes.io/postcodes';
+        this.guardianApiEndpoint = '/api/news/guardian';
+        this.bbcApiEndpoint = '/api/news/bbc';
     }
 
     validatePostcode(postcode) {
@@ -36,18 +38,23 @@ class MPLookupSystem {
                 this.cache.delete(postcode); // Clear expired cache
             }
 
-            // First, validate and get constituency using PostcodesIO
+            // Get constituency and MP data
             const constituencyData = await this.getConstituencyFromPostcode(postcode);
             if (!constituencyData.success) {
                 throw new Error(constituencyData.error || 'Invalid postcode');
             }
 
-            // Then get MP data using constituency
             const mpData = await this.findMPByConstituency(constituencyData.constituency);
+            const newsData = await this.getRelevantNews(mpData.name, constituencyData.constituency);
             
             const result = {
                 found: true,
-                mp: mpData,
+                mp: {
+                    ...mpData,
+                    news: newsData,
+                    constituency: constituencyData.constituency,
+                    location: constituencyData.location
+                },
                 constituency: constituencyData.constituency,
                 source: 'api'
             };
@@ -133,15 +140,36 @@ class MPLookupSystem {
         }
     }
 
+    /**
+     * Get relevant news articles about the MP or constituency from Guardian and BBC
+     */
+    async getRelevantNews(mpName, constituency) {
+        try {
+            const [guardianNews, bbcNews] = await Promise.all([
+                fetch(`${this.guardianApiEndpoint}?q=${encodeURIComponent(`${mpName} ${constituency}`)}`).then(r => r.json()),
+                fetch(`${this.bbcApiEndpoint}?q=${encodeURIComponent(`${mpName} ${constituency}`)}`).then(r => r.json())
+            ]);
+
+            return {
+                guardian: guardianNews.articles || [],
+                bbc: bbcNews.articles || []
+            };
+        } catch (error) {
+            console.error('News fetch error:', error);
+            return { guardian: [], bbc: [] };
+        }
+    }
+
     // Email template generator
     getEmailTemplate(type, mpName, constituency) {
         const templates = {
             support: `Dear ${mpName},\n\nAs your constituent in ${constituency}, I am writing to express my support for [Bill Name]. I believe this legislation is important because [Your Reasons].\n\nI would appreciate knowing your position on this matter and whether you plan to support it in Parliament.\n\nYours sincerely,\n[Your Name]\n[Your Address]`,
             oppose: `Dear ${mpName},\n\nAs your constituent in ${constituency}, I am writing to express my concerns about [Bill Name]. I believe this legislation could have negative impacts because [Your Reasons].\n\nI would appreciate knowing your position on this matter and how you plan to vote.\n\nYours sincerely,\n[Your Name]\n[Your Address]`,
             meeting: `Dear ${mpName},\n\nI am a constituent in ${constituency} and would like to request a meeting to discuss [Topic]. This matter is important to me because [Your Reasons].\n\nI am available [Suggest Times] and would appreciate the opportunity to speak with you.\n\nYours sincerely,\n[Your Name]\n[Your Address]`,
-            question: `Dear ${mpName},\n\nAs your constituent in ${constituency}, I would like to know your position on [Issue/Topic]. This matter is important to me because [Your Reasons].\n\nI look forward to hearing your thoughts on this issue.\n\nYours sincerely,\n[Your Name]\n[Your Address]`
+            question: `Dear ${mpName},\n\nAs your constituent in ${constituency}, I would like to know your position on [Issue/Topic]. This matter is important to me because [Your Reasons].\n\nI look forward to hearing your thoughts on this issue.\n\nYours sincerely,\n[Your Name]\n[Your Address]`,
+            contact: `Dear ${mpName},\n\nI am a constituent in ${constituency} and I am writing regarding [Your Topic].\n\n[Your Message]\n\nI look forward to hearing from you.\n\nYours sincerely,\n[Your Name]\n[Your Address]\n[Your Email]\n[Your Phone]`
         };
-        return templates[type] || templates.question;
+        return templates[type] || templates.contact;
     }
 }
 

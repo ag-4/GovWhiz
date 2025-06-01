@@ -218,6 +218,70 @@ def save_to_json(articles_data, filename="data/latest_news.json"):
     except Exception as e:
         print(f"❌ Error saving to JSON: {e}")
 
+def fetch_mp_news(mp_name: str, constituency: str, num_articles: int = 5) -> List[Dict]:
+    """Fetch news specifically about an MP"""
+    print(f"🔍 Fetching news for {mp_name} ({constituency})...")
+
+    all_articles = []
+    
+    # Search parameters for MP
+    search_terms = [
+        f'"{mp_name}"',
+        f'"{constituency}"',
+        'parliament OR commons'
+    ]
+
+    # Add MP-specific feeds
+    NEWS_SOURCES["guardian_mp"] = {
+        "name": "The Guardian",
+        "url": f"https://www.theguardian.com/politics/search.atom?q={'+'.join(search_terms)}",
+        "description": "Guardian MP Coverage",
+        "category": "MP News"
+    }
+    
+    NEWS_SOURCES["bbc_mp"] = {
+        "name": "BBC News",
+        "url": f"http://feeds.bbci.co.uk/news/politics/rss.xml",
+        "description": "BBC MP Coverage",
+        "category": "MP News"
+    }
+
+    # Fetch from all sources
+    for source_key in ["guardian_mp", "bbc_mp"]:
+        articles = fetch_news_from_source(source_key, num_articles)
+        
+        # Filter for MP relevance
+        filtered_articles = []
+        for article in articles:
+            content = (article['title'] + ' ' + article['original_summary']).lower()
+            if mp_name.lower() in content or constituency.lower() in content:
+                article['relevance'] = 'direct' if mp_name.lower() in content else 'constituency'
+                filtered_articles.append(article)
+        
+        all_articles.extend(filtered_articles)
+        time.sleep(1)  # Respectful delay between requests
+
+    # Sort by relevance and date
+    def sort_key(article):
+        relevance_score = 2 if article.get('relevance') == 'direct' else 1
+        try:
+            date = datetime.strptime(article['published'], '%a, %d %b %Y %H:%M:%S %Z')
+            return (-relevance_score, -date.timestamp())
+        except:
+            return (-relevance_score, 0)
+
+    all_articles.sort(key=sort_key)
+
+    # Take top articles
+    top_articles = all_articles[:num_articles]
+
+    if not top_articles:
+        print(f"⚠️ No news found specifically about {mp_name}")
+    else:
+        print(f"✅ Found {len(top_articles)} relevant articles about {mp_name}")
+
+    return top_articles
+
 def main():
     """Main function to run the enhanced news fetcher with AI summarization"""
     print("🚀 Enhanced UK Parliament News Scraper with AI Summarization")

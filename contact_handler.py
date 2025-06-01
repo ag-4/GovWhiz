@@ -103,6 +103,51 @@ def send_contact_email(data):
     except Exception as e:
         return False, f"Error sending email: {str(e)}"
 
+# Constants
+RECIPIENT_EMAIL = 'owl47d@gmail.com'
+MAX_ATTEMPTS_PER_HOUR = 5
+SPAM_KEYWORDS = ['viagra', 'lottery', 'winner', 'forex', 'crypto']
+
+def detect_spam(text):
+    """Use simple rules to detect spam messages"""
+    text = text.lower()
+    
+    # Check for spam keywords
+    if any(keyword in text for keyword in SPAM_KEYWORDS):
+        return True
+        
+    # Check for excessive caps (shouting)
+    caps_ratio = sum(1 for c in text if c.isupper()) / len(text) if text else 0
+    if caps_ratio > 0.5:
+        return True
+        
+    # Check for repetitive characters
+    if re.search(r'(.)\1{4,}', text):
+        return True
+        
+    return False
+
+def check_rate_limit(email):
+    """Check if user has exceeded rate limit"""
+    try:
+        with open('data/contact_log.json', 'r') as f:
+            logs = [json.loads(line) for line in f if line.strip()]
+            
+        # Get attempts in the last hour
+        one_hour_ago = datetime.now().timestamp() - 3600
+        recent_attempts = sum(
+            1 for log in logs 
+            if log['email'] == email 
+            and datetime.fromisoformat(log['timestamp']).timestamp() > one_hour_ago
+        )
+        
+        return recent_attempts < MAX_ATTEMPTS_PER_HOUR
+    except FileNotFoundError:
+        return True
+    except Exception as e:
+        print(f"Rate limit check error: {e}")
+        return True
+
 def handle_contact_form():
     """Handle contact form submissions with improved validation and error handling"""
     try:
@@ -111,16 +156,6 @@ def handle_contact_form():
             return jsonify({
                 "success": False,
                 "error": "No data provided"
-            }), 400
-
-        # Required fields
-        required_fields = ['name', 'email', 'subject', 'message']
-        missing_fields = [field for field in required_fields if not data.get(field)]
-        
-        if missing_fields:
-            return jsonify({
-                "success": False,
-                "error": f"Missing required fields: {', '.join(missing_fields)}"
             }), 400
 
         # Extract and clean data
@@ -132,49 +167,39 @@ def handle_contact_form():
         message = data.get('message', '').strip()
         mp_id = data.get('mp_id', '').strip()
 
-        # Validate name
+        # Perform validations
         if len(name) < 2:
-            return jsonify({
-                "success": False,
-                "error": "Name must be at least 2 characters long"
-            }), 400
+            return jsonify({"success": False, "error": "Name must be at least 2 characters long"}), 400
 
-        # Validate email
         if not validate_email(email):
-            return jsonify({
-                "success": False,
-                "error": "Invalid email format"
-            }), 400
+            return jsonify({"success": False, "error": "Invalid email format"}), 400
 
-        # Validate phone if provided
         if phone and not validate_phone(phone):
-            return jsonify({
-                "success": False,
-                "error": "Invalid UK phone number format"
-            }), 400
+            return jsonify({"success": False, "error": "Invalid UK phone number format"}), 400
 
-        # Validate postcode if provided
         if postcode and not validate_postcode(postcode):
-            return jsonify({
-                "success": False,
-                "error": "Invalid UK postcode format"
-            }), 400
+            return jsonify({"success": False, "error": "Invalid UK postcode format"}), 400
 
-        # Validate subject
         if len(subject) < 5:
-            return jsonify({
-                "success": False,
-                "error": "Subject must be at least 5 characters long"
-            }), 400
+            return jsonify({"success": False, "error": "Subject must be at least 5 characters long"}), 400
 
-        # Validate message
         if len(message) < 10:
+            return jsonify({"success": False, "error": "Message must be at least 10 characters long"}), 400
+
+        # Check for spam
+        if detect_spam(message) or detect_spam(subject):
+            log_contact_attempt(data, False)
+            return jsonify({"success": False, "error": "Your message was flagged as potential spam"}), 400
+
+        # Check rate limit
+        if not check_rate_limit(email):
+            log_contact_attempt(data, False)
             return jsonify({
                 "success": False,
-                "error": "Message must be at least 10 characters long"
-            }), 400
+                "error": "Too many attempts. Please try again later."
+            }), 429
 
-        # Prepare contact data
+        # Prepare and send email
         contact_data = {
             "name": name,
             "email": email,
@@ -188,11 +213,22 @@ def handle_contact_form():
             "user_agent": request.user_agent.string
         }
 
-        # Here you would typically save the contact data to a database
-        # For now, we'll just return success
+        # Update recipient email
+        data['mp_email'] = RECIPIENT_EMAIL
+
+        # Send the email
+        success, message = send_contact_email(data)
+        
+        if not success:
+            log_contact_attempt(data, False)
+            return jsonify({"success": False, "error": message}), 500
+
+        # Log successful attempt
+        log_contact_attempt(data, True)
+
         return jsonify({
             "success": True,
-            "message": "Contact form submitted successfully",
+            "message": "Your message has been sent successfully",
             "data": {
                 "name": name,
                 "email": email,
@@ -202,9 +238,7 @@ def handle_contact_form():
         })
 
     except Exception as e:
-        # Log the error (in a production environment)
         print(f"Contact form error: {str(e)}")
-        
         return jsonify({
             "success": False,
             "error": "An unexpected error occurred. Please try again later."
