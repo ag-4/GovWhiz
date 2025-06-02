@@ -43,7 +43,10 @@ jobs:
       - python/install-packages
       - run:
           name: Install pytest
-          command: pip install pytest
+          command: pip install --user pytest
+      - run:
+          name: Add user base binary to PATH
+          command: echo 'export PATH="$PATH:~/.local/bin"' >> $BASH_ENV
       - run:
           name: Run tests
           command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
